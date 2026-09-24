@@ -8,7 +8,7 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 
 | What | Where |
 |---|---|
-| Live site (Netlify) | https://sol-atlas.netlify.app, pending the first deploy: see [Open items](#open-items) |
+| Live site (Netlify) | https://sol-atlas.netlify.app (auto-deploys from `claude/busy-heisenberg-8gasem` on every push) |
 | Netlify project | https://app.netlify.com/projects/sol-atlas (site id `3cde891d-2654-4f7a-b31d-30e5ad235ca8`, team `saracen66`) |
 | GitHub | https://github.com/saracen66/the-sol-explorers, branch `claude/busy-heisenberg-8gasem` |
 | Hosted preview (Claude artifact, private) | https://claude.ai/artifact/Y112MaLBdtadbz3UQCbHu2 |
@@ -112,7 +112,7 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | Loading screen said "Rajshahi" (from last year's team) | Location removed (script says DIU, Dhaka) |
 | GitHub push refused (403) | Owner connected GitHub to Claude; pushed |
 | Source zip too big to send in chat (39 MB > 30 MB) | Sent a code-only zip; full repo is on GitHub |
-| Netlify upload blocked from the build sandbox (`api.netlify.com` denied) | Site created and `netlify.toml` added; first deploy to be done by linking the GitHub repo in Netlify |
+| Netlify upload blocked from the build sandbox (`api.netlify.com` denied) | Owner linked the GitHub repo in Netlify; Netlify now builds on every push |
 
 **7. Commits on `claude/busy-heisenberg-8gasem`**
 
@@ -128,6 +128,17 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 - A Claude artifact preview was published (private link above).
 - Netlify project `sol-atlas` was created on team `saracen66`.
 - `netlify.toml` builds with `npm run build`, publishes `dist/`, and sets cache headers.
+
+### 2026-09-24: live on Netlify
+
+- The owner linked `saracen66/the-sol-explorers` to the Netlify project `sol-atlas`. Netlify detected Vite and used `netlify.toml`.
+- First production deploy `6ab56524`, from commit `97b6bd4` on `claude/busy-heisenberg-8gasem`:
+  - state **ready**, built in 46 s, published 18:00:55 UTC;
+  - both header rules applied (cache headers for `/data/*` and `/assets/*`);
+  - 25 files uploaded: `index.html`, the JS/CSS bundle and all 22 data files. The 16 font files were unchanged, so Netlify didn't re-upload them.
+- URLs: https://sol-atlas.netlify.app (production) and https://claude-busy-heisenberg-8gasem--sol-atlas.netlify.app (branch).
+- **Not yet checked in a browser:** the build machine's network policy blocks `*.netlify.app`, so the live page still needs someone to open it.
+- From now on, every push to the branch redeploys the site automatically. The commit that added this entry is the first test of that.
 
 ---
 
@@ -148,8 +159,9 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 
 ## Open items
 
-- [ ] **First Netlify deploy.** Link the repo at https://app.netlify.com/projects/sol-atlas → Project configuration → Build & deploy → Link repository → `saracen66/the-sol-explorers`. Or run `netlify deploy --build --prod` locally (see README → Deploy).
-- [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then point Netlify's production branch at `main`.
+- [x] First Netlify deploy (repo linked, production deploy `6ab56524` from `97b6bd4`, 2026-09-24 18:00 UTC).
+- [ ] Open https://sol-atlas.netlify.app in a desktop browser and click through orbit → crater → Marswalk zone. The build machine can't reach netlify.app, so the live page hasn't been checked in a browser yet.
+- [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers (GPU frame rate; try `?q=low` if slow).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`).
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
