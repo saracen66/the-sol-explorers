@@ -122,7 +122,7 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `8187bda` | 2026-09-24 17:11 | Match the demo to the pitch script's storyboard |
 | `e52c2e5` | 2026-09-24 17:26 | Serve heightmaps as lossless PNGs and fix point-of-no-return sampling |
 | `c3ce972` | 2026-09-24 17:49 | Add Netlify build config |
-| `b3b2e6e` | 2026-09-24 17:58 | Rewrite README, add screenshots and a project log |
+| `b3b2e6e` | 2026-09-24 17:52 | Rewrite README, add screenshots and a project log |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
