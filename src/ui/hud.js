@@ -22,7 +22,10 @@ export class Hud {
     this.right = $('panel-right');
     this.el = $('hud');
     $('btn-sources').onclick = () => this.showSources();
-    $('btn-cine').onclick = () => app.director.toggle();
+    $('btn-cine').onclick = () => { this.closeSheet(); app.director.toggle(); };
+    // phones: the two side panels become one bottom sheet, opened from these tabs
+    $('btn-info').onclick = () => this.toggleSheet('left');
+    $('btn-layers').onclick = () => this.toggleSheet('right');
     $('modal-x').onclick = () => ($('modal').hidden = true);
     $('modal').onclick = (e) => { if (e.target.id === 'modal') $('modal').hidden = true; };
     this.tickTelemetry();
@@ -103,11 +106,30 @@ export class Hud {
     f.animate([{ opacity: 0 }, { opacity: peak, offset: 0.35 }, { opacity: 0 }], { duration: dur, easing: 'ease-out' });
   }
 
-  clearPanels() { this.left.innerHTML = ''; this.right.innerHTML = ''; }
+  clearPanels() { this.left.innerHTML = ''; this.right.innerHTML = ''; this.closeSheet(); }
+
+  toggleSheet(side) {
+    const b = document.body;
+    const open = b.classList.contains(`sheet-${side}`);
+    this.closeSheet();
+    if (!open) {
+      b.classList.add('sheet-open', `sheet-${side}`);
+      $(side === 'left' ? 'btn-info' : 'btn-layers').classList.add('on');
+    }
+  }
+
+  closeSheet() {
+    document.body.classList.remove('sheet-open', 'sheet-left', 'sheet-right');
+    $('btn-info').classList.remove('on');
+    $('btn-layers').classList.remove('on');
+  }
+
+  sheetLabel(text) { $('btn-info').textContent = text; }
 
   // ------------------------------------------------------------------ ORBIT
   renderOrbit(orbit) {
     this.setCrumbs('orbit');
+    this.sheetLabel('JEZERO');
     const jz = LANDING_SITES[0];
     const sites = LANDING_SITES.map((s) => `
       <button class="row ${s.status === 'active' ? 'active' : s.status === 'fiction' ? '' : 'locked'}" data-site="${s.id}">
@@ -132,10 +154,11 @@ export class Hud {
         <div class="sec-h">Landing sites <span class="tag">${LANDING_SITES.length}</span></div>
         <div class="rows">${sites}</div>
       </div>`;
-    $('btn-descend').onclick = () => this.app.descendToJezero();
+    $('btn-descend').onclick = () => { this.closeSheet(); this.app.descendToJezero(); };
     this.left.querySelectorAll('[data-site]').forEach((b) => {
       b.onclick = () => {
         const s = LANDING_SITES.find((x) => x.id === b.dataset.site);
+        this.closeSheet();
         if (s.status === 'active') this.app.descendToJezero();
         else this.app.orbitLookAt(s);
       };
@@ -196,6 +219,7 @@ export class Hud {
   renderTerrain(view, extraLeft) {
     const site = view.id === 'site';
     this.setCrumbs(view.id);
+    this.sheetLabel(site ? 'PLANNER' : 'CRATER');
     const rows = TERRAIN_LAYERS.map((l) => `
       <div class="layer ${l.locked ? 'locked' : ''} ${view.layers[l.id] ? 'on' : ''}" data-layer="${l.id}" title="${l.locked ? 'Planned for phase 2' : ''}">
         <span class="box">${l.locked ? '' : ''}</span>
@@ -247,7 +271,7 @@ export class Hud {
       if (site) this.app.planner.refreshSun();
       if (view.sun && view.sun.elevation < 0) this.toast('IT IS NIGHT AT JEZERO RIGHT NOW');
     };
-    $('b-reset').onclick = () => view.flyTo(view.overview(), 1.6);
+    $('b-reset').onclick = () => { this.closeSheet(); view.flyTo(view.overview(), 1.6); };
     this.sunInfo(view);
     this.terrainLegend(view);
 
@@ -310,9 +334,9 @@ export class Hud {
         <div class="sec-h">Points of interest</div>
         <div class="rows">${pois}</div>
       </div>`;
-    $('btn-zone').onclick = () => this.app.enterSite();
+    $('btn-zone').onclick = () => { this.closeSheet(); this.app.enterSite(); };
     this.left.querySelectorAll('[data-poi]').forEach((b) => {
-      b.onclick = () => this.app.onPOIClick(view, view.poiItems.find((i) => i.poi.id === b.dataset.poi).poi);
+      b.onclick = () => { this.closeSheet(); this.app.onPOIClick(view, view.poiItems.find((i) => i.poi.id === b.dataset.poi).poi); };
     });
   }
 
@@ -384,8 +408,8 @@ export class Hud {
         <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit. 1 L O₂ ≈ 20.1 kJ. Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
       </div>`;
     this.left.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => pl.remove(+b.dataset.rm); });
-    $('b-add').onclick = () => { pl.addMode = !pl.addMode; this.renderPlanner(pl); };
-    $('b-sim').onclick = () => (pl.sim ? pl.stopSim() : pl.startSim());
+    $('b-add').onclick = () => { pl.addMode = !pl.addMode; this.renderPlanner(pl); if (pl.addMode) this.closeSheet(); };
+    $('b-sim').onclick = () => { this.closeSheet(); pl.sim ? pl.stopSim() : pl.startSim(); };
     $('b-plan').onclick = () => this.app.resetPlan();
     $('b-ret').onclick = () => { pl.returnToStart = !pl.returnToStart; pl.compute(); };
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };

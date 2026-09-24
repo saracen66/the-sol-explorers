@@ -4,7 +4,9 @@ import * as THREE from 'three';
 export class Crossfade {
   constructor(renderer) {
     this.renderer = renderer;
-    const opts = { type: THREE.HalfFloatType, samples: 4 };
+    // No MSAA and at most 1x resolution: the dissolve lasts about a second and is
+    // mostly motion, so this halves or quarters the cost of rendering two scenes at once.
+    const opts = { type: THREE.HalfFloatType, samples: 0, depthBuffer: true };
     this.a = new THREE.WebGLRenderTarget(2, 2, opts);
     this.b = new THREE.WebGLRenderTarget(2, 2, opts);
     this.mat = new THREE.ShaderMaterial({
@@ -35,8 +37,9 @@ export class Crossfade {
   }
 
   setSize(w, h, pr) {
-    this.a.setSize(w * pr, h * pr);
-    this.b.setSize(w * pr, h * pr);
+    const s = Math.min(pr, 1);
+    this.a.setSize(Math.round(w * s), Math.round(h * s));
+    this.b.setSize(Math.round(w * s), Math.round(h * s));
     this.mat.uniforms.uAspect.value = w / h;
   }
 
@@ -57,13 +60,23 @@ export class Streaks {
     this.g = canvas.getContext('2d');
     this.parts = Array.from({ length: 140 }, () => this.spawn(Math.random()));
     this.intensity = 0;
+    this.active = false;
+    this.c.style.display = 'none';
   }
   spawn(r = 0) { return { a: Math.random() * Math.PI * 2, r: 0.05 + r * 0.9, v: 0.4 + Math.random() * 1.4, w: 0.5 + Math.random() * 1.5 }; }
-  resize(w, h, pr) { this.c.width = w * pr; this.c.height = h * pr; this.pr = pr; }
+  resize(w, h, pr) {
+    const s = Math.min(pr, 1.5);
+    this.c.width = Math.round(w * s); this.c.height = Math.round(h * s); this.pr = s;
+  }
   update(dt) {
     const g = this.g, W = this.c.width, H = this.c.height;
+    if (this.intensity < 0.01) {
+      // nothing to draw: clear once, then hide the canvas so the browser stops compositing it
+      if (this.active) { g.clearRect(0, 0, W, H); this.c.style.display = 'none'; this.active = false; }
+      return;
+    }
+    if (!this.active) { this.c.style.display = ''; this.active = true; }
     g.clearRect(0, 0, W, H);
-    if (this.intensity < 0.01) return;
     const R = Math.hypot(W, H) * 0.5;
     g.lineCap = 'round';
     for (const p of this.parts) {

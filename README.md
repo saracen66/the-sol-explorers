@@ -21,6 +21,7 @@ This is the **phase-1 prototype** made for the 240-second local-judging video. J
 - [The science behind the numbers](#the-science-behind-the-numbers)
 - [Places on the map](#places-on-the-map)
 - [Controls](#controls)
+- [Phones, tablets and performance](#phones-tablets-and-performance)
 - [Recording the pitch video](#recording-the-pitch-video)
 - [Run it locally](#run-it-locally)
 - [Rebuild the NASA data](#rebuild-the-nasa-data)
@@ -127,6 +128,26 @@ The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séíta
 | Click | Jezero, or the lock-on, to descend | the Marswalk zone to enter it. In the zone, click a named place (e.g. Three Forks) to add it as a stop, or press **+ ADD STOP** and click anywhere |
 | Keys | `1`–`3` layers · `G` grid · `Space` rotation · `Enter` descend | `1`–`6` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation |
 | Anywhere | `C` autopilot · `H` hide HUD · `K` captions on/off | |
+| Touch | drag to spin · pinch to zoom · tap Jezero to descend | drag to orbit · pinch to zoom · two-finger drag to pan · tap to select |
+
+On phones, the side panels open as a sheet from the tabs at the bottom of the screen (**JEZERO / CRATER / PLANNER** and **LAYERS**). Tap the map to close the sheet.
+
+---
+
+## Phones, tablets and performance
+
+Sol Atlas picks a quality level for each device when it loads. You can force one by adding it to the URL:
+
+| Level | Chosen for | What changes | Force it with |
+|---|---|---|---|
+| High | desktops and laptops | 8k globe, full-resolution terrain, up to 2× sharpness | `?q=high` |
+| Medium | tablets, 4-core or low-memory laptops | 4k globe, full terrain, up to 1.5× sharpness | `?q=medium` |
+| Low | phones | half-resolution textures (about 11 MB download instead of 40 MB), terrain meshes with 4× fewer points, 30 fps cap, no screen overlays | `?q=low` |
+
+On every level:
+- **Adaptive resolution** lowers the render resolution when frames get slow and raises it again when there's headroom.
+- **Shadows** are baked into a texture only when the sun or the relief changes, instead of being re-calculated for every pixel on every frame.
+- Everything is decoded, compiled and uploaded behind the loading screen, so the zoom transitions never stall on first use.
 
 ---
 
@@ -163,7 +184,7 @@ npm run dev          # opens http://localhost:5173
 
 The processed NASA data is already in the repo (`public/data/`, about 40 MB), so you don't need Python to run the app.
 
-On a weak laptop, add `?q=low` to the URL. That turns off terrain shadows and high-DPI rendering.
+Quality is picked automatically; see [Phones, tablets and performance](#phones-tablets-and-performance) to force a level.
 
 Production build:
 
@@ -181,10 +202,10 @@ npm run preview      # serve dist/ at http://localhost:4173
 ```bash
 pip install rasterio numpy pillow scipy
 npm run data                           # everything (a few minutes)
-python3 scripts/build_data.py crater   # or one stage: global | region | crater | site
+python3 scripts/build_data.py crater   # or one stage: global | region | crater | site | lite
 ```
 
-Downloads are cached in `.cache/`, which is git-ignored. Heightmaps are stored as PNG images: each 16-bit height is split across the red and green channels (height = R × 256 + G), so any static web host can serve them without loss.
+Downloads are cached in `.cache/`, which is git-ignored. The `lite` stage writes the half-resolution phone textures to `public/data/lite/` and a 4k globe map for medium-quality devices. Heightmaps are stored as PNG images: each 16-bit height is split across the red and green channels (height = R × 256 + G), so any static web host can serve them without loss.
 
 ---
 
@@ -230,10 +251,10 @@ src/
                         pathfinding.js (A*), eva.js (metabolic + O₂ model)
   ui/                   HUD panels and legends, elevation-profile chart, labels pinned to 3D points
   lib/                  marstime.js (Mars24, signal delay, sun position), geo.js
-  core/                 asset loader, scene crossfade, autopilot
+  core/                 asset loader, quality levels + adaptive resolution, scene crossfade, autopilot
   data/places.js        landing sites, points of interest, default Marswalk plan
 scripts/build_data.py   NASA/USGS → web data pipeline
-public/data/            processed textures + heightmaps + manifest.json
+public/data/            processed textures + heightmaps + manifest.json (lite/ = phone versions)
 docs/screenshots/       images used in this README
 PROJECT_LOG.md          full record of how the project was built
 ```

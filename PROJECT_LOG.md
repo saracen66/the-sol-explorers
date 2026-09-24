@@ -140,6 +140,48 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 - **Not yet checked in a browser:** the build machine's network policy blocks `*.netlify.app`, so the live page still needs someone to open it.
 - From now on, every push to the branch redeploys the site automatically. The commit that added this entry is the first test of that.
 
+### 2026-09-24: performance and phone polish
+
+**Reported by the team:** desktop sometimes lagged during the zoom transitions; on a phone the whole phone froze; the phone layout scrolled sideways and the UI overlapped.
+
+**Causes found**
+- Terrain shadows were ray-marched 56 steps for every screen pixel on every frame. That was half of the terrain's render cost.
+- Phones got the desktop data: an 8192 px globe texture (larger than many phone GPUs allow, so the browser resized it on the CPU), 4096 px terrain images, and terrain meshes of about 1.2 million points.
+- Level transitions rendered two full scenes at 2× resolution with 4× multisampling.
+- Large images were decoded on the main thread, and the 8k globe was swapped in mid-session (a stall that could land during a zoom).
+- The panels used a backdrop blur, which re-blurs the moving 3D canvas every frame.
+- On phones there was no pinch-zoom, the top bar was wider than the screen, the layers panel covered the planet, and the left panel (Descend button, planner) was hidden.
+
+**Changes**
+- **Baked shadows:** a small GPU pass writes sun visibility into a texture only when the sun or vertical exaggeration changes; the terrain shader reads one texel.
+- **Quality levels** (`src/core/quality.js`): high, medium and low, picked from pointer type, screen size, memory, CPU cores and GPU texture limit; `?q=` overrides.
+- **Adaptive resolution:** the render scale follows real frame times, down within about a second when slow, back up after a few good seconds.
+- **Phone data:** new `lite` pipeline stage with half-resolution textures (≤ 2048 px, 6.5 MB) and a 4k globe map. Phones download about 11 MB instead of 40 MB.
+- **Lighter phone rendering:** terrain meshes resampled to half resolution (4× fewer points), 30 fps cap, fewer stars and sphere segments, and scanline/vignette overlays turned off.
+- **Transitions:** dissolve buffers at 1× resolution without multisampling.
+- **Loading:** images decoded off the main thread (`createImageBitmap`). Everything is compiled, uploaded and baked behind the loading screen, including the route lines and the transition buffers.
+- **Leaner per-frame work:** backdrop blur removed (solid panel tint instead), the effects canvas hidden when idle, the readout refreshed 10×/s, per-frame allocations reused.
+- **Phone UI:**
+  - A compact top bar, and the side panels became a bottom sheet with tabs (JEZERO / CRATER / PLANNER, LAYERS, DATA SOURCES, AUTOPILOT).
+  - Held sideways, the sheet is a side panel.
+  - Touch controls: pinch zoom, two-finger pan, tap to select or descend.
+  - A wider field of view in portrait, safe-area insets for notched phones, touch-specific wording ("pinch or tap"), and browser page-zoom blocked on the 3D view.
+
+**Verification** (headless Chromium, software rendering)
+
+| Check | Before | After |
+|---|---|---|
+| Crater frame at 640×360, desktop settings | 5.13 s | 2.97 s (same as with shadows off) |
+| Zone frame at 640×360, desktop settings | 4.41 s | 2.73 s |
+| Crater / zone frame, phone settings | 5.13 / 4.41 s | 0.48 / 0.40 s (about 11× lighter) |
+| One crater shadow bake (software) | n/a | 0.70 s high / 0.10 s low (a few ms on a real GPU, only when the sun moves) |
+| iPhone 14 emulation (390 × 664): anything wider than the screen, on orbit, both sheets, crater, zone | top bar overflowed | nothing, on every screen |
+| iPhone 14 sideways (750 × 340) | n/a | nothing overflows; sheet shows as a side panel |
+| Shadow look vs the old per-pixel version, same sun time | n/a | matches (same rim and crater shadows) |
+| Adaptive resolution under slow rendering | n/a | stepped 1.25 → 0.6 automatically |
+
+Real-phone and real-GPU frame rates still need checking on the team's devices.
+
 ---
 
 ## Decisions and assumptions
@@ -154,6 +196,8 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | CRISM and live MEDA kept as "phase 2" | Data not available to the build. Showing them as locked is more honest than faking them |
 | Colour: blue ramp for elevation, orange ramp for thermal, standard status colours (good/warning/serious/critical) for slope hazard | Each ramp stays one hue so it reads as low → high; status colours always come with a label |
 | Heights as RG-packed PNGs | Lossless, works on every static host and in Claude artifacts |
+| Shadows baked to a texture, not per pixel | Same look, a fraction of the cost; re-baked only when the sun or exaggeration changes |
+| Automatic quality levels + adaptive resolution | One build that runs on a gaming PC and on a phone without manual settings |
 
 ---
 
@@ -162,7 +206,7 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 - [x] First Netlify deploy (repo linked, production deploy `6ab56524` from `97b6bd4`, 2026-09-24 18:00 UTC).
 - [ ] Open https://sol-atlas.netlify.app in a desktop browser and click through orbit → crater → Marswalk zone. The build machine can't reach netlify.app, so the live page hasn't been checked in a browser yet.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
-- [ ] Test on the team's real computers (GPU frame rate; try `?q=low` if slow).
+- [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`).
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
 - [ ] Add team member names and roles to README → Credits.

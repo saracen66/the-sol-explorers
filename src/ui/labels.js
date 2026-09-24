@@ -23,7 +23,7 @@ export class Labels {
     if (onLeave) el.addEventListener('pointerleave', onLeave);
     el.addEventListener('pointerdown', (e) => e.stopPropagation());
     this.root.appendChild(el);
-    const item = { el, world: world.clone(), occlude, visible: true, hiddenByUser: false, priority };
+    const item = { el, lb: el.querySelector('.lb'), world: world.clone(), occlude, visible: true, hiddenByUser: false, priority };
     this.group(groupName).push(item);
     return item;
   }
@@ -57,7 +57,7 @@ export class Labels {
     shown.sort((a, b) => b.priority - a.priority);
     const boxes = [];
     for (const it of shown) {
-      const lb = it.el.querySelector('.lb');
+      const lb = it.lb;
       if (!lb) continue;
       if (it.lbW == null || it.lbW === 0) it.lbW = lb.offsetWidth;
       const { x, y } = it.screen;

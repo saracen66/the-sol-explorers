@@ -87,5 +87,9 @@
     "slope": "s_slope.png",
     "thermal": "s_thermal.jpg",
     "slopeScale": 0.25
+  },
+  "lite": {
+    "dir": "lite",
+    "note": "half-resolution textures for phones and weak GPUs"
   }
 }

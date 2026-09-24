@@ -17,7 +17,7 @@ void main() {
 
 export const terrainFrag = /* glsl */ `
 precision highp float;
-uniform sampler2D tVis, tNormal, tSlope, tTherm, tHeight;
+uniform sampler2D tVis, tNormal, tSlope, tTherm, tShadow;
 uniform vec2 uSize;
 uniform float uExag, uHmin, uHmax, uH0, uCurv, uTexelKm;
 uniform vec3 uSun;
@@ -54,32 +54,6 @@ vec3 elevRamp(float t) {
   return pow(c, vec3(2.2)); // palette is sRGB; shading happens in linear
 }
 
-float terrainY(vec2 xz) {
-  vec2 uv = vec2(xz.x / uSize.x + 0.5, 0.5 - xz.y / uSize.y);
-  float h01 = texture2D(tHeight, uv).r;
-  return ((uHmin + h01 * (uHmax - uHmin)) - uH0) / 1000.0 * uExag - dot(xz, xz) * uCurv;
-}
-
-float shadowRay(vec3 wp) {
-  float lh = length(uSun.xz);
-  if (uSun.y <= 0.0) return 0.0;
-  if (lh < 1e-4) return 1.0;
-  vec2 dir = uSun.xz / lh;
-  float tanE = uSun.y / lh;
-  float res = 1.0;
-  float d = uTexelKm * 1.2;
-  for (int i = 0; i < 56; i++) {
-    vec2 p = wp.xz + dir * d;
-    if (abs(p.x) > uSize.x * 0.5 || abs(p.y) > uSize.y * 0.5) break;
-    float ty = terrainY(p);
-    float ry = wp.y + d * tanE;
-    res = min(res, clamp(6.0 * (ry - ty) / d + 0.5, 0.0, 1.0));
-    if (res <= 0.0) break;
-    d *= 1.09;
-  }
-  return res;
-}
-
 float contour(float e, float iv, float w) {
   float f = e / iv;
   float d = abs(fract(f - 0.5) - 0.5) / max(fwidth(f), 1e-5);
@@ -95,7 +69,8 @@ void main() {
   float t01 = (vElev - uHmin) / (uHmax - uHmin);
 
   float ndl = max(dot(n, uSun), 0.0);
-  float sh = uShadowOn > 0.5 ? shadowRay(vWorld) : 1.0;
+  // sun visibility is baked into tShadow whenever the sun or relief changes (see ShadowBaker)
+  float sh = mix(1.0, texture2D(tShadow, vUv).r, uShadowOn);
   float sunUp = smoothstep(-0.02, 0.06, uSun.y);
   vec3 sky = vec3(0.86, 0.70, 0.55) * (0.14 + 0.10 * n.y);
   vec3 lit = vis * (vec3(1.0, 0.95, 0.88) * ndl * sh * 1.25 * sunUp + sky);
@@ -233,4 +208,52 @@ void main() {
   vec4 wp = modelMatrix * vec4(position, 1.0);
   vWorld = wp.xyz;
   gl_Position = projectionMatrix * viewMatrix * wp;
+}`;
+
+// ---------------------------------------------------------------------------
+// Shadow bake: one texel per heightfield sample, ray-marched toward the sun.
+// Runs only when the sun direction or vertical exaggeration changes, instead
+// of for every screen pixel on every frame.
+export const bakeVert = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position.xy, 0.0, 1.0);
+}`;
+
+export const bakeFrag = /* glsl */ `
+precision highp float;
+uniform sampler2D tHeight;
+uniform vec2 uSize;
+uniform float uExag, uHmin, uHmax, uH0, uCurv, uTexelKm;
+uniform vec3 uSun;
+varying vec2 vUv;
+
+float terrainY(vec2 xz) {
+  vec2 uv = vec2(xz.x / uSize.x + 0.5, 0.5 - xz.y / uSize.y);
+  float h01 = texture2D(tHeight, uv).r;
+  return ((uHmin + h01 * (uHmax - uHmin)) - uH0) / 1000.0 * uExag - dot(xz, xz) * uCurv;
+}
+
+void main() {
+  vec2 xz = vec2((vUv.x - 0.5) * uSize.x, (0.5 - vUv.y) * uSize.y);
+  float y0 = terrainY(xz);
+  float lh = length(uSun.xz);
+  float res = 1.0;
+  if (uSun.y <= 0.0) res = 0.0;
+  else if (lh > 1e-4) {
+    vec2 dir = uSun.xz / lh;
+    float tanE = uSun.y / lh;
+    float d = uTexelKm * 1.2;
+    for (int i = 0; i < SHADOW_STEPS; i++) {
+      vec2 p = xz + dir * d;
+      if (abs(p.x) > uSize.x * 0.5 || abs(p.y) > uSize.y * 0.5) break;
+      float ty = terrainY(p);
+      float ry = y0 + d * tanE;
+      res = min(res, clamp(6.0 * (ry - ty) / d + 0.5, 0.0, 1.0));
+      if (res <= 0.0) break;
+      d *= SHADOW_GROWTH;
+    }
+  }
+  gl_FragColor = vec4(res, res, res, 1.0);
 }`;

@@ -25,7 +25,7 @@
   --critical: #d03b3b;
   /* surfaces + text */
   --bg: #050507;
-  --panel: rgba(14, 10, 8, 0.66);
+  --panel: rgba(14, 10, 8, 0.86);
   --panel-solid: #120d0a;
   --line: rgba(255, 154, 60, 0.28);
   --text: #f3e9df;
@@ -40,11 +40,11 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
+html, body { margin: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; overscroll-behavior: none; }
 body { font-family: var(--ui); font-size: 15px; letter-spacing: 0.02em; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; }
 
-#gl, #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+#gl, #fx { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 #fx { pointer-events: none; z-index: 2; }
 #labels { position: fixed; inset: 0; pointer-events: none; z-index: 3; overflow: hidden; }
 
@@ -84,8 +84,9 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 
 /* ------------------------------------------------ panels */
 .panel {
-  position: absolute; top: 84px; width: 312px; max-height: calc(100vh - 170px); overflow: auto;
-  background: var(--panel); backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  position: absolute; top: 84px; width: 312px; max-height: calc(100vh - 170px); max-height: calc(100dvh - 170px); overflow: auto;
+  /* solid tint, no backdrop blur: blurring a WebGL canvas that changes every frame is expensive */
+  background: var(--panel); overscroll-behavior: contain; touch-action: pan-y;
   border: 1px solid var(--line);
   clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
   scrollbar-width: thin; scrollbar-color: var(--hud-dim) transparent;
@@ -171,6 +172,9 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .btn.ghost { background: rgba(10,7,5,.5); }
 .btn.small { padding: 4px 9px; font-size: 11px; }
 .btn[disabled] { opacity: .4; pointer-events: none; }
+.btn:focus-visible, .row:focus-visible, .layer:focus-visible, .seg button:focus-visible { outline: 2px solid var(--hud-hi); outline-offset: 2px; }
+.sheet-btn { display: none; }
+.btn.on { background: rgba(255,154,60,.28); border-color: var(--hud); color: #fff; }
 .btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 
 /* ------------------------------------------------ EVA planner */
@@ -271,7 +275,7 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .wrist .wg small { display: block; font-size: 10px; letter-spacing: .06em; }
 
 /* ------------------------------------------------ 3D labels */
-.mk { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; will-change: transform; transition: opacity .3s; }
+.mk { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; will-change: transform; transition: opacity .3s; touch-action: none; }
 .mk .dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border: 1.5px solid var(--hud); transform: rotate(45deg); background: rgba(0,0,0,.4); }
 .mk .lb { position: absolute; left: 12px; top: -9px; white-space: nowrap; font-weight: 700; font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--text); text-shadow: 0 1px 3px #000, 0 0 8px #000; }
 .mk .lb small { display: block; font-weight: 500; font-size: 10.5px; letter-spacing: .12em; color: var(--text-3); }
@@ -334,7 +338,7 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .loader-log .ok { color: var(--data); }
 .loader-team { margin-top: 18px; font-size: 11px; letter-spacing: .3em; color: var(--text-3); }
 
-.modal { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); }
+.modal { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; background: rgba(0,0,0,.78); padding: 12px; }
 .modal[hidden] { display: none; }
 .modal-card { width: min(860px, 92vw); max-height: 84vh; overflow: auto; background: var(--panel-solid); border: 1px solid var(--line); padding: 26px 30px; position: relative;
   clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
@@ -355,8 +359,52 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
   .readout { min-width: 0; }
   .hints { display: none; }
 }
-@media (max-width: 760px) {
-  .crumbs, .telemetry .chip:nth-child(2) { display: none; }
-  .panel.left { display: none; }
-  .panel.right { top: auto; bottom: 64px; max-height: 40vh; left: 12px; right: 12px; width: auto; }
-}
+
+/* Phones only: lighter overlays (they cost GPU fill-rate on every frame) */
+body.tier-low .scanlines, body.tier-low .vignette { display: none; }
+body.touch .mk .card { display: none !important; }
+
+/* ------------------------------------------------ compact layout (phones, small landscape screens)
+   body.compact is set from JS on resize: width <= 760, or a touch screen shorter than 500 px. */
+body.compact .topbar { height: calc(50px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 12px 0; gap: 10px; }
+body.compact .brand { gap: 8px; min-width: 0; }
+body.compact .brand-mark { width: 28px; height: 28px; flex: none; }
+body.compact .brand-name { font-size: 15px; letter-spacing: .18em; }
+body.compact .brand-sub, body.compact .crumbs { display: none; }
+body.compact .telemetry { gap: 0; min-width: 0; }
+body.compact .telemetry .chip { min-width: 0; padding: 2px 0 2px 10px; border-right: 0; }
+body.compact .telemetry .chip:not(.accent) { display: none; }
+body.compact .chip .k { font-size: 9px; letter-spacing: .14em; }
+body.compact .chip .v { font-size: 13px; }
+
+/* the two side panels become one bottom sheet, opened from the tab buttons */
+body.compact .panel { display: none; position: fixed; top: auto; left: 10px; right: 10px; width: auto; max-width: 480px; margin: 0 auto;
+  bottom: calc(60px + env(safe-area-inset-bottom, 0px)); max-height: 58vh; max-height: 58dvh; }
+body.compact.sheet-left .panel.left, body.compact.sheet-right .panel.right { display: block; }
+/* phone held sideways: the sheet becomes a full-height side panel so the 3D view stays visible */
+body.compact.landscape .panel { left: auto; right: 10px; margin: 0; width: min(380px, 50vw);
+  top: calc(52px + env(safe-area-inset-top, 0px)); bottom: calc(58px + env(safe-area-inset-bottom, 0px)); max-height: none; }
+
+body.compact .bottombar { height: auto; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); gap: 8px;
+  background: linear-gradient(0deg, rgba(5,4,3,.94), rgba(5,4,3,.6) 70%, rgba(5,4,3,0)); }
+body.compact .readout, body.compact .hints { display: none; }
+body.compact .bottom-actions { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 480px; margin: 0 auto; }
+body.compact .bottom-actions .btn { padding: 10px 4px; font-size: 10.5px; letter-spacing: .08em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.compact .sheet-btn { display: block; }
+
+body.compact .prompt { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 32px); font-size: 11px; letter-spacing: .14em; line-height: 1.4; }
+body.compact .prompt .big { font-size: 16px; letter-spacing: .12em; }
+body.compact.sheet-open .prompt, body.compact.sheet-open .wrist, body.compact.sheet-open .caption { opacity: 0 !important; }
+body.compact .caption { width: calc(100vw - 32px); max-width: none; font-size: 15px; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); }
+body.compact .caption small { font-size: 10.5px; letter-spacing: .22em; }
+body.compact .toast { top: calc(58px + env(safe-area-inset-top, 0px)); max-width: calc(100vw - 32px); white-space: normal; text-align: center; font-size: 11.5px; letter-spacing: .1em; padding: 7px 12px; }
+body.compact .banner { font-size: 17px; letter-spacing: .1em; padding: 12px 16px; gap: 10px; max-width: calc(100vw - 32px); white-space: normal; text-align: center; }
+body.compact .wrist { bottom: calc(64px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 20px); max-width: 360px; }
+body.compact .reticle { width: 76px; height: 76px; }
+body.compact .mk .lb { font-size: 10.5px; letter-spacing: .1em; }
+body.compact .mk .lb small { display: none; }
+body.compact .modal-card { padding: 20px 16px; max-height: 88vh; max-height: 88dvh; }
+body.compact .modal table { display: block; overflow-x: auto; }
+body.compact .loader-logo { font-size: 30px; letter-spacing: .22em; }
+body.compact .loader-sub { font-size: 10.5px; letter-spacing: .2em; }
+body.compact .scanlines { display: none; }

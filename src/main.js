@@ -1,6 +1,7 @@
 import './styles.css';
 import * as THREE from 'three';
 import { loadAssets } from './core/assets.js';
+import { detectTier, checkGPU, Governor, isTouchDevice } from './core/quality.js';
 import { Crossfade, Streaks } from './core/Crossfade.js';
 import { Director } from './core/Director.js';
 import { OrbitView } from './orbit/OrbitView.js';
@@ -12,15 +13,22 @@ import { CRATER_VIEW_POIS, SITE_POIS, DEFAULT_PLAN } from './data/places.js';
 import { fmtNum } from './lib/geo.js';
 
 const TOP = Math.PI / 2 - 0.0015;
+const BASE_FOV = 40; // vertical FOV in landscape; portrait screens widen it so the horizontal view stays usable
 
 class App {
   constructor() {
     this.canvas = document.getElementById('gl');
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
-    const q = new URLSearchParams(location.search).get('q');
-    this.lowQuality = q === 'low';
-    this.renderer.setPixelRatio(this.lowQuality ? 1 : Math.min(window.devicePixelRatio, 2));
+    this.touch = isTouchDevice();
+    let tier = detectTier();
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: tier.antialias, powerPreference: 'high-performance' });
+    this.tier = tier = checkGPU(tier, this.renderer);
+    document.body.classList.add(`tier-${tier.name}`);
+    if (this.touch) document.body.classList.add('touch');
+    this.governor = new Governor(tier, (pr) => this.setPixelRatio(pr));
+    this.renderer.setPixelRatio(this.governor.pr);
     this.maxDt = 0.05;
+    this.lastFrameAt = 0;
+    this.readoutAt = 0;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.labels = new Labels(document.getElementById('labels'));
     this.crossfade = new Crossfade(this.renderer);
@@ -33,7 +41,15 @@ class App {
     this.keys = new Set();
     this.timer = new THREE.Timer();
     this.resize();
-    window.addEventListener('resize', () => this.resize());
+    // debounce: phone browsers fire resize while the address bar slides
+    let rt = 0;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => this.resize(), 120); });
+  }
+
+  setPixelRatio(pr) {
+    this.renderer.setPixelRatio(pr);
+    this.resize();
+    if (this.orbit) this.orbit.starUniforms.uPixelRatio.value = pr;
   }
 
   resize() {
@@ -43,9 +59,16 @@ class App {
     this.renderer.setSize(this.w, this.h, false);
     this.crossfade.setSize(this.w, this.h, pr);
     this.streaks.resize(this.w, this.h, pr);
+    const compact = this.w <= 760 || (this.touch && this.h <= 500);
+    document.body.classList.toggle('compact', compact);
+    document.body.classList.toggle('landscape', compact && this.w > this.h);
+    const aspect = this.w / this.h;
+    // portrait: keep ~40 deg horizontally instead of squeezing the view to a slit
+    const fov = aspect >= 1 ? BASE_FOV : Math.min(78, (2 * Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) / aspect) * 180) / Math.PI);
     for (const v of [this.orbit, this.crater, this.site]) {
       if (!v) continue;
-      v.camera.aspect = this.w / this.h;
+      v.camera.aspect = aspect;
+      v.camera.fov = fov;
       v.camera.updateProjectionMatrix();
     }
   }
@@ -54,7 +77,7 @@ class App {
     const log = document.getElementById('loader-log');
     const fill = document.getElementById('loader-fill');
     const lines = [];
-    this.assets = await loadAssets(this.renderer, (p, label) => {
+    this.assets = await loadAssets(this.renderer, this.tier, (p, label) => {
       fill.style.width = `${(p * 100).toFixed(0)}%`;
       lines.push(`<div><span class="ok">✔</span> ${label}</div>`);
       log.innerHTML = lines.slice(-5).join('');
@@ -63,7 +86,7 @@ class App {
 
     this.orbit = new OrbitView(this);
     this.orbit.build(this.assets);
-    this.assets.onHiRes = (t) => { this.orbit.uniforms.uColor.value = t; };
+    const tier = this.tier;
 
     this.crater = new TerrainView(this, {
       id: 'crater', meta: manifest.crater, heights: heights.crater,
@@ -71,6 +94,7 @@ class App {
       pois: CRATER_VIEW_POIS, exag: 2.2, contour: [50, 250], gridKm: 5, dist: [2.5, 210], strata: 140,
       overview: { dist: 118, el: 0.78, az: 0.3, target: { lat: 18.42, lon: 77.62 } },
       lat0: 18.44, lon0: 77.6, slopeLim: [10, 20, 30], childEnterDist: 11,
+      meshStep: tier.meshStep, shadowSteps: tier.shadowSteps,
     });
     this.crater.build();
     this.crater.loadSlopeData();
@@ -81,10 +105,10 @@ class App {
       pois: SITE_POIS, exag: 1.6, contour: [5, 25], gridKm: 0.5, dist: [0.12, 13], strata: 14,
       overview: { dist: 7.4, el: 0.86, az: 0.2 },
       lat0: 18.445, lon0: 77.462, slopeLim: [10, 20, 30], ltst: 9.25,
+      meshStep: tier.meshStep, shadowSteps: tier.shadowSteps,
     });
     this.site.build();
     this.site.loadSlopeData();
-    if (this.lowQuality) this.crater.shadows = this.site.shadows = false;
 
     // Marswalk zone box on the crater
     const s = manifest.site;
@@ -100,11 +124,14 @@ class App {
 
     this.planner = new Planner(this, this.site, SITE_POIS);
     this.planner.init();
+    this.planner.setPlan(DEFAULT_PLAN); // route solved now, so its line shaders compile during loading
 
-    // warm up: compile shaders + upload textures so the first dive doesn't stutter
+    // Warm up behind the loading screen: compile every shader, upload every texture,
+    // bake the first shadows and allocate the transition buffers, so nothing of that
+    // lands in the middle of the first zoom.
+    this.resize();
     const rt = new THREE.WebGLRenderTarget(64, 64);
     for (const v of [this.orbit, this.crater, this.site]) {
-      v.camera.aspect = this.w / this.h;
       if (v.overview) { const o = v.overview(); v.cam.target.copy(o.target); v.cam.dist = o.dist; v.cam.el = o.el; v.cam.az = o.az; }
       v.update(0.016);
       this.renderer.setRenderTarget(rt);
@@ -112,13 +139,15 @@ class App {
     }
     this.renderer.setRenderTarget(null);
     rt.dispose();
+    this.crossfade.render(this.orbit, this.crater, 0.5);
+    this.crossfade.render(this.crater, this.site, 0.5);
 
     this.setActive(this.orbit, 'orbit');
     this.hud.renderOrbit(this.orbit);
     this.bindInput();
     document.getElementById('loader').classList.add('done');
-    this.hud.caption('SOL ATLAS', 'Scroll to zoom toward Jezero. Drag to spin Mars.', 5000);
-    this.renderer.setAnimationLoop(() => this.frame());
+    this.hud.caption('SOL ATLAS', this.touch ? 'Pinch to zoom toward Jezero. Drag to spin Mars.' : 'Scroll to zoom toward Jezero. Drag to spin Mars.', 5000);
+    this.renderer.setAnimationLoop((t) => this.frame(t));
     if (new URLSearchParams(location.search).has('autopilot')) setTimeout(() => this.director.start(), 1200);
   }
 
@@ -276,25 +305,61 @@ class App {
   // ------------------------------------------------------------------ input
   bindInput() {
     let down = null;
+    let pinch = null;
+    const pts = new Map();
     const c = this.canvas;
+    const pinchInfo = () => {
+      const [a, b] = [...pts.values()];
+      return { d: Math.hypot(a.x - b.x, a.y - b.y), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+    };
     c.addEventListener('contextmenu', (e) => e.preventDefault());
     c.addEventListener('pointerdown', (e) => {
-      down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, b: e.button === 2 ? 2 : 1, moved: false };
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
       c.setPointerCapture(e.pointerId);
       this.director.interrupt();
+      if (pts.size === 2) {
+        pinch = pinchInfo(); // second finger: switch from drag to pinch / two-finger pan
+        if (down) down.moved = true;
+        return;
+      }
+      down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, b: e.button === 2 ? 2 : 1, moved: false, touch: e.pointerType === 'touch' };
     });
     c.addEventListener('pointermove', (e) => {
+      if (pts.has(e.pointerId)) pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && pts.size >= 2) {
+        const now = pinchInfo();
+        this.active?.onPointerMove(now.cx, now.cy);
+        if (!this.busy && !this.fade) {
+          // spreading fingers = zoom in; mapped onto the same code path as the mouse wheel
+          const deltaY = Math.log(pinch.d / Math.max(now.d, 1)) * 720;
+          if (Math.abs(deltaY) > 0.5) this.active.onWheel({ deltaY, deltaMode: 0 });
+          if (this.active instanceof TerrainView) this.active.onDrag(now.cx - pinch.cx, now.cy - pinch.cy, 2, false);
+        }
+        pinch = now;
+        return;
+      }
       this.active?.onPointerMove(e.clientX, e.clientY);
       if (!down) return;
       const dx = e.clientX - down.lx, dy = e.clientY - down.ly;
       down.lx = e.clientX; down.ly = e.clientY;
-      if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4) down.moved = true;
+      if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > (down.touch ? 10 : 4)) down.moved = true;
       if (down.moved && !this.busy) this.active.onDrag(dx, dy, down.b, e.shiftKey);
     });
-    c.addEventListener('pointerup', (e) => {
-      if (down && !down.moved) this.onCanvasClick(e);
-      down = null;
-    });
+    const up = (e) => {
+      pts.delete(e.pointerId);
+      if (pts.size < 2) pinch = null;
+      if (pts.size === 1 && down) { const p = [...pts.values()][0]; down.lx = p.x; down.ly = p.y; } // no jump when one finger lifts
+      if (e.type === 'pointerup' && down && !down.moved && pts.size === 0) {
+        this.active?.onPointerMove(e.clientX, e.clientY);
+        this.onCanvasClick(e);
+      }
+      if (pts.size === 0) down = null;
+    };
+    c.addEventListener('pointerup', up);
+    c.addEventListener('pointercancel', up);
+    // iOS Safari: stop the page itself from pinch-zooming
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
+    document.addEventListener('gesturechange', (e) => e.preventDefault());
     window.addEventListener('wheel', (e) => {
       if (e.target.closest('.panel, .modal')) return;
       e.preventDefault();
@@ -310,6 +375,7 @@ class App {
   }
 
   onCanvasClick() {
+    if (document.body.classList.contains('sheet-open')) { this.hud.closeSheet(); return; }
     if (this.busy) return;
     if (this.mode === 'site' && this.planner.addMode) {
       const p = this.site.pick();
@@ -344,8 +410,13 @@ class App {
   }
 
   // ------------------------------------------------------------------ loop
-  frame() {
-    this.timer.update();
+  frame(now = performance.now()) {
+    // phones: cap at 30 fps; halves GPU heat and keeps the UI responsive
+    const cap = this.tier.fpsCap;
+    if (cap && now - this.lastFrameAt < 1000 / cap - 4) return;
+    if (this.lastFrameAt) this.governor.tick(now - this.lastFrameAt);
+    this.lastFrameAt = now;
+    this.timer.update(now);
     const dt = Math.min(this.maxDt, this.timer.getDelta());
     const v = this.active;
 
@@ -373,7 +444,7 @@ class App {
 
     this.streaks.intensity += ((this.streaksOn ? 1 : 0) - this.streaks.intensity) * Math.min(1, dt * 3);
     this.streaks.update(dt);
-    this.hud.readout(v.readout());
+    if (now - this.readoutAt > 100) { this.readoutAt = now; this.hud.readout(v.readout()); }
     if (!this.busy) this.updatePrompts();
     this.director.update(dt);
   }
@@ -382,8 +453,8 @@ class App {
     if (this.mode === 'orbit') {
       const o = this.orbit;
       this.hud.reticle(o.locked);
-      if (o.locked) this.hud.prompt('<span class="big">JEZERO CRATER</span>TARGET LOCKED · SCROLL OR CLICK TO DESCEND<span class="chev">▼</span>');
-      else if (o.alt < 1.2) this.hud.prompt('ZOOMING TOWARD JEZERO · KEEP SCROLLING');
+      if (o.locked) this.hud.prompt(`<span class="big">JEZERO CRATER</span>TARGET LOCKED · ${this.touch ? 'PINCH OR TAP' : 'SCROLL OR CLICK'} TO DESCEND<span class="chev">▼</span>`);
+      else if (o.alt < 1.2) this.hud.prompt(`ZOOMING TOWARD JEZERO · KEEP ${this.touch ? 'PINCHING' : 'SCROLLING'}`);
       else this.hud.prompt(null);
     } else if (this.mode === 'crater') {
       const c = this.crater, z = this.zone, t = c.cam.target;
@@ -391,12 +462,12 @@ class App {
       const inBox = t.x > z.x0 - m && t.x < z.x1 + m && t.z > z.z0 - m && t.z < z.z1 + m;
       c.canEnterChild = inBox;
       this.hud.reticle(false);
-      if (inBox && c.cam.dist < 26) this.hud.prompt('<span class="big">MARSWALK ZONE</span>SCROLL OR CLICK TO ENTER · HiRISE 25 CM<span class="chev">▼</span>');
+      if (inBox && c.cam.dist < 26) this.hud.prompt(`<span class="big">MARSWALK ZONE</span>${this.touch ? 'PINCH OR TAP' : 'SCROLL OR CLICK'} TO ENTER · HiRISE 25 CM<span class="chev">▼</span>`);
       else this.hud.prompt(null);
       this.zoneLabel.world.set(z.cx, c.yAt(z.cx, z.z0) + c.stalkH() * 0.6, z.z0);
     } else {
       this.hud.reticle(false);
-      this.hud.prompt(this.planner.addMode ? 'CLICK THE MAP TO ADD A STOP' : null);
+      this.hud.prompt(this.planner.addMode ? `${this.touch ? 'TAP' : 'CLICK'} THE MAP TO ADD A STOP` : null);
     }
   }
 }

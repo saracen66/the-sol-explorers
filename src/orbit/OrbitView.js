@@ -4,6 +4,10 @@ import { llToVec, vecToLL, lerpAngle, damp, ease, Tweens, R_MARS_KM, DEG, fmtLat
 import { LANDING_SITES } from '../data/places.js';
 
 const MIN_ALT = 0.115; // planet radii (~390 km)
+const _inv = new THREE.Matrix4();
+const _ray = new THREE.Raycaster();
+const _p = new THREE.Vector3();
+const X_AXIS = new THREE.Vector3(1, 0, 0);
 const MAX_ALT = 7.0;
 
 export const ORBIT_LAYERS = [
@@ -80,7 +84,7 @@ export class OrbitView {
       uNormalStrength: { value: 1.0 },
     };
     this.planet = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 384, 192),
+      new THREE.SphereGeometry(1, ...this.app.tier.sphere),
       new THREE.ShaderMaterial({ vertexShader: planetVert, fragmentShader: planetFrag, uniforms: this.uniforms }),
     );
     s.add(this.planet);
@@ -139,7 +143,7 @@ export class OrbitView {
   }
 
   makeStars() {
-    const n = 7000, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), size = new Float32Array(n);
+    const n = this.app.tier.stars, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), size = new Float32Array(n);
     const rnd = mulberry(7);
     for (let i = 0; i < n; i++) {
       const u = rnd() * 2 - 1, t = rnd() * Math.PI * 2, r = 800;
@@ -294,8 +298,8 @@ export class OrbitView {
 
     this.planet.rotation.y = this.spin;
     this.planet.updateMatrixWorld();
-    const inv = new THREE.Matrix4().copy(this.planet.matrixWorld).invert();
-    this.uniforms.uSunObj.value.copy(this.sunWorld).transformDirection(inv);
+    _inv.copy(this.planet.matrixWorld).invert();
+    this.uniforms.uSunObj.value.copy(this.sunWorld).transformDirection(_inv);
 
     // layers crossfade
     for (const k of Object.keys(this.weights)) {
@@ -326,8 +330,7 @@ export class OrbitView {
     // moons
     for (const m of this.moons) {
       const a = m.phase + (this.time / m.period) * Math.PI * 2;
-      const p = new THREE.Vector3(Math.cos(a) * m.r, 0, Math.sin(a) * m.r).applyAxisAngle(new THREE.Vector3(1, 0, 0), m.incl);
-      m.mesh.position.copy(p);
+      m.mesh.position.set(Math.cos(a) * m.r, 0, Math.sin(a) * m.r).applyAxisAngle(X_AXIS, m.incl);
       m.mesh.rotation.y = -a;
       const vis = this.alt > 0.6;
       m.mesh.visible = vis;
@@ -344,16 +347,15 @@ export class OrbitView {
 
   /** Surface point under the mouse (object-space lat/lon) or null. */
   pick() {
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(this.pointer, this.camera);
-    const o = ray.ray.origin, d = ray.ray.direction;
+    _ray.setFromCamera(this.pointer, this.camera);
+    const o = _ray.ray.origin, d = _ray.ray.direction;
     const b = o.dot(d), c = o.lengthSq() - 1, disc = b * b - c;
     if (disc < 0) return null;
     const t = -b - Math.sqrt(disc);
     if (t < 0) return null;
-    const p = o.clone().addScaledVector(d, t);
-    const inv = new THREE.Matrix4().copy(this.planet.matrixWorld).invert();
-    return vecToLL(p.applyMatrix4(inv));
+    _p.copy(o).addScaledVector(d, t);
+    _inv.copy(this.planet.matrixWorld).invert();
+    return vecToLL(_p.applyMatrix4(_inv));
   }
 
   readout() {

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
-import { terrainVert, terrainFrag, wallVert, wallFrag, floorVert, floorFrag } from './shaders.js';
+import { terrainVert, terrainFrag, wallVert, wallFrag, floorVert, floorFrag, bakeVert, bakeFrag } from './shaders.js';
 import { Tweens, damp, ease, lerpAngle, fmtLat, fmtLon, fmtNum, R_MARS_KM } from '../lib/geo.js';
 import { marsTime, sunPosition, localTime } from '../lib/marstime.js';
 
@@ -18,6 +18,8 @@ export const TERRAIN_LAYERS = [
 ];
 
 const _v = new THREE.Vector3();
+const _ray = new THREE.Raycaster();
+const _res = new THREE.Vector2();
 
 export class TerrainView {
   /**
@@ -96,12 +98,16 @@ export class TerrainView {
     this.curv = 1 / (2 * R_MARS_KM);
     this.texelKm = this.sizeX / W;
 
-    // terrain mesh
-    const geo = new THREE.PlaneGeometry(this.sizeX, this.sizeZ, W - 1, H - 1);
-    geo.rotateX(-Math.PI / 2);
     const aH = new Float32Array(W * H);
     for (let i = 0; i < aH.length; i++) aH[i] = heights[i] / 65535;
-    geo.setAttribute('aH', new THREE.BufferAttribute(aH, 1));
+
+    // terrain mesh: phones use every other sample (4x fewer vertices), resampled bilinearly
+    const step = this.cfg.meshStep || 1;
+    const Wm = Math.round((W - 1) / step) + 1, Hm = Math.round((H - 1) / step) + 1;
+    const aHm = step === 1 ? aH : resampleGrid(aH, W, H, Wm, Hm);
+    const geo = new THREE.PlaneGeometry(this.sizeX, this.sizeZ, Wm - 1, Hm - 1);
+    geo.rotateX(-Math.PI / 2);
+    geo.setAttribute('aH', new THREE.BufferAttribute(aHm, 1));
 
     // height texture for shadow rays (rows flipped so v=1 is north)
     const half = new Uint16Array(W * H);
@@ -116,8 +122,17 @@ export class TerrainView {
     for (const k of ['visible', 'normal', 'slope', 'thermal']) tex[k].generateMipmaps = true;
     tex.slope.minFilter = THREE.LinearFilter; // no mips: keep hazard edges crisp
 
+    // baked sun visibility (see bakeShadows); phones bake at half resolution
+    const bakeScale = step > 1 ? 0.5 : 1;
+    this.shadowRT = new THREE.WebGLRenderTarget(Math.round(W * bakeScale), Math.round(H * bakeScale), {
+      format: THREE.RedFormat, type: THREE.UnsignedByteType, depthBuffer: false,
+      minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, generateMipmaps: false,
+    });
+    this.bakedSun = new THREE.Vector3(0, -1, 0);
+    this.bakedExag = -1;
+
     this.uniforms = {
-      tVis: { value: tex.visible }, tNormal: { value: tex.normal }, tSlope: { value: tex.slope }, tTherm: { value: tex.thermal }, tHeight: { value: hTex },
+      tVis: { value: tex.visible }, tNormal: { value: tex.normal }, tSlope: { value: tex.slope }, tTherm: { value: tex.thermal }, tShadow: { value: this.shadowRT.texture },
       uSize: { value: new THREE.Vector2(this.sizeX, this.sizeZ) },
       uExag: { value: this.exag }, uHmin: { value: meta.min }, uHmax: { value: meta.max }, uH0: { value: this.h0 }, uCurv: { value: this.curv },
       uTexelKm: { value: this.texelKm },
@@ -137,13 +152,31 @@ export class TerrainView {
     this.mesh.frustumCulled = false;
     this.scene.add(this.mesh);
 
+    const steps = this.cfg.shadowSteps || 64;
+    const growth = steps >= 64 ? 1.075 : steps >= 48 ? 1.1 : 1.16; // every tier reaches across the whole tile
+    this.bakeMat = new THREE.ShaderMaterial({
+      vertexShader: bakeVert, fragmentShader: bakeFrag,
+      defines: { SHADOW_STEPS: steps, SHADOW_GROWTH: growth.toFixed(3) },
+      uniforms: {
+        tHeight: { value: hTex }, uSize: this.uniforms.uSize, uExag: this.uniforms.uExag, uHmin: this.uniforms.uHmin,
+        uHmax: this.uniforms.uHmax, uH0: this.uniforms.uH0, uCurv: this.uniforms.uCurv, uTexelKm: this.uniforms.uTexelKm,
+        uSun: { value: new THREE.Vector3() },
+      },
+      depthTest: false, depthWrite: false,
+    });
+    this.bakeScene = new THREE.Scene();
+    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.bakeMat);
+    quad.frustumCulled = false;
+    this.bakeScene.add(quad);
+    this.bakeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
     // walls
     this.baseY = ((meta.min - this.h0) / 1000) * this.exag - this.sizeX * 0.04;
     this.wallUniforms = {
       uExag: this.uniforms.uExag, uHmin: this.uniforms.uHmin, uHmax: this.uniforms.uHmax, uH0: this.uniforms.uH0, uCurv: this.uniforms.uCurv,
       uBaseY: { value: this.baseY }, uStrata: { value: this.cfg.strata }, uReveal: this.uniforms.uReveal,
     };
-    const walls = new THREE.Mesh(this.makeWalls(aH, W, H), new THREE.ShaderMaterial({
+    const walls = new THREE.Mesh(this.makeWalls(aHm, Wm, Hm), new THREE.ShaderMaterial({
       vertexShader: wallVert, fragmentShader: wallFrag, uniforms: this.wallUniforms, side: THREE.DoubleSide,
     }));
     walls.frustumCulled = false;
@@ -403,9 +436,8 @@ export class TerrainView {
 
   /** Ray-march the heightfield under the pointer. Returns world point or null. */
   pick(ndc = this.pointer) {
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(ndc, this.camera);
-    const o = ray.ray.origin, d = ray.ray.direction;
+    _ray.setFromCamera(ndc, this.camera);
+    const o = _ray.ray.origin, d = _ray.ray.direction;
     const hx = this.sizeX / 2, hz = this.sizeZ / 2;
     // intersect with the bounding box
     const yMin = this.baseY, yMax = ((this.meta.max - this.h0) / 1000) * this.exag + 0.01;
@@ -493,6 +525,7 @@ export class TerrainView {
     const sd = this.sunDir();
     u.uSun.value.copy(sd.vec);
     this.sun = sd;
+    if (this.shadows && (sd.vec.dot(this.bakedSun) < 0.999995 || Math.abs(this.exag - this.bakedExag) > 1e-3)) this.bakeShadows();
 
     // pulse
     if (u.uPulse.value.w > 0.5) {
@@ -510,8 +543,8 @@ export class TerrainView {
     } else u.uCursor.value.z = 0;
 
     if (this.routeMat) {
-      const res = new THREE.Vector2(this.app.w, this.app.h);
-      for (const m of [this.routeMat, this.routeGlowMat, this.routeFlowMat, this.directMat]) m.resolution.copy(res);
+      _res.set(this.app.w, this.app.h);
+      for (const m of [this.routeMat, this.routeGlowMat, this.routeFlowMat, this.directMat]) m.resolution.copy(_res);
       this.routeFlowMat.dashOffset -= dt * (this.routeFlowMat.dashSize + this.routeFlowMat.gapSize) * 0.8;
     }
   }
@@ -539,13 +572,41 @@ export class TerrainView {
     return data[(v * w + u) * 4] * 0.25;
   }
 
+  /** Ray-march sun visibility for every heightfield texel into shadowRT (a few ms on the GPU). */
+  bakeShadows() {
+    const r = this.app.renderer;
+    this.bakeMat.uniforms.uSun.value.copy(this.uniforms.uSun.value);
+    const prev = r.getRenderTarget();
+    r.setRenderTarget(this.shadowRT);
+    r.render(this.bakeScene, this.bakeCam);
+    r.setRenderTarget(prev);
+    this.bakedSun.copy(this.uniforms.uSun.value);
+    this.bakedExag = this.exag;
+  }
+
   /** Read the slope PNG back to the CPU (for readouts + pathfinding). */
   loadSlopeData() {
-    const img = this.cfg.tex.slope.image;
+    const t = this.cfg.tex.slope;
+    const img = t.image;
     const c = document.createElement('canvas');
     c.width = img.width; c.height = img.height;
     const g = c.getContext('2d', { willReadFrequently: true });
+    if (t.userData.flippedBitmap) { g.translate(0, c.height); g.scale(1, -1); } // bitmap was decoded upside down for the GPU
     g.drawImage(img, 0, 0);
     this.slopeData = { w: c.width, h: c.height, data: g.getImageData(0, 0, c.width, c.height).data };
   }
+}
+
+/** Bilinear resample of a row-major grid to a new size (both span the same extent). */
+function resampleGrid(src, W, H, w, h) {
+  const out = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const fy = (y / (h - 1)) * (H - 1), y0 = Math.floor(fy), y1 = Math.min(H - 1, y0 + 1), ty = fy - y0;
+    for (let x = 0; x < w; x++) {
+      const fx = (x / (w - 1)) * (W - 1), x0 = Math.floor(fx), x1 = Math.min(W - 1, x0 + 1), tx = fx - x0;
+      const a = src[y0 * W + x0], b = src[y0 * W + x1], c = src[y1 * W + x0], d = src[y1 * W + x1];
+      out[y * w + x] = (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
+    }
+  }
+  return out;
 }

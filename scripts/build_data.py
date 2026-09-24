@@ -26,7 +26,7 @@ Nothing here is hand-painted: every pixel comes from a NASA mission dataset.
 Usage:
     pip install rasterio numpy pillow scipy
     python3 scripts/build_data.py            # everything
-    python3 scripts/build_data.py crater     # one stage (global|region|crater|site)
+    python3 scripts/build_data.py crater     # one stage (global|region|crater|site|lite)
 """
 
 import json
@@ -499,11 +499,56 @@ def stage_site(m):
     m["site"] = meta
 
 
-STAGES = dict(global_=stage_global, region=stage_region, crater=stage_crater, site=stage_site)
+def stage_lite(m):
+    """Half-resolution copies for phones and weak GPUs (every texture <= 2048 px),
+    plus a 4k globe colour map for mid-range machines. Derived from the full outputs."""
+    lite = os.path.join(OUT, "lite")
+    os.makedirs(lite, exist_ok=True)
+
+    def half(name, box=None, kind="rgb"):
+        src = Image.open(os.path.join(OUT, name))
+        w, h = src.size
+        size = box or (max(1, w // 2), max(1, h // 2))
+        if kind == "normal":
+            a = np.asarray(src.convert("RGB")).astype(np.float32) / 127.5 - 1.0
+            small = np.dstack([np.asarray(Image.fromarray(a[..., c]).resize(size, Image.BOX)) for c in range(3)])
+            small /= np.maximum(np.linalg.norm(small, axis=2, keepdims=True), 1e-6)
+            out = Image.fromarray(np.clip((small + 1.0) * 127.5 + 0.5, 0, 255).astype(np.uint8))
+        elif kind == "maxpool":
+            a = np.asarray(src.convert("L"))
+            H2, W2 = (h + 1) // 2 * 2, (w + 1) // 2 * 2
+            pad = np.zeros((H2, W2), np.uint8)
+            pad[:h, :w] = a
+            pad[h:, :w] = a[-1:, :]
+            pad[:, w:] = pad[:, w - 1:w]
+            out = Image.fromarray(pad.reshape(H2 // 2, 2, W2 // 2, 2).max(axis=(1, 3)))
+        else:
+            out = src.convert("RGB").resize(size, Image.LANCZOS)
+        dst = os.path.join(lite, name)
+        if name.endswith(".png"):
+            out.save(dst, optimize=True)
+        else:
+            out.save(dst, quality=84, optimize=True, progressive=True)
+        log("wrote", "lite/" + name, out.size, f"{os.path.getsize(dst) / 1e6:.2f} MB")
+
+    col = Image.open(os.path.join(OUT, "g_color_8k.jpg"))
+    col.resize((4096, 2048), Image.LANCZOS).save(os.path.join(OUT, "g_color_4k.jpg"), quality=86, optimize=True, progressive=True)
+    log("wrote g_color_4k.jpg")
+    for n in ["g_topo_4k.jpg", "g_thermal_4k.jpg", "r_color.jpg", "r_topo.jpg", "r_thermal.jpg",
+              "c_decal.jpg", "c_visible.jpg", "s_visible.jpg"]:
+        half(n)
+    for n in ["g_normal_4k.jpg", "r_normal.jpg", "c_normal.jpg", "s_normal.jpg"]:
+        half(n, kind="normal")
+    for n in ["c_slope.png", "s_slope.png"]:
+        half(n, kind="maxpool")
+    m["lite"] = dict(dir="lite", note="half-resolution textures for phones and weak GPUs")
+
+
+STAGES = dict(global_=stage_global, region=stage_region, crater=stage_crater, site=stage_site, lite=stage_lite)
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    want = sys.argv[1:] or ["global", "region", "crater", "site"]
+    want = sys.argv[1:] or ["global", "region", "crater", "site", "lite"]
     man = read_manifest()
     man.update(localCrs=dict(latTs=LAT_TS, R=R_MARS, kx=KX, ky=KY))
     for s in want:
