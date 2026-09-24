@@ -1,0 +1,19 @@
+# Netlify build settings for Sol Atlas (https://sol-atlas.netlify.app)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Processed NASA data rarely changes: cache it for a day, revalidate after.
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"
+
+# Vite gives JS/CSS/fonts content-hashed names, so they can be cached forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
