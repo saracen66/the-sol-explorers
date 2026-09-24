@@ -90,6 +90,14 @@ export class Hud {
 
   reticle(on) { $('reticle').classList.toggle('show', !!on); }
 
+  banner(text, cls = 'go', ms = 2600) {
+    const b = $('banner');
+    b.className = `banner ${cls}`;
+    b.innerHTML = `<span>${cls === 'go' ? '✔' : '✖'}</span>${text}`;
+    b.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(1.15)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: 0.12 },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: 0.8 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(0.98)' }], { duration: ms, easing: 'ease-out' });
+  }
+
   flash(peak = 0.85, dur = 900) {
     const f = $('flash');
     f.animate([{ opacity: 0 }, { opacity: peak, offset: 0.35 }, { opacity: 0 }], { duration: dur, easing: 'ease-out' });
@@ -208,7 +216,18 @@ export class Hud {
         <div class="ctl"><label>Vertical exaggeration</label><output id="o-exag"></output>
           <input type="range" id="r-exag" min="1" max="6" step="0.1" value="${view.exagTarget}"></div>
         <div class="seg"><button id="b-shadow" class="${view.shadows ? 'on' : ''}">SHADOWS</button><button id="b-now">NOW</button><button id="b-reset">RESET VIEW</button></div>
-      </div>`;
+      </div>${site ? `
+      <div class="sec">
+        <div class="sec-h">Conditions · Jezero <span class="tag">TYPICAL · NOT LIVE</span></div>
+        <div class="kv" style="margin-top:0">
+          <span class="k">Air temperature</span><span class="v">−80 … −15 °C</span>
+          <span class="k">Pressure</span><span class="v">≈ 7 hPa</span>
+          <span class="k">Wind</span><span class="v">2–8 m/s, gusty pm</span>
+          <span class="k">Dust opacity</span><span class="v">τ ≈ 0.5</span>
+          <span class="k">Radiation</span><span class="v">≈ 0.67 mSv/sol</span>
+        </div>
+        <div class="assump">Typical ranges for this season from published Perseverance MEDA results. Radiation dose from Curiosity RAD at Gale (Hassler et al. 2014). The live MEDA feed is planned for phase 2.</div>
+      </div>` : ''}`;
     this.right.querySelectorAll('[data-layer]').forEach((d) => {
       d.onclick = () => {
         const L = TERRAIN_LAYERS.find((x) => x.id === d.dataset.layer);
@@ -258,7 +277,7 @@ export class Hud {
       <div><i style="background:var(--warning)"></i>${ICON.warn} ${lim[0]}–${lim[1]}° caution</div>
       <div><i style="background:var(--serious)"></i>${ICON.warn} ${lim[1]}–${lim[2]}° hazard</div>
       <div><i style="background:var(--critical)"></i>${ICON.stop} &gt;${lim[2]}° no-go</div></div></div>`);
-    if (view.layers.thermal) parts.push(legendRamp('THEMIS night IR (thermal-inertia proxy)', 'linear-gradient(90deg,#3a1a06,#7a3510,#c05a1c,#ec8a45,#f9c79a,#fff0e0)', ['cools fast · dust / sand', 'stays warm · rock']));
+    if (view.layers.thermal) parts.push(legendRamp('Ground firmness · THEMIS night IR (thermal-inertia proxy)', 'linear-gradient(90deg,#3a1a06,#7a3510,#c05a1c,#ec8a45,#f9c79a,#fff0e0)', ['loose dust / sand', 'firm rock']));
     if (view.layers.contour) parts.push(`<div class="legend"><div class="cap">Contours every ${view.cfg.contour[0]} m · bold every ${view.cfg.contour[1]} m</div></div>`);
     L.innerHTML = parts.join('');
     this.right.querySelectorAll('[data-layer]').forEach((d) => d.classList.toggle('on', !!view.layers[d.dataset.layer]));
@@ -303,7 +322,7 @@ export class Hud {
     const r = pl.result;
     const wps = pl.waypoints.map((w, i) => `
       <div class="wp"><div class="n"><span>${i + 1}</span></div>
-        <div><div class="nm">${w.name}</div><div class="ds">${i === 0 ? 'EVA start / airlock' : w.poi ? (w.poi.kind === 'science' ? 'sample retrieval' : 'science stop') : 'custom stop'}${i > 0 ? ` · ${pl.params.stopMin} min` : ''}</div></div>
+        <div><div class="nm">${w.name}</div><div class="ds">${w.poi?.reason || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}${i > 0 ? ` · ${pl.params.stopMin} min` : ''}</div></div>
         ${i > 0 ? `<button class="x" data-rm="${i}" title="Remove stop">✕</button>` : '<span></span>'}
       </div>`).join('');
     let body = '';
@@ -316,7 +335,7 @@ export class Hud {
       const reservePct = 100 - pl.params.reservePct;
       const o2Col = b.remaining < b.reserveKg ? 'var(--critical)' : b.marginPct < pl.params.reservePct + 15 ? 'var(--warning)' : 'var(--data)';
       const vIcon = v.lvl === 'go' ? ICON.ok : v.lvl === 'caution' ? ICON.warn : ICON.stop;
-      const vText = v.lvl === 'go' ? 'GO FOR EVA' : v.lvl === 'caution' ? 'GO WITH CAUTION' : 'NO-GO';
+      const vText = v.lvl === 'go' ? 'MARSWALK READY' : v.lvl === 'caution' ? 'GO WITH CAUTION' : 'NO-GO';
       const vSub = v.issues.length ? v.issues.map((i) => i.msg).join(' · ') : `All limits met, ${b.marginPct.toFixed(0)} % O₂ left at ingress`;
       body = `
         <div class="stats">
@@ -336,6 +355,7 @@ export class Hud {
           <div class="mark" style="left:${(r.sun.sunset / 24) * 100}%"></div></div>
         </div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
+        <div class="assump">${r.pnr ? `<b style="color:#ff7b7b">Point of no return</b> at ${(r.pnr.d / 1000).toFixed(2)} km (red marker). Past it, walking straight back needs ${r.pnr.need.toFixed(2)} kg of O₂ but only ${r.pnr.limit.toFixed(2)} kg is available above the reserve.` : 'No point of no return: from any point on the way out, EV1 can walk straight back to the airlock and keep the O₂ reserve.'}</div>
         <div class="sec-h" style="margin:14px 0 2px">Elevation profile <span class="tag">HiRISE 1 m DTM</span></div>
         <div class="profile" id="profile"></div>
         <div class="assump" style="margin-top:6px">Straight-line path: ${(r.direct.distance / 1000).toFixed(2)} km, crossing slopes up to <b>${r.direct.maxFine.toFixed(0)}°</b> (red dashes). The planned route stays under <b>${r.budget.fineMax.toFixed(0)}°</b>.</div>`;
@@ -373,15 +393,29 @@ export class Hud {
     bindP('p-o2', 'o2CapKg'); bindP('p-slope', 'maxSlope'); bindP('p-stop', 'stopMin');
     if (r && !r.failed) {
       requestAnimationFrame(() => renderProfile($('profile'), r, {
-        slopeAt: (x, z) => pl.view.slopeAt(x, z), limits: pl.view.cfg.slopeLim, onHover: (d) => pl.showHover(d),
+        slopeAt: (x, z) => pl.view.slopeAt(x, z), limits: pl.view.cfg.slopeLim, onHover: (d) => pl.showHover(d), pnr: r.pnr,
       }));
     }
   }
 
   updateSim(pl, t, st) {
     const box = $('sim-status');
+    const wrist = $('wrist');
+    if (t == null) { if (box) box.innerHTML = ''; wrist.classList.remove('show'); return; }
+    {
+      const r = pl.result;
+      const stops = r.stopAtD;
+      const idx = stops.findIndex((d) => d > st.d + 1);
+      const nextName = idx >= 0 ? pl.waypoints[idx + 1]?.name : pl.waypoints[0].name;
+      const nextD = (idx >= 0 ? stops[idx] : r.budget.distance) - st.d;
+      const left = pl.params.o2CapKg - st.o2;
+      const leftH = left / (r.budget.o2 / (r.budget.totalT / 3600));
+      wrist.innerHTML = `<div class="wh">EV1 · WRIST <b>${formatHM(pl.result.sun.start + t / 3698.9)}</b></div>
+        <div class="wn">NEXT ▸ ${nextName}<b>${fmtDist(Math.max(0, nextD))}</b></div>
+        <div class="wg"><span>O₂ <b>${left.toFixed(2)} kg</b><small>≈ ${leftH.toFixed(1)} h</small></span><span>DUST <b>τ 0.5</b><small>typical</small></span><span>${st.kind === 'stop' ? 'WORKING' : 'WALKING'}</span></div>`;
+      wrist.classList.add('show');
+    }
     if (!box) return;
-    if (t == null) { box.innerHTML = ''; return; }
     const b = pl.result.budget;
     const clock = pl.result.sun.start + t / 3698.9;
     const left = pl.params.o2CapKg - st.o2;

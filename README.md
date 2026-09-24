@@ -33,13 +33,22 @@ npm run preview      # serve dist/ at http://localhost:4173
 | Drag | spin the planet | orbit the camera |
 | Right-drag / Shift-drag | | pan |
 | Scroll | zoom (locks onto Jezero when close) | zoom to the cursor. Scroll past the limit to go up a level |
-| Click | click Jezero / the lock-on to descend | click the Marswalk zone to enter it. In the planner, click the map to add a stop |
+| Click | click Jezero / the lock-on to descend | click the Marswalk zone to enter it. In the zone, click a named place (e.g. Three Forks) to add it as a stop, or press *+ ADD STOP* and click anywhere |
 | Keys | `1-3` layers · `G` grid · `Space` rotation · `Enter` descend | `1-6` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA sim |
 | Anywhere | `C` autopilot · `H` hide HUD · `K` captions on/off | |
 
 ### Recording the pitch video
 
-Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about 90 seconds. It runs orbit → layers → lock-on → descent → crater layers → Marswalk zone → safest route → EVA simulation → holo mode, with captions. Press `K` to hide the captions if you're doing your own voiceover, and `H` to hide the HUD for clean B-roll. Any click or scroll hands control back to you. `?autopilot` in the URL starts it automatically.
+Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about two minutes, with captions. It follows the pitch script's WHAT and SO WHAT sections:
+
+1. Orbit, then the MOLA and THEMIS layers.
+2. Lock onto Jezero and descend.
+3. Crater view: elevation + contours, ground firmness, slope hazard.
+4. Marswalk zone: the safest route.
+5. "What if the suit had half the oxygen?" The point of no return appears and the call is NO-GO.
+6. EVA flyover with the wrist display.
+7. Pick Three Forks: the route draws and **MARSWALK READY** shows.
+8. Holo-mode end card. Press `K` to hide the captions if you're doing your own voiceover, and `H` to hide the HUD for clean B-roll. Any click or scroll hands control back to you. `?autopilot` in the URL starts it automatically.
 
 Record at 1920×1080 with OBS, or with the Xbox Game Bar (`Win+Alt+R`).
 
@@ -54,7 +63,7 @@ Record at 1920×1080 with OBS, or with the Xbox Game Bar (`Win+Alt+R`).
 | Orbit | Night thermal IR | Mars Odyssey · THEMIS | USGS controlled night-IR mosaic (100 m) |
 | Crater | Visible | MRO · CTX | Mars 2020 Science Investigation CTX orthomosaic, 5 m (JPL) |
 | Crater | Elevation · slope · contours | MRO · CTX stereo | Mars 2020 Science Investigation CTX DEM, 20 m (JPL) |
-| Crater + zone | Thermal-inertia proxy | Mars Odyssey · THEMIS | Night-IR mosaic, 100 m |
+| Crater + zone | Ground firmness (thermal-inertia proxy) | Mars Odyssey · THEMIS | Night-IR mosaic, 100 m |
 | Marswalk zone | Visible | MRO · HiRISE | Mars 2020 Terrain-Relative-Navigation orthomosaic, 25 cm (USGS) |
 | Marswalk zone | Elevation · slope · route | MRO · HiRISE stereo | Mars 2020 TRN DTM, 1 m (USGS) |
 | Phase 2 | Minerals | MRO · CRISM | not yet |
@@ -75,7 +84,9 @@ The script streams only the parts it needs from cloud-optimised GeoTIFFs. The la
 - **Earth link delay.** The live one-way signal time uses JPL's approximate planetary positions. It gives 11 min 22 s on landing day, 18 Feb 2021, which matches NASA's figure.
 - **Sun and shadows.** The terrain is lit by the real Sun position for Jezero's latitude and season. Use the time-of-day slider to watch shadows move. Shadows are ray-marched through the elevation model on the GPU.
 - **Safest route.** The route comes from A* pathfinding on the HiRISE 1 m DTM (512 × 512 grid). The cost of each step is **metabolic energy**, so the route minimises oxygen use, not distance. Cells whose fine-scale slope exceeds the walking limit are avoided. The straight-line path is drawn as red dashes for comparison.
-- **Watney check (EVA budget).** Walking cost uses the **Pandolf et al. (1977)** load-carriage equation, scaled to Mars gravity (0.38 g) with a pressure-suit penalty. Speed vs. grade uses a Tobler-style hiking function, and 1 L of O₂ ≈ 20.1 kJ. The planner totals oxygen used, remaining margin, EVA time vs. an 8 h suit rating, and daylight left, then gives a GO / CAUTION / NO-GO call. You can edit the assumptions (suit O₂, slope limit, time per stop) in the planner.
+- **Watney check (EVA budget).** Walking cost uses the **Pandolf et al. (1977)** load-carriage equation, scaled to Mars gravity (0.38 g) with a pressure-suit penalty. Speed vs. grade uses a Tobler-style hiking function, and 1 L of O₂ ≈ 20.1 kJ. The planner totals oxygen used, remaining margin, EVA time vs. an 8 h suit rating, and daylight left, then calls **MARSWALK READY**, GO WITH CAUTION or NO-GO. You can edit the assumptions (suit O₂, slope limit, time per stop) in the planner.
+- **Point of no return.** This is the first point on the way out where the O₂ already used, plus the O₂ to walk straight back to the airlock (with a 25 % detour allowance), would eat into the reserve. It shows as a red marker on the map and a red line on the elevation profile, and it makes the plan NO-GO. To see it, drag *Usable suit O₂* down to about 0.30 kg.
+- **Conditions panel.** Shows typical seasonal ranges from published Perseverance MEDA results, plus the Curiosity RAD dose, and is labelled "typical · not live". A live MEDA feed is phase 2.
 
 ## Places
 

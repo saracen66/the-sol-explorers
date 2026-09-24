@@ -10,7 +10,7 @@ export const TERRAIN_LAYERS = [
   { id: 'visible', key: '1', name: 'Visible', srcCrater: 'MRO CTX 5 m mosaic (JPL)', srcSite: 'MRO HiRISE 25 cm mosaic', base: true },
   { id: 'elev', key: '2', name: 'Elevation', srcCrater: 'MRO CTX stereo DEM, 20 m', srcSite: 'MRO HiRISE DTM, 1 m' },
   { id: 'slope', key: '3', name: 'Slope hazard', srcCrater: 'Derived from CTX DEM', srcSite: 'Derived from HiRISE DTM' },
-  { id: 'thermal', key: '4', name: 'Thermal inertia proxy', srcCrater: 'Mars Odyssey THEMIS night IR', srcSite: 'Mars Odyssey THEMIS night IR' },
+  { id: 'thermal', key: '4', name: 'Ground firmness', srcCrater: 'Mars Odyssey THEMIS · night IR', srcSite: 'Mars Odyssey THEMIS · night IR' },
   { id: 'contour', key: '5', name: 'Contours', srcCrater: 'from DEM', srcSite: 'from DTM' },
   { id: 'holo', key: '6', name: 'Holo mode', srcCrater: 'display style', srcSite: 'display style' },
   { id: 'minerals', key: '', name: 'Minerals', srcCrater: 'MRO CRISM · phase 2', srcSite: 'MRO CRISM · phase 2', locked: true },
@@ -201,9 +201,9 @@ export class TerrainView {
     for (const p of this.cfg.pois) {
       const { x, z } = this.lonlatToXZ(p.lat, p.lon);
       if (Math.abs(x) > this.sizeX / 2 || Math.abs(z) > this.sizeZ / 2) continue;
-      const tag = p.proposed ? 'Proposed · Sol Atlas' : p.approx ? 'Approx. position' : fmtLat(p.lat) + ' ' + fmtLon(p.lon);
+      const tag = this.id === 'site' && p.reason ? p.reason : p.proposed ? 'Proposed · Sol Atlas' : p.approx ? 'Approx. position' : fmtLat(p.lat) + ' ' + fmtLon(p.lon);
       const html = `<div class="dot"></div><div class="lb">${p.name}<small>${tag}</small></div>
-        <div class="card"><b>${p.name}</b>${p.text}<em>Source: ${p.source}</em></div>`;
+        <div class="card"><b>${p.name}</b>${p.text}<em>Source: ${p.source}</em>${this.id === 'site' && p.id !== 'lz' ? '<em style="color:var(--data)">Click to add it to the Marswalk</em>' : ''}</div>`;
       const item = labels.add(this.id, {
         className: `poi k-${p.kind}`, html, world: new THREE.Vector3(x, 0, z),
         onClick: () => this.app.onPOIClick(this, p),

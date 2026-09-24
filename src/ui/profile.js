@@ -12,7 +12,7 @@ function el(tag, attrs = {}, parent) {
 
 const STATUS = ['#0ca30c', '#fab219', '#ec835a', '#d03b3b'];
 
-export function renderProfile(host, result, { slopeAt, limits, onHover }) {
+export function renderProfile(host, result, { slopeAt, limits, onHover, pnr }) {
   host.innerHTML = '';
   const W = Math.max(240, host.clientWidth || 280), H = 118;
   const pad = { l: 44, r: 8, t: 10, b: 26 };
@@ -65,6 +65,12 @@ export function renderProfile(host, result, { slopeAt, limits, onHover }) {
     const t = el('text', { x: X(d), y: Y(p.e) - 8, 'text-anchor': 'middle', fill: '#c7b8aa', 'font-size': 10, 'font-family': 'JetBrains Mono' }, svg);
     t.textContent = String(i + 2);
   });
+
+  if (pnr) {
+    el('line', { x1: X(pnr.d), x2: X(pnr.d), y1: pad.t, y2: plotB, stroke: '#d03b3b', 'stroke-width': 2 }, svg);
+    const t = el('text', { x: X(pnr.d) + 4, y: pad.t + 9, fill: '#c7b8aa', 'font-size': 10, 'font-family': 'JetBrains Mono' }, svg);
+    t.textContent = 'PNR';
+  }
 
   // crosshair + tooltip
   const cross = el('line', { y1: pad.t, y2: plotB, stroke: '#c7b8aa', 'stroke-width': 1, visibility: 'hidden' }, svg);

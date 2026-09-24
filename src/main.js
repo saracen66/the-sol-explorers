@@ -8,7 +8,7 @@ import { TerrainView } from './terrain/TerrainView.js';
 import { Planner } from './terrain/Planner.js';
 import { Labels } from './ui/labels.js';
 import { Hud } from './ui/hud.js';
-import { CRATER_POIS, SITE_POIS, DEFAULT_PLAN } from './data/places.js';
+import { CRATER_VIEW_POIS, SITE_POIS, DEFAULT_PLAN } from './data/places.js';
 import { fmtNum } from './lib/geo.js';
 
 const TOP = Math.PI / 2 - 0.0015;
@@ -68,7 +68,7 @@ class App {
     this.crater = new TerrainView(this, {
       id: 'crater', meta: manifest.crater, heights: heights.crater,
       tex: { visible: tex.c_visible, normal: tex.c_normal, slope: tex.c_slope, thermal: tex.c_thermal },
-      pois: CRATER_POIS.filter((p) => !['oeb', 'depot'].includes(p.id)), exag: 2.2, contour: [50, 250], gridKm: 5, dist: [2.5, 210], strata: 140,
+      pois: CRATER_VIEW_POIS, exag: 2.2, contour: [50, 250], gridKm: 5, dist: [2.5, 210], strata: 140,
       overview: { dist: 118, el: 0.78, az: 0.3, target: { lat: 18.42, lon: 77.62 } },
       lat0: 18.44, lon0: 77.6, slopeLim: [10, 20, 30], childEnterDist: 11,
     });
@@ -259,12 +259,9 @@ class App {
   }
 
   onPOIClick(view, poi) {
-    if (view === this.site && this.planner.addMode) {
-      const { x, z } = view.lonlatToXZ(poi.lat, poi.lon);
-      this.planner.waypoints.push({ name: poi.name, x, z, poi });
+    if (view === this.site && poi.id !== 'lz') {
       this.planner.addMode = false;
-      this.planner.compute();
-      return;
+      if (this.planner.addPOI(poi)) { this.hud.toast(`STOP ADDED · ${poi.name.toUpperCase()}`); return; }
     }
     const { x, z } = view.lonlatToXZ(poi.lat, poi.lon);
     view.pulse(x, z);

@@ -97,7 +97,7 @@ export class Director {
     this.cap('ELEVATION + CONTOURS', 'The crater floor sits 2.6 km below the Mars datum', 3200);
     await this.wait(3.4);
     a.toggleTerrainLayer('thermal', true);
-    this.cap('THERMAL INERTIA PROXY · THEMIS', 'Bright = bedrock and coarse rock. Dark = dust and fine sand', 3400);
+    this.cap('GROUND FIRMNESS · MARS ODYSSEY THEMIS', 'Firm rock stays warm at night. Loose dust and sand cool fast', 3400);
     await this.wait(3.6);
     a.toggleTerrainLayer('slope', true);
     a.toggleTerrainLayer('contour', false);
@@ -122,28 +122,52 @@ export class Director {
     a.toggleTerrainLayer('slope', false);
     s.autoOrbit = 0;
 
-    // EVA playback with a chase camera
+    // the Watney check, including a bad day
     const pl = a.planner;
+    const cap0 = pl.params.o2CapKg;
+    this.cap('WHAT IF THE SUIT HAD HALF THE OXYGEN?', 'The planner finds the point of no return and calls NO-GO', 4200);
+    pl.params.o2CapKg = Math.round(cap0 * 0.5 * 100) / 100;
+    pl.userEdit = true;
+    pl.compute();
+    await this.wait(4.4);
+    pl.params.o2CapKg = cap0;
+    pl.userEdit = true;
+    pl.compute();
+    await this.wait(2.6);
+
+    // EVA playback with a chase camera
+    const r2 = pl.result;
     await s.flyTo({ dist: 1.6, el: 0.62 }, 1.4);
     pl.follow = true;
     pl.startSim(900);
-    if (r && !r.failed) {
-      const b = r.budget;
-      this.cap('THE WATNEY CHECK', `${b.o2.toFixed(2)} kg of O₂ used out of ${pl.params.o2CapKg.toFixed(2)} kg: ${b.marginPct.toFixed(0)} % left at the airlock. ${r.verdict.lvl === 'go' ? 'GO for EVA.' : r.verdict.lvl === 'caution' ? 'GO with caution.' : 'NO-GO.'}`, 0);
+    if (r2 && !r2.failed) {
+      const b = r2.budget;
+      this.cap('THE WATNEY CHECK', `${b.o2.toFixed(2)} kg of O₂ used out of ${pl.params.o2CapKg.toFixed(2)} kg: ${b.marginPct.toFixed(0)} % left at the airlock`, 0);
     }
     await this.until(() => !pl.sim, 22);
     pl.stopSim();
+    a.hud.caption(null);
+
+    // the one-take: pick a destination, Sol Atlas plans the walk
+    await s.flyTo(s.overview(), 2.0);
+    pl.waypoints = pl.waypoints.slice(0, 1);
+    pl.compute();
+    this.cap('PICK A DESTINATION', 'Three Forks sample depot', 2400);
+    await this.wait(2.4);
+    const depot = s.cfg.pois.find((p) => p.id === 'depot');
+    a.onPOIClick(s, depot);
+    await this.wait(3.2);
 
     a.toggleTerrainLayer('holo', true);
     a.toggleTerrainLayer('contour', true);
-    await s.flyTo(s.overview(), 2.4);
     s.autoOrbit = 0.05;
-    this.cap('THE SOL EXPLORERS · NASA SPACE APPS 2026', 'Sol Atlas: plan the walk before you take it', 0);
+    this.cap('THE SOL EXPLORERS · NASA SPACE APPS 2026', 'Sol Atlas plans the walk. Every sol counts.', 0);
     await this.wait(6);
     a.toggleTerrainLayer('holo', false);
     a.toggleTerrainLayer('contour', false);
     s.autoOrbit = 0;
     a.hud.caption(null);
+    a.resetPlan();
   }
 
   update() {}

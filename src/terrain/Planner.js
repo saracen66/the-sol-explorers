@@ -72,11 +72,22 @@ export class Planner {
   addAt(x, z) {
     const n = this.waypoints.length;
     this.waypoints.push({ name: `Stop ${n}`, x, z });
+    this.userEdit = true;
     this.compute();
+  }
+
+  addPOI(poi) {
+    if (this.waypoints.some((w) => w.poi && w.poi.id === poi.id)) return false;
+    const { x, z } = this.view.lonlatToXZ(poi.lat, poi.lon);
+    this.waypoints.push({ name: poi.name, x, z, poi });
+    this.userEdit = true;
+    this.compute();
+    return true;
   }
 
   remove(i) {
     this.waypoints.splice(i, 1);
+    this.userEdit = true;
     this.compute();
   }
 
@@ -86,6 +97,7 @@ export class Planner {
     const wps = this.waypoints;
     if (wps.length < 2) {
       this.result = null;
+      this.lastVerdict = null;
       v.setRoute(null);
       this.renderMarkers();
       this.app.hud.renderPlanner(this);
@@ -113,6 +125,7 @@ export class Planner {
     this.computeMs = performance.now() - t0;
     if (failed) {
       this.result = { failed: true };
+      this.lastVerdict = 'nogo';
       v.setRoute(null);
       this.app.hud.renderPlanner(this);
       return;
@@ -144,11 +157,51 @@ export class Planner {
     this.result = {
       route, samples, stopAtD, budget: b, sun,
       direct: { distance: dSamples.at(-1).d, maxFine: directMaxFine },
-      verdict: verdict({ ...b, maxSlope: b.maxSlope }, sun, this.params),
     };
+    this.result.pnr = this.pointOfNoReturn(this.result);
+    this.result.verdict = this.judge(this.result);
     v.setRoute(route, direct);
     this.renderMarkers();
+    const prev = this.lastVerdict;
+    this.lastVerdict = this.result.verdict.lvl;
     this.app.hud.renderPlanner(this);
+    if (this.userEdit && this.lastVerdict === 'go' && prev !== 'go') this.app.hud.banner('MARSWALK READY', 'go');
+    else if (this.userEdit && this.lastVerdict === 'nogo' && prev !== 'nogo') this.app.hud.banner('NO-GO · REPLAN', 'nogo');
+    this.userEdit = false;
+  }
+
+  judge(r) {
+    const vd = verdict(r.budget, r.sun, this.params);
+    if (r.pnr) {
+      vd.issues.unshift({ lvl: 'nogo', msg: `Point of no return at ${(r.pnr.d / 1000).toFixed(2)} km: past it, an abort can't reach the airlock with the O₂ reserve` });
+      vd.lvl = 'nogo';
+    }
+    return vd;
+  }
+
+  /**
+   * Point of no return: the first point on the route where the O2 already used
+   * plus the O2 to walk straight back to the airlock would eat into the reserve.
+   * Only the outbound part counts (on the last leg you are already heading home).
+   */
+  pointOfNoReturn(r) {
+    const p = this.params, b = r.budget;
+    const home = this.waypoints[0];
+    const vFlat = walkSpeed(0, p);
+    const o2PerM = o2KgPerSec(metabolicW(vFlat, 0, p)) / vFlat * 1.25; // detour + terrain allowance
+    const stopKg = o2KgPerSec(p.stopW) * p.stopMin * 60;
+    const lastOut = this.returnToStart ? (r.stopAtD.at(-1) ?? 0) : b.distance;
+    const limit = p.o2CapKg - b.reserveKg;
+    const step = Math.max(1, Math.floor(r.samples.length / 600));
+    for (let i = 0; i < r.samples.length; i += step) {
+      const s = r.samples[i];
+      if (s.d > lastOut) break;
+      const walked = interp(b.timeline, 'd', s.d, 'o2');
+      const stops = r.stopAtD.filter((d) => d <= s.d).length * stopKg;
+      const back = Math.hypot(s.x - home.x, s.z - home.z) * 1000 * o2PerM;
+      if (walked + stops + back > limit) return { d: s.d, x: s.x, z: s.z, need: walked + stops + back, limit };
+    }
+    return null;
   }
 
   sunWindow(b) {
@@ -163,7 +216,7 @@ export class Planner {
     const r = this.result;
     if (!r || r.failed) return;
     r.sun = this.sunWindow(r.budget);
-    r.verdict = verdict(r.budget, r.sun, this.params);
+    r.verdict = this.judge(r);
     r.events = null;
     this.app.hud.renderPlanner(this);
   }
@@ -172,13 +225,24 @@ export class Planner {
     const labels = this.app.labels;
     labels.clear('wp');
     this.wpItems = this.waypoints.map((w, i) => {
+      // named places already carry their own label; custom stops get a small one
+      const lb = w.poi ? '' : `<div class="lb wr">${w.name} · science stop</div>`;
       const it = labels.add('wp', {
-        className: 'wpn', html: `<div class="dot"></div><div class="num">${i + 1}</div>`,
-        world: new THREE.Vector3(w.x, 0, w.z),
+        className: 'wpn', html: `<div class="dot"></div><div class="num">${i + 1}</div>${lb}`,
+        world: new THREE.Vector3(w.x, 0, w.z), priority: 8,
       });
       it.xz = w;
       return it;
     });
+    const pnr = this.result && this.result.pnr;
+    if (pnr) {
+      const it = labels.add('wp', {
+        className: 'pnr', html: '<div class="dot"></div><div class="lb">POINT OF NO RETURN<small>abort limit with O₂ reserve</small></div>',
+        world: new THREE.Vector3(pnr.x, 0, pnr.z), priority: 9,
+      });
+      it.xz = { x: pnr.x, z: pnr.z };
+      this.wpItems.push(it);
+    }
     if (!this.evaItem) {
       this.evaItem = labels.add('eva', { className: 'eva', html: '<div class="dot"></div><div class="lb">EV1</div>', world: new THREE.Vector3() });
       this.hoverItem = labels.add('eva', { className: 'eva', html: '<div class="dot" style="width:8px;height:8px;left:-4px;top:-4px"></div>', world: new THREE.Vector3() });

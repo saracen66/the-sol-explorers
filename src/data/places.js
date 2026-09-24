@@ -29,11 +29,13 @@ export const LANDING_SITES = [
 export const CRATER_POIS = [
   {
     id: 'oeb', name: 'Octavia E. Butler Landing', kind: 'landing', lat: 18.4447, lon: 77.4508,
+    reason: 'Check 5+ years of dust on Perseverance\u2019s landing site',
     text: 'Perseverance touched down here on 18 Feb 2021. The descent imagery, sky-crane and heat-shield debris were all mapped from orbit by HiRISE.',
     source: 'NASA/JPL-Caltech',
   },
   {
     id: 'depot', name: 'Three Forks Sample Depot', kind: 'science', lat: 18.4391, lon: 77.4494, approx: true,
+    reason: 'Collect sealed sample tubes for the trip home',
     text: '10 sealed sample tubes laid on the crater floor, 21 Dec 2022 – 28 Jan 2023, spaced 5–15 m apart in a zig-zag. The backup cache for Mars Sample Return.',
     source: 'NASA/JPL-Caltech (depot); position from witness-tube coordinates',
   },
@@ -68,6 +70,7 @@ export const CRATER_POIS = [
 export const SITE_POIS = [
   {
     id: 'lz', name: 'LZ-A · Crew Landing Zone', kind: 'lz', lat: 18.4500, lon: 77.4850, proposed: true,
+    reason: 'Airlock: EVA starts and ends here',
     text: 'Our proposed crew landing zone. It sits on flat Máaz lava floor, with a median slope under 3° in the HiRISE DTM, and keeps >2 km of stand-off so engine plume ejecta cannot hit the sample depot.',
     source: 'Sol Atlas design (HiRISE DTM analysis)',
   },
@@ -75,15 +78,20 @@ export const SITE_POIS = [
   CRATER_POIS[1],
   {
     id: 'seitah', name: 'Séítah', kind: 'geology', lat: 18.428, lon: 77.432, approx: true,
+    reason: 'Sample olivine-rich igneous bedrock',
     text: 'Ridges of olivine-rich igneous rock broken up by sand ripples. Perseverance cored some of its first samples here. Tough walking, high science value.',
     source: 'Mars 2020 science team; HiRISE',
   },
   {
     id: 'front', name: 'Delta front scarp', kind: 'geology', lat: 18.481, lon: 77.437, approx: true,
+    reason: 'Log layered lake sediments for biosignatures',
     text: 'The steep edge of the delta, with layered sandstone and mudstone exposed. The slope layer shows why an astronaut should go around this cliff, not over it.',
     source: 'HiRISE ortho + 1 m DTM',
   },
 ];
+
+// Crater view: the two pins the walk connects, plus the big features
+export const CRATER_VIEW_POIS = [SITE_POIS[0], ...CRATER_POIS.filter((p) => p.id !== 'oeb')];
 
 // Default Marswalk plan (waypoint ids from SITE_POIS)
 export const DEFAULT_PLAN = ['lz', 'oeb', 'depot', 'seitah'];
