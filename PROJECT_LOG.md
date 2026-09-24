@@ -182,6 +182,8 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 
 Real-phone and real-GPU frame rates still need checking on the team's devices.
 
+**Deployed:** commit `0817e6e` → Netlify deploy `6ab584ca`, ready at 20:15 UTC (19 new files: the phone textures, the 4k globe, the new bundle).
+
 ---
 
 ## Decisions and assumptions
