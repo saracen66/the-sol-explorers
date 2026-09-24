@@ -11,9 +11,10 @@
       21200
     ],
     "elev": {
-      "file": "g_elev.bin",
+      "file": "g_elev.png",
       "width": 1024,
-      "height": 512
+      "height": 512,
+      "offset": 32768
     }
   },
   "region": {
@@ -27,7 +28,7 @@
     ]
   },
   "crater": {
-    "file": "c_height.bin",
+    "file": "c_height.png",
     "width": 1024,
     "height": 1164,
     "min": -3446.247314453125,
@@ -58,7 +59,7 @@
     "slopeScale": 0.25
   },
   "site": {
-    "file": "s_height.bin",
+    "file": "s_height.png",
     "width": 1024,
     "height": 1024,
     "min": -2649.058349609375,

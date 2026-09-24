@@ -322,7 +322,7 @@ export class Hud {
     const r = pl.result;
     const wps = pl.waypoints.map((w, i) => `
       <div class="wp"><div class="n"><span>${i + 1}</span></div>
-        <div><div class="nm">${w.name}</div><div class="ds">${w.poi?.reason || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}${i > 0 ? ` · ${pl.params.stopMin} min` : ''}</div></div>
+        <div style="min-width:0"><div class="nm">${w.name}</div><div class="ds" title="${w.poi?.reason || ''}">${w.poi?.reason || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}</div></div>
         ${i > 0 ? `<button class="x" data-rm="${i}" title="Remove stop">✕</button>` : '<span></span>'}
       </div>`).join('');
     let body = '';

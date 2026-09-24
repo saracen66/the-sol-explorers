@@ -201,9 +201,10 @@ export class TerrainView {
     for (const p of this.cfg.pois) {
       const { x, z } = this.lonlatToXZ(p.lat, p.lon);
       if (Math.abs(x) > this.sizeX / 2 || Math.abs(z) > this.sizeZ / 2) continue;
-      const tag = this.id === 'site' && p.reason ? p.reason : p.proposed ? 'Proposed · Sol Atlas' : p.approx ? 'Approx. position' : fmtLat(p.lat) + ' ' + fmtLon(p.lon);
+      const siteTag = { lz: 'Airlock · proposed', landing: 'Historic site', science: 'Sample depot', geology: 'Science stop' }[p.kind];
+      const tag = this.id === 'site' ? siteTag : p.proposed ? 'Proposed · Sol Atlas' : p.approx ? 'Approx. position' : fmtLat(p.lat) + ' ' + fmtLon(p.lon);
       const html = `<div class="dot"></div><div class="lb">${p.name}<small>${tag}</small></div>
-        <div class="card"><b>${p.name}</b>${p.text}<em>Source: ${p.source}</em>${this.id === 'site' && p.id !== 'lz' ? '<em style="color:var(--data)">Click to add it to the Marswalk</em>' : ''}</div>`;
+        <div class="card"><b>${p.name}</b>${p.reason && this.id === 'site' ? `<span style="color:var(--data)">${p.reason}.</span> ` : ''}${p.text}<em>Source: ${p.source}</em>${this.id === 'site' && p.id !== 'lz' ? '<em style="color:var(--data)">Click to add it to the Marswalk</em>' : ''}</div>`;
       const item = labels.add(this.id, {
         className: `poi k-${p.kind}`, html, world: new THREE.Vector3(x, 0, z),
         onClick: () => this.app.onPOIClick(this, p),

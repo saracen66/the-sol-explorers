@@ -87,7 +87,7 @@ export function budget(samples, stopAt, p = EVA_DEFAULTS) {
 
 export function verdict(b, sun, p = EVA_DEFAULTS) {
   const issues = [];
-  if (b.remaining < b.reserveKg) issues.push({ lvl: 'nogo', msg: `O₂ reserve breached: ${(b.remaining).toFixed(2)} kg left, ${b.reserveKg.toFixed(2)} kg required` });
+  if (b.remaining < b.reserveKg) issues.push({ lvl: 'nogo', msg: `O₂ reserve breached: ${Math.max(0, b.remaining).toFixed(3)} kg left at the airlock, ${b.reserveKg.toFixed(3)} kg required` });
   else if (b.marginPct < p.reservePct + 15) issues.push({ lvl: 'caution', msg: `Thin O₂ margin: ${b.marginPct.toFixed(0)} % left at return` });
   if (b.totalT / 3600 > p.evaMaxH) issues.push({ lvl: 'nogo', msg: `EVA ${(b.totalT / 3600).toFixed(1)} h exceeds the ${p.evaMaxH} h suit rating` });
   if (b.maxSlope > p.maxSlope) issues.push({ lvl: 'nogo', msg: `Route crosses ${b.maxSlope.toFixed(0)}° ground (limit ${p.maxSlope}°)` });

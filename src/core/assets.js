@@ -42,22 +42,22 @@ export async function loadAssets(renderer, onProgress) {
     tick(label);
   }));
 
-  const bin = (f, T) => fetch(url(f)).then((r) => r.arrayBuffer()).then((b) => new T(b));
   const [gElev, cHeight, sHeight] = await Promise.all([
-    bin(manifest.global.elev.file, Int16Array).then((a) => { tick('MOLA elevation grid'); return a; }),
-    bin(manifest.crater.file, Uint16Array).then((a) => { tick('Jezero CTX heightfield'); return a; }),
-    bin(manifest.site.file, Uint16Array).then((a) => { tick('Landing-site HiRISE heightfield'); return a; }),
+    heightPNG(url(manifest.global.elev.file)).then((a) => { tick('MOLA elevation grid'); return a; }),
+    heightPNG(url(manifest.crater.file)).then((a) => { tick('Jezero CTX heightfield'); return a; }),
+    heightPNG(url(manifest.site.file)).then((a) => { tick('Landing-site HiRISE heightfield'); return a; }),
     ...texJobs,
   ]);
 
   const ge = manifest.global.elev;
+  const gOff = ge.offset || 0;
   const assets = {
     manifest, tex,
     heights: { crater: cHeight, site: sHeight },
     elevAt(lat, lon) {
       const x = Math.floor(((lon + 180) / 360) * ge.width) % ge.width;
       const y = Math.min(ge.height - 1, Math.max(0, Math.floor(((90 - lat) / 180) * ge.height)));
-      return gElev[y * ge.width + x];
+      return gElev[y * ge.width + x] - gOff;
     },
   };
 
@@ -71,4 +71,20 @@ export async function loadAssets(renderer, onProgress) {
     assets.onHiRes?.(t);
   });
   return assets;
+}
+
+/** 16-bit heights packed into a lossless PNG: value = R * 256 + G. */
+async function heightPNG(src) {
+  const blob = await fetch(src).then((r) => r.blob());
+  const bmp = await createImageBitmap(blob, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
+  const c = document.createElement('canvas');
+  c.width = bmp.width;
+  c.height = bmp.height;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(bmp, 0, 0);
+  const px = g.getImageData(0, 0, c.width, c.height).data;
+  const out = new Uint16Array(c.width * c.height);
+  for (let i = 0; i < out.length; i++) out[i] = (px[i * 4] << 8) | px[i * 4 + 1];
+  bmp.close?.();
+  return out;
 }

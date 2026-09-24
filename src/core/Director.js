@@ -125,8 +125,8 @@ export class Director {
     // the Watney check, including a bad day
     const pl = a.planner;
     const cap0 = pl.params.o2CapKg;
-    this.cap('WHAT IF THE SUIT HAD HALF THE OXYGEN?', 'The planner finds the point of no return and calls NO-GO', 4200);
-    pl.params.o2CapKg = Math.round(cap0 * 0.5 * 100) / 100;
+    this.cap('WHAT IF THE SUIT CARRIED ONLY 0.25 kg OF O₂?', 'The planner finds the point of no return and calls NO-GO', 4200);
+    pl.params.o2CapKg = 0.25;
     pl.userEdit = true;
     pl.compute();
     await this.wait(4.4);

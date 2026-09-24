@@ -174,11 +174,12 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 
 /* ------------------------------------------------ EVA planner */
-.wp { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; padding: 6px 4px; border-bottom: 1px dashed var(--hud-faint); }
+.wp { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 4px; border-bottom: 1px dashed var(--hud-faint); }
 .wp .n { width: 20px; height: 20px; border: 1.5px solid var(--data); color: var(--data); font-family: var(--mono); font-size: 11px; display: grid; place-items: center; transform: rotate(45deg); }
 .wp .n span { transform: rotate(-45deg); }
 .wp .nm { font-weight: 600; font-size: 13.5px; line-height: 1.1; }
-.wp .ds { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+.wp .ds { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wp .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wp .x { background: none; border: 0; color: var(--text-3); cursor: pointer; font-size: 14px; }
 .wp .x:hover { color: var(--critical); }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }

@@ -192,12 +192,11 @@ export class Planner {
     const stopKg = o2KgPerSec(p.stopW) * p.stopMin * 60;
     const lastOut = this.returnToStart ? (r.stopAtD.at(-1) ?? 0) : b.distance;
     const limit = p.o2CapKg - b.reserveKg;
-    const step = Math.max(1, Math.floor(r.samples.length / 600));
-    for (let i = 0; i < r.samples.length; i += step) {
+    for (let i = 0; i < r.samples.length; i++) {
       const s = r.samples[i];
-      if (s.d > lastOut) break;
+      if (s.d > lastOut + 0.5) break;
       const walked = interp(b.timeline, 'd', s.d, 'o2');
-      const stops = r.stopAtD.filter((d) => d <= s.d).length * stopKg;
+      const stops = r.stopAtD.filter((d) => d <= s.d + 0.5).length * stopKg;
       const back = Math.hypot(s.x - home.x, s.z - home.z) * 1000 * o2PerM;
       if (walked + stops + back > limit) return { d: s.d, x: s.x, z: s.z, need: walked + stops + back, limit };
     }

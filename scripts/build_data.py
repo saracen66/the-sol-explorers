@@ -10,17 +10,17 @@ Nothing here is hand-painted: every pixel comes from a NASA mission dataset.
 
   Global (orbit view)
     - Viking MDIM 2.1 colour mosaic (NASA Ames recolour)       -> g_color_*.jpg
-    - MGS MOLA 128/64 ppd elevation                            -> g_normal_4k.jpg, g_topo_4k.jpg, g_elev.bin
+    - MGS MOLA 128/64 ppd elevation                            -> g_normal_4k.jpg, g_topo_4k.jpg, g_elev.png
     - Mars Odyssey THEMIS night-IR controlled mosaic (100 m)   -> g_thermal_4k.jpg
   Region (Isidis / Jezero, 12 x 12 deg decal on the globe)
     - same three sources at full resolution                    -> r_*.jpg
   Crater (Jezero, ~89 x 101 km)
     - Mars 2020 Science Investigation CTX ortho mosaic (5 m)   -> c_visible.jpg
-    - Mars 2020 Science Investigation CTX DEM (20 m)           -> c_height.bin, c_normal.png, c_slope.png
+    - Mars 2020 Science Investigation CTX DEM (20 m)           -> c_height.png, c_normal.jpg, c_slope.png
     - THEMIS night IR                                          -> c_thermal.jpg
   Site (Marswalk zone around the landing site / Three Forks, 5 x 5 km)
     - Mars 2020 TRN HiRISE ortho mosaic (25 cm)                -> s_visible.jpg
-    - Mars 2020 TRN HiRISE DTM (1 m)                           -> s_height.bin, s_normal.png, s_slope.png
+    - Mars 2020 TRN HiRISE DTM (1 m)                           -> s_height.png, s_normal.jpg, s_slope.png
     - THEMIS night IR                                          -> s_thermal.jpg
 
 Usage:
@@ -223,11 +223,19 @@ def warp(src_path, dst_shape, dst_transform, dst_crs=LOCAL_CRS, resampling=Resam
     return dst.astype(dtype)
 
 
+def save_u16_png(q, name):
+    """16-bit values packed losslessly into an 8-bit RGB PNG (value = R*256 + G).
+    PNG instead of raw binary so any static host (and claude.ai artifacts) can serve it."""
+    q = q.astype(np.uint32)
+    rgb = np.dstack([(q >> 8) & 255, q & 255, np.zeros_like(q)]).astype(np.uint8)
+    Image.fromarray(rgb).save(os.path.join(OUT, name), optimize=True)
+
+
 def save_heights(h, name):
     """uint16-quantised heightfield + metadata."""
     lo, hi = float(np.nanmin(h)), float(np.nanmax(h))
-    q = np.round((h - lo) / (hi - lo) * 65535).astype("<u2")
-    q.tofile(os.path.join(OUT, name))
+    q = np.round((h - lo) / (hi - lo) * 65535).astype(np.uint16)
+    save_u16_png(q, name)
     log("wrote", name, h.shape, f"{lo:.1f}..{hi:.1f} m")
     return dict(file=name, width=int(h.shape[1]), height=int(h.shape[0]), min=lo, max=hi)
 
@@ -269,8 +277,8 @@ def stage_global(m):
     t = np.clip(t, 0, 1) ** 0.6  # spend more of the ramp on the lowlands
     hs = np.clip(np.einsum("ijk,k->ij", np.dstack([nx / n, ny / n, nz / n]), np.array([-0.5, 0.5, 0.7])), 0, 1)
     save_rgb(apply_lut(t, TOPO) * (0.55 + 0.6 * hs[..., None]), "g_topo_4k.jpg", 86)
-    small = h.reshape(512, 4, 1024, 4).mean(axis=(1, 3)).astype("<i2")
-    small.tofile(os.path.join(OUT, "g_elev.bin"))
+    small = h.reshape(512, 4, 1024, 4).mean(axis=(1, 3)).round().astype(np.int32) + 32768
+    save_u16_png(small, "g_elev.png")
 
     log("GLOBAL THEMIS night IR")
     with rasterio.open(remote("themis_night")) as d:
@@ -293,7 +301,7 @@ def stage_global(m):
     rgb = rgb * fade + 0.03 * (1 - fade)
     rgb[~valid] = 0.03
     save_rgb(rgb, "g_thermal_4k.jpg", 86)
-    m["global"] = dict(topoRange=[-8200, 21200], elev=dict(file="g_elev.bin", width=1024, height=512))
+    m["global"] = dict(topoRange=[-8200, 21200], elev=dict(file="g_elev.png", width=1024, height=512, offset=32768))
 
 
 def geo_grid(lon0, lon1, lat0, lat1, w, h):
@@ -367,7 +375,7 @@ def terrain_products(prefix, h, dx, dy, mesh_w, bounds, normal_w=2048, slope_w=2
     H, W = h.shape
     mesh_h = int(round(mesh_w * H / W))
     hm = np.asarray(Image.fromarray(h.astype(np.float32)).resize((mesh_w, mesh_h), Image.BILINEAR))
-    meta = save_heights(hm, f"{prefix}_height.bin")
+    meta = save_heights(hm, f"{prefix}_height.png")
 
     nw, nh = normal_w, int(round(normal_w * H / W))
     hn = np.asarray(Image.fromarray(h.astype(np.float32)).resize((nw, nh), Image.BILINEAR))
