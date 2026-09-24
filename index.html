@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sol Atlas</title>
+  <meta name="description" content="Sol Atlas: a layered Marswalk planner built on real NASA Mars data. The SOL Explorers, NASA Space Apps Challenge 2026." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='22' fill='%23c1440e'/%3E%3Ccircle cx='32' cy='32' r='29' fill='none' stroke='%23ff9a3c' stroke-width='3' stroke-dasharray='8 6'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <canvas id="fx"></canvas>
+  <div id="labels"></div>
+
+  <div id="hud" class="hud">
+    <!-- top bar -->
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="15" fill="#c1440e" />
+          <circle cx="32" cy="32" r="15" fill="url(#bm)" />
+          <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5" />
+          <path d="M8 40 L56 24" stroke="currentColor" stroke-width="1.5" opacity=".6" />
+          <defs><radialGradient id="bm" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#ffb07a" stop-opacity=".7" /><stop offset="1" stop-color="#000" stop-opacity=".5" /></radialGradient></defs>
+        </svg>
+        <div>
+          <div class="brand-name">SOL ATLAS</div>
+          <div class="brand-sub">THE SOL EXPLORERS · NASA SPACE APPS 2026</div>
+        </div>
+      </div>
+      <nav class="crumbs" id="crumbs"></nav>
+      <div class="telemetry" id="telemetry">
+        <div class="chip"><span class="k">MISSION SOL</span><span class="v" id="t-sol">—</span></div>
+        <div class="chip"><span class="k">LMST JEZERO</span><span class="v" id="t-lmst">—</span></div>
+        <div class="chip"><span class="k">SEASON</span><span class="v" id="t-ls">—</span></div>
+        <div class="chip accent"><span class="k">EARTH LINK Δ</span><span class="v" id="t-comms">—</span></div>
+      </div>
+    </header>
+
+    <!-- left panel -->
+    <aside class="panel left" id="panel-left"></aside>
+    <!-- right panel -->
+    <aside class="panel right" id="panel-right"></aside>
+
+    <!-- bottom -->
+    <footer class="bottombar">
+      <div class="readout" id="readout"></div>
+      <div class="hints" id="hints"></div>
+      <div class="bottom-actions">
+        <button class="btn ghost" id="btn-sources" title="Data sources &amp; credits">DATA SOURCES</button>
+        <button class="btn ghost" id="btn-cine" title="Autopilot demo for recording (C)">▶ AUTOPILOT</button>
+      </div>
+    </footer>
+
+    <div class="prompt" id="prompt"></div>
+    <div class="toast" id="toast"></div>
+    <div class="reticle" id="reticle"><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <div id="caption" class="caption"></div>
+  <div id="flash" class="flash"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <div id="loader" class="loader">
+    <div class="loader-inner">
+      <div class="loader-logo">SOL ATLAS</div>
+      <div class="loader-sub">LAYERED MARSWALK PLANNER · REAL NASA DATA</div>
+      <div class="loader-bar"><i id="loader-fill"></i></div>
+      <div class="loader-log" id="loader-log"></div>
+      <div class="loader-team">THE SOL EXPLORERS · RAJSHAHI · NASA SPACE APPS CHALLENGE 2026</div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card">
+      <button class="modal-x" id="modal-x" aria-label="Close">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

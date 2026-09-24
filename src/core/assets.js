@@ -1,0 +1,74 @@
+import * as THREE from 'three';
+
+const BASE = import.meta.env.BASE_URL;
+const url = (f) => `${BASE}data/${f}`;
+
+// [key, file, colourSpace, label for the loading log]
+const TEXTURES = [
+  ['g_color', 'g_color_2k.jpg', 'srgb', 'Viking MDIM 2.1 global colour mosaic · NASA Ames'],
+  ['g_normal', 'g_normal_4k.jpg', 'linear', 'MGS MOLA global topography → relief'],
+  ['g_topo', 'g_topo_4k.jpg', 'srgb', 'MGS MOLA hypsometric scan'],
+  ['g_thermal', 'g_thermal_4k.jpg', 'srgb', 'Mars Odyssey THEMIS night-IR mosaic'],
+  ['r_color', 'r_color.jpg', 'srgb', 'Isidis / Nili Planum regional colour'],
+  ['r_normal', 'r_normal.jpg', 'linear', 'Regional MOLA relief'],
+  ['r_topo', 'r_topo.jpg', 'srgb', 'Regional MOLA elevation'],
+  ['r_thermal', 'r_thermal.jpg', 'srgb', 'Regional THEMIS thermal'],
+  ['c_decal', 'c_decal.jpg', 'srgb', 'Jezero orbital decal'],
+  ['c_visible', 'c_visible.jpg', 'srgb', 'MRO CTX 5 m orthomosaic · Jezero (JPL)'],
+  ['c_normal', 'c_normal.jpg', 'linear', 'MRO CTX 20 m stereo DEM · relief'],
+  ['c_slope', 'c_slope.png', 'linear', 'Slope hazard from CTX DEM'],
+  ['c_thermal', 'c_thermal.jpg', 'srgb', 'THEMIS night IR · Jezero'],
+  ['s_visible', 's_visible.jpg', 'srgb', 'MRO HiRISE 25 cm orthomosaic · landing site'],
+  ['s_normal', 's_normal.jpg', 'linear', 'MRO HiRISE 1 m DTM · relief'],
+  ['s_slope', 's_slope.png', 'linear', 'Slope hazard from HiRISE DTM'],
+  ['s_thermal', 's_thermal.jpg', 'srgb', 'THEMIS night IR · Marswalk zone'],
+];
+
+export async function loadAssets(renderer, onProgress) {
+  const manifest = await fetch(url('manifest.json')).then((r) => r.json());
+  const loader = new THREE.TextureLoader();
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+  const tex = {};
+  const total = TEXTURES.length + 3;
+  let done = 0;
+  const tick = (label) => onProgress(++done / total, label);
+
+  const texJobs = TEXTURES.map(([key, file, cs, label]) => loader.loadAsync(url(file)).then((t) => {
+    t.colorSpace = cs === 'srgb' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    t.anisotropy = Math.min(8, maxAniso);
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    if (key.startsWith('g_')) t.wrapS = THREE.RepeatWrapping;
+    tex[key] = t;
+    tick(label);
+  }));
+
+  const bin = (f, T) => fetch(url(f)).then((r) => r.arrayBuffer()).then((b) => new T(b));
+  const [gElev, cHeight, sHeight] = await Promise.all([
+    bin(manifest.global.elev.file, Int16Array).then((a) => { tick('MOLA elevation grid'); return a; }),
+    bin(manifest.crater.file, Uint16Array).then((a) => { tick('Jezero CTX heightfield'); return a; }),
+    bin(manifest.site.file, Uint16Array).then((a) => { tick('Landing-site HiRISE heightfield'); return a; }),
+    ...texJobs,
+  ]);
+
+  const ge = manifest.global.elev;
+  const assets = {
+    manifest, tex,
+    heights: { crater: cHeight, site: sHeight },
+    elevAt(lat, lon) {
+      const x = Math.floor(((lon + 180) / 360) * ge.width) % ge.width;
+      const y = Math.min(ge.height - 1, Math.max(0, Math.floor(((90 - lat) / 180) * ge.height)));
+      return gElev[y * ge.width + x];
+    },
+  };
+
+  // upgrade to the 8k colour mosaic in the background
+  loader.loadAsync(url('g_color_8k.jpg')).then((t) => {
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = Math.min(8, maxAniso);
+    t.wrapS = THREE.RepeatWrapping;
+    tex.g_color.dispose();
+    tex.g_color = t;
+    assets.onHiRes?.(t);
+  });
+  return assets;
+}
