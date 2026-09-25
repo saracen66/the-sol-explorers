@@ -172,6 +172,9 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .btn.ghost { background: rgba(10,7,5,.5); }
 .btn.small { padding: 4px 9px; font-size: 11px; }
 .btn.muted { color: var(--text-3); text-decoration: line-through; }
+.rec-btn { color: #ff8a8a; font-family: var(--mono); letter-spacing: .06em; }
+.rec-btn.rec-on { background: rgba(208,59,59,.3); border-color: var(--critical); color: #fff; animation: blink 1s steps(2) infinite; }
+body.compact .rec-btn, body.touch .rec-btn { display: none; }
 .btn[disabled] { opacity: .4; pointer-events: none; }
 .btn:focus-visible, .row:focus-visible, .layer:focus-visible, .seg button:focus-visible { outline: 2px solid var(--hud-hi); outline-offset: 2px; }
 .sheet-btn { display: none; }

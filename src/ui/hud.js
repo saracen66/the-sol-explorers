@@ -4,6 +4,7 @@ import { LANDING_SITES } from '../data/places.js';
 import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
+import { Recorder } from './recorder.js';
 
 const $ = (id) => document.getElementById(id);
 const ICON = {
@@ -24,6 +25,9 @@ export class Hud {
     $('btn-sources').onclick = () => this.showSources();
     $('btn-cine').onclick = () => { this.closeSheet(); app.director.toggle(); };
     $('btn-sound').onclick = () => this.soundButton(app.sound.toggle());
+    this.recorder = new Recorder(this);
+    $('btn-rec').onclick = () => this.recorder.toggle();
+    if (!this.recorder.supported) $('btn-rec').hidden = true;
     this.soundButton(app.sound.on);
     // phones: the two side panels become one bottom sheet, opened from these tabs
     $('btn-info').onclick = () => this.toggleSheet('left');
