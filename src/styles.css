@@ -516,6 +516,7 @@ body.fpv #labels .mk.wpn .lb.wr, body.fpv #labels .mk .card { display: none; }
 .h-warp span { padding: 6px 10px; min-width: 96px; text-align: center; }
 .h-warp button { background: none; border: 0; color: var(--data); width: 32px; height: 30px; cursor: pointer; font-size: 16px; }
 .h-warp button:hover { background: rgba(95,212,255,.15); }
+.h-warp button:disabled { opacity: .3; cursor: default; background: none; }
 .h-note { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); color: #ffcf9a; font-weight: 700; letter-spacing: .18em; font-size: 13px;
   text-shadow: 0 0 10px #000; opacity: 0; transition: opacity .3s; }
 .h-note.show { opacity: 1; }

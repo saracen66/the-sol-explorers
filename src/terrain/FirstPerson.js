@@ -108,7 +108,7 @@ export class FirstPerson {
       <div class="h-cross"></div>
       <div class="h-suit" id="h-suit"></div>
       <div class="h-nav" id="h-nav"></div>
-      <div class="h-warp" id="h-warp"></div>
+      <div class="h-warp" id="h-warp"><button data-w="-1" aria-label="Slower time warp" title="Slower ( [ )">−</button><span id="h-warp-v">TIME ×8</span><button data-w="1" aria-label="Faster time warp" title="Faster ( ] )">+</button></div>
       <div class="h-note" id="h-note"></div>
       <div class="h-dead" id="h-dead"></div>`;
     document.getElementById('hud').appendChild(el);
@@ -287,10 +287,17 @@ export class FirstPerson {
     this.renderWarp();
   }
 
+  /** Update the time-warp readout. The buttons are built once: re-creating them every HUD
+   *  tick replaced the button between mouse-down and mouse-up, so desktop clicks never landed. */
   renderWarp() {
-    const w = document.getElementById('h-warp');
+    const w = this.el?.querySelector('#h-warp');
     if (!w) return;
-    w.innerHTML = `<button data-w="-1" aria-label="Slower">−</button><span>TIME ×${this.follow ? this.warp * 5 : this.warp}</span><button data-w="1" aria-label="Faster">+</button>`;
+    const txt = `TIME ×${this.follow ? this.warp * 5 : this.warp}`;
+    const v = w.querySelector('#h-warp-v');
+    if (v.textContent !== txt) v.textContent = txt;
+    const [dn, up] = w.querySelectorAll('button');
+    dn.disabled = this.warpIdx === 0;
+    up.disabled = this.warpIdx === WARPS.length - 1;
   }
 
   onKey(k) {
