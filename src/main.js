@@ -383,6 +383,9 @@ class App {
     }, { passive: false });
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT') return;
+      // the data-sources window is open: Esc closes it, nothing else reaches the map
+      const modal = document.getElementById('modal');
+      if (!modal.hidden) { if (e.key === 'Escape') modal.hidden = true; return; }
       this.keys.add(e.key.toLowerCase());
       this.onKey(e);
     });
