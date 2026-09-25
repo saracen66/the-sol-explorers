@@ -4,7 +4,7 @@
 
 The SOL Explorers · NASA Space Apps Challenge 2026 · challenge: *Interplanetary Survival Guide: Martian Map*
 
-**Live demo:** https://sol-atlas.netlify.app · **Project log:** [PROJECT_LOG.md](PROJECT_LOG.md)
+**Live demo:** https://sol-atlas.netlify.app · **Project log:** [PROJECT_LOG.md](PROJECT_LOG.md) · **Handoff for developers and AI assistants:** [AGENTS.md](AGENTS.md)
 
 ![Sol Atlas: Mars from orbit with landing sites and data layers](docs/screenshots/01-orbit.jpg)
 
@@ -178,9 +178,13 @@ The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séíta
 | Anywhere | `C` autopilot · `H` hide HUD · `K` captions on/off · `M` sound · `R` record | |
 
 **Helmet view:** drag to look · `WASD` / arrows to walk (`Shift` = faster) · `Q`/`E` turn · click or tap a spot to walk there · scroll or pinch to zoom · `[` `]` or the − / + buttons change the time warp · `Esc` or `F` to leave.
+
+**Helmet view on phones:** turn the phone sideways (on Android it goes fullscreen and locks to landscape). The **left stick walks**: a light push is a slow walk, full push jogs. The **right stick looks around**. You can still tap a spot to walk there.
 | Touch | drag to spin · pinch to zoom · tap Jezero to descend | drag to orbit · pinch to zoom · two-finger drag to pan · tap to select |
 
-On phones, the side panels open as a sheet from the tabs at the bottom of the screen (**JEZERO / CRATER / PLANNER** and **LAYERS**). Tap the map to close the sheet.
+On desktop, each side panel has a small **‹ / ›** tab on its inner edge that tucks it away; the tab stays at the screen edge to bring it back, and the choice is remembered.
+
+On phones and upright tablets, the side panels open as a sheet from the tabs at the bottom of the screen (**JEZERO / CRATER / PLANNER** and **LAYERS**). Tap the map to close the sheet.
 
 ---
 
@@ -217,7 +221,7 @@ Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about two min
 
 Tips:
 - Press `K` to hide the captions if you're recording your own voiceover, and `H` to hide the HUD for clean B-roll.
-- Any click or scroll hands control back to you.
+- **■ STOP AUTOPILOT** (dimmed during the run), `Esc`, or any click or scroll on the map hands control back to you. Stopping puts back whatever the autopilot changed (O₂ setting, layers, plan).
 - **Built-in recorder:** press **● REC** (or `R`), choose *this tab* and allow audio, then press `C`. The controls hide during the autopilot, so the take is clean. Press `R` again (or the browser's *Stop sharing*) and a `.webm` downloads. Desktop Chrome or Edge works best.
 - Or record at 1920 × 1080 with OBS, or with the Xbox Game Bar (`Win + Alt + R`).
 
@@ -313,6 +317,8 @@ public/data/            processed textures + heightmaps + manifest.json (lite/ =
                         m20_traverse.json (Perseverance end-of-drive waypoints, sol 0–1524)
 docs/screenshots/       images used in this README
 PROJECT_LOG.md          full record of how the project was built
+AGENTS.md / CLAUDE.md   handoff: architecture, conventions, testing, deploy, open items
+scripts/smoke.cjs       Playwright smoke test (desktop or DEVICE="iPhone 14")
 ```
 
 ---

@@ -130,6 +130,17 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `f6730c5` | 2026-09-25 06:47 | Helmet view: walk the HiRISE terrain in first person |
 | `ab92893` | 2026-09-25 06:51 | Perseverance's real traverse as a map layer |
 | `b419886` | 2026-09-25 06:54 | REC button: record the tab straight to a video file |
+| `c8cc3b0` | 2026-09-25 07:05 | Document the polish build: README, screenshots, project log |
+| `af98530` | 2026-09-25 15:39 | Autopilot can always be stopped, and stopping undoes its changes |
+| `08a5dff` | 2026-09-25 15:40 | Hover cards draw above every other marker and label |
+| `d2d95bf` | 2026-09-25 15:42 | Helmet view: time-warp buttons work with a mouse |
+| `4491d35` | 2026-09-25 15:45 | Side panels can be hidden and reopened |
+| `4cb5758` | 2026-09-25 15:49 | Keys no longer reach the map while DATA SOURCES is open |
+| `1f305da` | 2026-09-25 15:49 | Say so when a clicked place is already in the plan |
+| `7a816ad` | 2026-09-25 15:50 | SIMULATE EVA button shows ■ STOP EVA while a simulation runs |
+| `0e91905` | 2026-09-25 15:50 | Keyboard hints stay on one line |
+| `61d8eaa` | 2026-09-25 15:55 | Phone helmet view: landscape mode and twin joysticks |
+| `2cc283c` | 2026-09-25 16:02 | Tablets: upright iPads get the phone layout; tidy narrow screens |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -233,6 +244,44 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 
 **Note:** the "caveman" and "ponytail" skills the user mentioned aren't installed in this environment, so they weren't used. Playwright (headless Chromium) did all the testing and screenshots.
 
+### 2026-09-25: fixes from the team's review, phone joysticks, handoff doc
+
+**Reported by the owner**
+1. The autopilot could not be stopped.
+2. Side panels should open by default but be hideable.
+3. In the helmet view on PC, the time-warp buttons did nothing (they worked on the phone).
+4. Hover cards showed behind other stops' names.
+5. Look for similar small bugs.
+6. Keep a record another AI can pick up from.
+
+Added mid-way: make the helmet view work on phones, landscape with game-style joysticks.
+
+**Causes and fixes, one commit each**
+
+| Commit | Problem | Cause | Fix |
+|---|---|---|---|
+| `af98530` | Autopilot unstoppable | In autopilot mode *every* bottom button was hidden, including ■ STOP | Stop button stays visible (dimmed). `Esc` stops it. Stopping restores O₂, layers, plan, follow cam and helmet. No captions after a stop. Errors end the run cleanly |
+| `08a5dff` | Hover card under other labels | Each marker is its own stacking context, so later markers painted over an earlier marker's card | The hovered marker rises to z-index 40; the card is opaque and flips at screen edges |
+| `d2d95bf` | Warp buttons dead on PC | The buttons were rebuilt ~15×/s, so a mouse press and release hit different elements and no click fired; phone taps are quick enough to slip through | Buttons built once, only the text updates. They grey out at the limits |
+| `4491d35` | Panels always open | — | ‹ / › edge tabs hide and restore each panel, remembered in localStorage. Desktop only |
+| `4cb5758` | Keys worked behind the DATA SOURCES window (C started the autopilot) | The key handler ignored the modal | Esc closes the modal; other keys are ignored while it's open |
+| `1f305da` | Clicking a place already in the plan did nothing | `addPOI` returned false silently | Toast "ALREADY IN THE PLAN · STOP n" |
+| `7a816ad` | SIMULATE EVA never showed it could stop | The label was static | Shows ■ STOP EVA while running |
+| `0e91905` | Shortcut hints wrapped onto 3 lines at 1280 px | Long text, wrapping allowed | One line, most useful first, ellipsis, full list on hover |
+| `61d8eaa` | Phone helmet view | — | Twin joysticks (analogue walk with O₂ cost; squared-response look); rotate prompt; fullscreen + landscape lock on Android; landscape HUD around the thumbs; wider portrait FOV |
+| `2cc283c` | iPad upright: desktop layout crushed (title, crumbs and buttons wrapping, wrist display over the panels) | The compact breakpoint was 760 px | Compact up to 900 px wide; no-wrap title bar under 1100 px; wrist names cut off with an ellipsis; rotate prompt on phones only |
+
+**Checked with Playwright:**
+- iPhone 14, iPhone 14 landscape, iPad (gen 7) upright and sideways, 1280 and 1920 desktop.
+- A two-finger CDP test of the joysticks walked ~35 m and turned ~1.7 rad, and the sticks re-centred on release.
+- Stopping the autopilot three ways (button, Esc mid-descent, map click during the 0.20 kg segment) restored O₂ to 0.60 kg.
+- No console errors in any run.
+
+**Handoff:**
+- `AGENTS.md`: architecture, file map, gotchas (including the two bugs above), testing recipe, deploy, open items, team conventions.
+- `CLAUDE.md`: points to it.
+- `scripts/smoke.cjs`: 12-check Playwright smoke test (desktop and `DEVICE="iPhone 14"`, both passing).
+
 ---
 
 ## Decisions and assumptions
@@ -263,7 +312,7 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.
-- [ ] Try the helmet view on a real phone (frame rate and touch look/walk feel).
+- [ ] Try the helmet view on a real phone: frame rate, joystick feel, and the Android landscape lock.
 - [ ] Pitch script: add a beat for "Earth can't help in time" (the mayday light-time when O₂ runs out) and one for the helmet view.
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
 - [ ] Add team member names and roles to README → Credits.

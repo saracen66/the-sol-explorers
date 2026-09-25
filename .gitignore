@@ -4,3 +4,4 @@ dist/
 __pycache__/
 *.part
 .DS_Store
+smoke-*.png
