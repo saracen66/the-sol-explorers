@@ -411,6 +411,7 @@ class App {
   onKey(e) {
     const k = e.key.toLowerCase();
     if (k === 'c') { this.director.toggle(); return; }
+    if (k === 'escape' && this.director.running) { this.director.interrupt(); return; }
     if (k === 'h') { document.getElementById('hud').classList.toggle('hidden'); document.getElementById('labels').style.opacity = document.getElementById('hud').classList.contains('hidden') ? 0.0 : 1; return; }
     if (k === 'r' && !e.metaKey && !e.ctrlKey) { this.hud.recorder.toggle(); return; }
     if (k === 'm') { this.hud.soundButton(this.sound.toggle()); return; }

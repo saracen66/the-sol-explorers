@@ -1,5 +1,6 @@
 // Autopilot: a scripted fly-through for recording the pitch video.
-// Press C (or the ▶ AUTOPILOT button). Any mouse/scroll input hands control back.
+// Press C (or the ▶ AUTOPILOT button). ■ STOP AUTOPILOT, Esc, or any click / scroll on
+// the map hands control back, and puts back whatever the autopilot changed.
 // K toggles captions, H hides the HUD.
 import * as THREE from 'three';
 
@@ -11,11 +12,12 @@ export class Director {
     this.token = 0;
   }
 
-  toggle() { this.running ? this.stop() : this.start(); }
+  toggle() { this.running ? this.stop('AUTOPILOT OFF · MANUAL CONTROL') : this.start(); }
 
   interrupt() { if (this.running) this.stop('AUTOPILOT OFF · MANUAL CONTROL'); }
 
   stop(msg) {
+    if (!this.running) return;
     this.running = false;
     this.token++;
     document.body.classList.remove('cine');
@@ -23,12 +25,53 @@ export class Director {
     if (a.crater) a.crater.autoOrbit = 0;
     if (a.site) a.site.autoOrbit = 0;
     a.hud.caption(null);
+    this.restore();
     if (msg) a.hud.toast(msg);
     const b = document.getElementById('btn-cine');
     if (b) b.textContent = '▶ AUTOPILOT';
   }
 
-  cap(k, t, ms = 0) { if (this.captions) this.app.hud.caption(k, t, ms); }
+  cap(k, t, ms = 0) { if (this.captions && this.running) this.app.hud.caption(k, t, ms); }
+
+  /** Await an app transition, then bail out if the autopilot was stopped meanwhile. */
+  async step(p) {
+    const tok = this.token;
+    await p;
+    if (tok !== this.token) throw new Error('cancelled');
+  }
+
+  /** Remember what the script is about to change, so stopping puts it back. */
+  snapshot() {
+    const a = this.app, pl = a.planner;
+    this.saved = {
+      o2: pl.params.o2CapKg,
+      follow: pl.follow,
+      returnToStart: pl.returnToStart,
+      waypoints: pl.waypoints.slice(),
+      layers: { crater: { ...a.crater.layers }, site: { ...a.site.layers } },
+      orbitLayer: a.orbit.layer,
+    };
+  }
+
+  restore() {
+    const a = this.app, pl = a.planner, sv = this.saved;
+    if (!sv) return;
+    this.saved = null;
+    if (a.fpv?.active) a.fpv.exit();
+    pl.stopSim();
+    for (const id of ['crater', 'site']) {
+      const v = a[id];
+      for (const [k, on] of Object.entries(sv.layers[id])) if (v.layers[k] !== on) v.toggleLayer(k, on);
+    }
+    if (a.active?.layers) a.hud.terrainLegend(a.active);
+    if (a.orbit.layer !== sv.orbitLayer) a.setOrbitLayer(sv.orbitLayer);
+    pl.params.o2CapKg = sv.o2;
+    pl.follow = sv.follow;
+    pl.returnToStart = sv.returnToStart;
+    pl.waypoints = sv.waypoints;
+    pl.userEdit = false;
+    pl.compute();
+  }
 
   async wait(s) {
     const tok = this.token;
@@ -49,20 +92,23 @@ export class Director {
     const a = this.app;
     if (this.running || a.mode === 'boot') return;
     this.running = true;
-    document.getElementById('btn-cine').textContent = '■ STOP AUTOPILOT';
+    this.snapshot();
+    a.hud.closeSheet();
+    a.pin?.close();
+    document.getElementById('btn-cine').innerHTML = '■ STOP<span class="full"> AUTOPILOT</span>';
     document.body.classList.add('cine');
     try {
       await this.script();
       this.stop();
     } catch (e) {
-      if (e.message !== 'cancelled') console.error(e);
+      if (e.message !== 'cancelled') { console.error(e); this.stop('AUTOPILOT STOPPED'); }
     }
   }
 
   async script() {
     const a = this.app;
     // back to orbit
-    while (a.mode !== 'orbit') { await a.exitUp(); await this.until(() => !a.busy); }
+    while (a.mode !== 'orbit') { await this.step(a.exitUp()); await this.until(() => !a.busy); }
     const o = a.orbit;
     o.autoSpin = true;
     o.lastUser = o.time + 1;
@@ -87,7 +133,7 @@ export class Director {
     await this.wait(0.6);
 
     this.cap('DESCENT', 'Orbit to crater, straight down through the data', 3000);
-    await a.descendToJezero();
+    await this.step(a.descendToJezero());
     const c = a.crater;
     this.cap('MRO CONTEXT CAMERA · 5 m / PIXEL', 'On a 20 m stereo elevation model, relief ×2.2', 3600);
     c.autoOrbit = 0.035;
@@ -112,7 +158,7 @@ export class Director {
     c.autoOrbit = 0;
 
     this.cap('MARSWALK ZONE', 'Where Perseverance landed and cached 10 sample tubes', 3200);
-    await a.enterSite();
+    await this.step(a.enterSite());
     const s = a.site;
     this.cap('MRO HiRISE · 25 cm / PIXEL', 'On a 1 m elevation model: boulder-scale hazards', 3400);
     s.autoOrbit = 0.03;
@@ -138,7 +184,7 @@ export class Director {
     const bad = pl.result;
     if (bad && bad.o2Out) {
       this.cap('AND IF THEY WALK ANYWAY?', 'Simulated EVA on the same plan', 0);
-      await s.flyTo({ dist: 2.2, el: 0.8 }, 1.2);
+      await this.step(s.flyTo({ dist: 2.2, el: 0.8 }, 1.2));
       pl.follow = true;
       pl.startSim(Math.max(900, bad.o2Out.t / 6));
       await this.until(() => pl.sim && pl.sim.dead, 25);
@@ -156,7 +202,7 @@ export class Director {
 
     // EVA playback with a chase camera
     const r2 = pl.result;
-    await s.flyTo({ dist: 1.6, el: 0.62 }, 1.4);
+    await this.step(s.flyTo({ dist: 1.6, el: 0.62 }, 1.4));
     pl.follow = true;
     pl.startSim(900);
     if (r2 && !r2.failed) {
@@ -177,7 +223,7 @@ export class Director {
     a.hud.caption(null);
 
     // the one-take: pick a destination, Sol Atlas plans the walk
-    await s.flyTo(s.overview(), 2.0);
+    await this.step(s.flyTo(s.overview(), 2.0));
     pl.waypoints = pl.waypoints.slice(0, 1);
     pl.compute();
     this.cap('PICK A DESTINATION', 'Three Forks sample depot', 2400);

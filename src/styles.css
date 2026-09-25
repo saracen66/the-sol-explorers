@@ -51,7 +51,10 @@ button { font: inherit; color: inherit; }
 .hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; transition: opacity .6s; }
 .hud > * { pointer-events: auto; }
 .hud.hidden { opacity: 0; }
-body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-actions { opacity: 0; pointer-events: none; }
+body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-actions > :not(#btn-cine) { opacity: 0; pointer-events: none; }
+/* the stop button stays reachable during the autopilot, dimmed so it barely shows in a recording */
+body.cine #btn-cine { opacity: .45; }
+body.cine #btn-cine:hover, body.cine #btn-cine:focus-visible { opacity: 1; }
 .hud .panel, .hud .bottombar > * { transition: opacity .6s, transform .6s; }
 
 /* ------------------------------------------------ top bar */
@@ -440,6 +443,7 @@ body.compact .readout, body.compact .hints { display: none; }
 body.compact .bottom-actions { flex: 1; display: grid; grid-template-columns: 38px repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 480px; margin: 0 auto; }
 body.compact #btn-sound { order: -1; }
 body.compact #btn-sound .t, body.compact #btn-sources .full { display: none; }
+body.compact #btn-cine .full { display: none; }
 body.compact .bottom-actions .btn { padding: 10px 3px; font-size: 10.5px; letter-spacing: .04em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body.compact .sheet-btn { display: block; }
 
