@@ -303,6 +303,24 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .mk.wpn .lb.wr { left: 14px; top: -8px; font-size: 11px; letter-spacing: .06em; text-transform: none; font-weight: 600; color: var(--data); }
 .mk.pnr .dot { border-color: var(--critical); background: var(--critical); box-shadow: 0 0 12px var(--critical); width: 14px; height: 14px; left: -7px; top: -7px; }
 .mk.pnr .lb { color: #ffb0b0; }
+.mk.o2out .dot { border: 2px solid #ff5a5a; background: transparent; width: 16px; height: 16px; left: -8px; top: -8px; transform: none; border-radius: 50%; }
+.mk.o2out .dot::before, .mk.o2out .dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 12px; height: 2px; background: #ff5a5a; transform: translate(-50%, -50%) rotate(45deg); }
+.mk.o2out .dot::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.mk.o2out .lb { color: #ff9a9a; }
+.mk.eva.dead .dot { border-color: #ff3b3b; background: #ff3b3b; width: 14px; height: 14px; left: -7px; top: -7px; box-shadow: 0 0 18px #ff3b3b, 0 0 4px #fff; }
+.mk.eva.dead .dot::after { content: ''; position: absolute; inset: -12px; border: 2px solid #ff3b3b; animation: ping 1.4s infinite; }
+.mk.eva.dead .lb { color: #ffb0b0; font-size: 13px; }
+.mk.eva.dead .lb small { color: #ff9a9a; }
+.wrist.warn { border-color: rgba(250,178,25,.7); box-shadow: 0 0 24px rgba(250,178,25,.25); }
+.wrist.warn .st { color: var(--warning); font-weight: 700; }
+.wrist.crit, .wrist.dead { border-color: rgba(255,59,59,.85); box-shadow: 0 0 28px rgba(255,59,59,.35), inset 0 0 18px rgba(255,59,59,.12); }
+.wrist.crit .st { color: #ff7b7b; font-weight: 700; animation: blink 0.8s steps(2) infinite; }
+.wrist.dead { background: rgba(26,4,4,.9); }
+.wrist.dead .wh, .wrist.dead .wn b { color: #ff7b7b; }
+.wrist.dead .wn { color: #ffd0d0; }
+@keyframes blink { 50% { opacity: .25; } }
+.assump.dead-note { border-left: 2px solid #ff5a5a; padding-left: 8px; color: #f0c8c8; }
+.assump.dead-note b { color: #ff7b7b; }
 .mk.zone .dot { display: none; }
 .mk .card {
   position: absolute; left: 14px; top: 14px; width: 260px; background: rgba(12,9,7,.92); border: 1px solid var(--line);
@@ -322,6 +340,7 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .caption small { display: block; font-size: 13px; letter-spacing: .3em; color: var(--hud-hi); margin-bottom: 6px; font-weight: 700; }
 .flash { position: fixed; inset: 0; z-index: 7; pointer-events: none; opacity: 0;
   background: radial-gradient(ellipse at center, rgba(255,210,160,.95) 0%, rgba(255,120,40,.85) 35%, rgba(60,15,5,.95) 100%); }
+.flash.red { background: radial-gradient(ellipse at center, rgba(255,40,40,.0) 20%, rgba(200,0,0,.75) 100%); }
 .scanlines { position: fixed; inset: 0; pointer-events: none; z-index: 6; opacity: .06;
   background: repeating-linear-gradient(0deg, rgba(255,255,255,.5) 0 1px, transparent 1px 3px); }
 .vignette { position: fixed; inset: 0; pointer-events: none; z-index: 4;

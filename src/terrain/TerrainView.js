@@ -257,7 +257,7 @@ export class TerrainView {
     this.updateStalks();
   }
 
-  stalkH() { return Math.max(this.cam.dist * 0.045, this.sizeX * 0.004); }
+  stalkH() { return this.fpvOn ? 0.004 : Math.max(this.cam.dist * 0.045, this.sizeX * 0.004); }
 
   updateStalks() {
     const a = this.stalks.geometry.attributes.position;
@@ -277,35 +277,47 @@ export class TerrainView {
     this.routeGlowMat = new LineMaterial({ color: 0x5fd4ff, linewidth: 11, transparent: true, opacity: 0.18, depthTest: true, worldUnits: false });
     this.routeFlowMat = new LineMaterial({ color: 0xffffff, linewidth: 2.2, dashed: true, dashSize: 1, gapSize: 1, transparent: true, opacity: 0.85, worldUnits: false });
     this.directMat = new LineMaterial({ color: 0xd03b3b, linewidth: 1.6, dashed: true, dashSize: 1, gapSize: 1, transparent: true, opacity: 0.7, worldUnits: false });
+    // the stretch of route EV1 never reaches because the suit runs out of O₂
+    this.lostMat = new LineMaterial({ color: 0xff3b3b, linewidth: 4.5, dashed: true, dashSize: 1, gapSize: 1, transparent: true, opacity: 0.95, worldUnits: false });
     this.routeLines = null;
     this.routeXZ = null;
   }
 
-  setRoute(xz, directXZ = null) {
+  setRoute(xz, directXZ = null, lostXZ = null) {
     if (this.routeLines) { this.routeLines.forEach((l) => { this.scene.remove(l); l.geometry.dispose(); }); }
     this.routeLines = null;
     this.routeXZ = xz;
     this.directXZ = directXZ;
     if (!xz || xz.length < 2) return;
-    const mk = (pts, mat, lift) => {
+    const mk = (pts, mat, k) => {
       const g = new LineGeometry();
-      g.setPositions(this.liftPoints(pts, lift));
+      g.setPositions(this.liftPoints(pts, this.routeLift() * k));
       const l = new Line2(g, mat);
       l.computeLineDistances();
       l.frustumCulled = false;
-      l.userData = { pts, lift };
+      l.userData = { pts, k };
       this.scene.add(l);
       return l;
     };
-    const lift = this.sizeX * 0.0012;
-    this.routeLines = [mk(xz, this.routeGlowMat, lift), mk(xz, this.routeMat, lift), mk(xz, this.routeFlowMat, lift * 1.2)];
-    if (directXZ) this.routeLines.push(mk(directXZ, this.directMat, lift * 1.4));
+    this.routeLines = [mk(xz, this.routeGlowMat, 1), mk(xz, this.routeMat, 1), mk(xz, this.routeFlowMat, 1.2)];
+    if (directXZ) this.routeLines.push(mk(directXZ, this.directMat, 1.4));
+    if (lostXZ) {
+      this.routeLines.push(mk(lostXZ, this.lostMat, 1.3));
+      this.lostMat.dashSize = this.sizeX / 240;
+      this.lostMat.gapSize = this.sizeX / 400;
+    }
     const total = this.routeLines[2].geometry.attributes.instanceDistanceEnd?.array.at(-1) || this.sizeX;
     this.routeFlowMat.dashSize = total / 160;
     this.routeFlowMat.gapSize = total / 90;
     this.directMat.dashSize = this.sizeX / 200;
     this.directMat.gapSize = this.sizeX / 260;
   }
+
+  /** height of the route line above the ground: metres in the helmet view, a few pixels from above */
+  routeLift() { return this.fpvOn ? 0.0006 : this.sizeX * 0.0012; }
+
+  /** height of 3D markers above the ground */
+  markerLift(k = 1) { return this.fpvOn ? 0.0016 * k : this.sizeX * 0.002 * k; }
 
   liftPoints(pts, lift) {
     const out = new Float32Array(pts.length * 3);
@@ -318,9 +330,8 @@ export class TerrainView {
   }
 
   refreshRouteHeights() {
-    if (!this.routeLines) return;
-    for (const l of this.routeLines) {
-      l.geometry.setPositions(this.liftPoints(l.userData.pts, l.userData.lift));
+    for (const l of [...(this.routeLines || []), ...(this.extraLines || [])]) {
+      l.geometry.setPositions(this.liftPoints(l.userData.pts, this.routeLift() * l.userData.k));
       l.computeLineDistances();
     }
   }
@@ -544,7 +555,7 @@ export class TerrainView {
 
     if (this.routeMat) {
       _res.set(this.app.w, this.app.h);
-      for (const m of [this.routeMat, this.routeGlowMat, this.routeFlowMat, this.directMat]) m.resolution.copy(_res);
+      for (const m of [this.routeMat, this.routeGlowMat, this.routeFlowMat, this.directMat, this.lostMat]) m.resolution.copy(_res);
       this.routeFlowMat.dashOffset -= dt * (this.routeFlowMat.dashSize + this.routeFlowMat.gapSize) * 0.8;
     }
   }

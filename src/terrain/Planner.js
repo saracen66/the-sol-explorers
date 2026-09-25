@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CostGrid } from './pathfinding.js';
 import { EVA_DEFAULTS, budget, verdict, o2KgPerSec, walkSpeed, metabolicW } from './eva.js';
-import { dayLength, formatHM } from '../lib/marstime.js';
+import { dayLength, formatHM, earthMarsLightTime } from '../lib/marstime.js';
 import { fmtDist, fmtDur, fmtNum } from '../lib/geo.js';
 
 const GRID = 512;
@@ -159,19 +159,30 @@ export class Planner {
       direct: { distance: dSamples.at(-1).d, maxFine: directMaxFine },
     };
     this.result.pnr = this.pointOfNoReturn(this.result);
+    this.buildEvents(this.result);
+    // where the suit runs dry (null when the plan fits in the tank) and where the reserve starts
+    this.result.o2Out = this.findO2(this.result, this.params.o2CapKg);
+    this.result.reserveAt = this.findO2(this.result, this.params.o2CapKg - b.reserveKg);
     this.result.verdict = this.judge(this.result);
-    v.setRoute(route, direct);
+    const out = this.result.o2Out;
+    const lost = out ? samples.filter((s, i) => s.d >= out.d && (i % 3 === 0 || i === samples.length - 1)) : null;
+    if (lost) lost.unshift({ x: out.x, z: out.z });
+    v.setRoute(route, direct, lost && lost.length > 1 ? lost : null);
     this.renderMarkers();
     const prev = this.lastVerdict;
     this.lastVerdict = this.result.verdict.lvl;
     this.app.hud.renderPlanner(this);
-    if (this.userEdit && this.lastVerdict === 'go' && prev !== 'go') this.app.hud.banner('MARSWALK READY', 'go');
-    else if (this.userEdit && this.lastVerdict === 'nogo' && prev !== 'nogo') this.app.hud.banner('NO-GO · REPLAN', 'nogo');
+    if (this.userEdit && this.lastVerdict === 'go' && prev !== 'go') { this.app.hud.banner('MARSWALK READY', 'go'); this.app.sound?.go(); }
+    else if (this.userEdit && this.lastVerdict === 'nogo' && prev !== 'nogo') { this.app.hud.banner('NO-GO · REPLAN', 'nogo'); this.app.sound?.nogo(); }
     this.userEdit = false;
   }
 
   judge(r) {
     const vd = verdict(r.budget, r.sun, this.params);
+    if (r.o2Out) {
+      vd.issues.unshift({ lvl: 'nogo', msg: `O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km, ${fmtDur(r.o2Out.t)} into the EVA: EV1 would not survive this plan` });
+      vd.lvl = 'nogo';
+    }
     if (r.pnr) {
       vd.issues.unshift({ lvl: 'nogo', msg: `Point of no return at ${(r.pnr.d / 1000).toFixed(2)} km: past it, an abort can't reach the airlock with the O₂ reserve` });
       vd.lvl = 'nogo';
@@ -216,7 +227,6 @@ export class Planner {
     if (!r || r.failed) return;
     r.sun = this.sunWindow(r.budget);
     r.verdict = this.judge(r);
-    r.events = null;
     this.app.hud.renderPlanner(this);
   }
 
@@ -242,6 +252,16 @@ export class Planner {
       it.xz = { x: pnr.x, z: pnr.z };
       this.wpItems.push(it);
     }
+    const out = this.result && this.result.o2Out;
+    if (out) {
+      const it = labels.add('wp', {
+        className: 'o2out', html: '<div class="dot"></div><div class="lb">O₂ RUNS OUT<small>EV1 would not survive past here</small></div>',
+        world: new THREE.Vector3(out.x, 0, out.z), priority: 9,
+      });
+      it.xz = { x: out.x, z: out.z };
+      this.wpItems.push(it);
+      this.o2Item = it;
+    } else this.o2Item = null;
     if (!this.evaItem) {
       this.evaItem = labels.add('eva', { className: 'eva', html: '<div class="dot"></div><div class="lb">EV1</div>', world: new THREE.Vector3() });
       this.hoverItem = labels.add('eva', { className: 'eva', html: '<div class="dot" style="width:8px;height:8px;left:-4px;top:-4px"></div>', world: new THREE.Vector3() });
@@ -254,83 +274,163 @@ export class Planner {
     if (!this.result || d == null) { if (this.hoverItem) this.hoverItem.hiddenByUser = true; return; }
     const s = sampleAt(this.result.samples, d);
     const v = this.view;
-    this.hoverItem.world.set(s.x, v.yAt(s.x, s.z) + v.sizeX * 0.002, s.z);
+    this.hoverItem.world.set(s.x, v.yAt(s.x, s.z) + v.markerLift(), s.z);
     this.hoverItem.hiddenByUser = false;
   }
 
   // ------------------------------------------------------------------ EVA playback
   startSim(speed = 480) {
     if (!this.result || this.result.failed) return;
-    this.sim = { t: 0, speed, stopIdx: 0 };
-    this.evaItem.hiddenByUser = false;
+    this.stopSim();
+    this.sim = { t: 0, speed, pastPnr: false, inReserve: false, dead: false };
+    this.evaItem.hiddenByUser = !!this.app.fpv?.active;
+    this.setEvaLook(false);
     this.app.hud.toast('EVA SIMULATION · EV1 EGRESS');
+    this.app.sound?.lock();
+    this.app.fpv?.onSimStart(this);
   }
 
   stopSim() {
+    const had = !!this.sim;
     this.sim = null;
-    if (this.evaItem) this.evaItem.hiddenByUser = true;
+    if (this.evaItem) { this.evaItem.hiddenByUser = true; this.setEvaLook(false); }
     this.view.autoFollow = null;
+    clearTimeout(this._mayday);
+    if (had) { this.app.hud.updateSim(this, null, null); this.app.fpv?.onSimStop(this); }
   }
 
-  /** position on route for simulated EVA time (s) — includes pauses at stops */
-  stateAt(t) {
-    const r = this.result, b = r.budget, p = this.params;
+  setEvaLook(dead) {
+    const it = this.evaItem;
+    if (!it) return;
+    it.el.classList.toggle('dead', dead);
+    it.lb.innerHTML = dead ? 'EV1 · O₂ 0.00 kg<small>suit out of oxygen</small>' : 'EV1';
+    it.lbW = null;
+  }
+
+  /** Walk / stop timeline of the EVA, with O₂ used at the start and end of each segment. */
+  buildEvents(r) {
+    const b = r.budget, p = this.params;
     const stopDur = p.stopMin * 60;
-    // build an event list once
-    if (!r.events) {
-      const ev = [];
-      let tt = 0, lastD = 0, o2 = 0;
-      const tl = b.timeline;
-      const walkTimeAt = (d) => interp(tl, 'd', d, 't');
-      const walkO2At = (d) => interp(tl, 'd', d, 'o2');
-      for (const sd of r.stopAtD) {
-        ev.push({ kind: 'walk', t0: tt, t1: tt + walkTimeAt(sd) - walkTimeAt(lastD), d0: lastD, d1: sd, o0: o2, o1: o2 + walkO2At(sd) - walkO2At(lastD) });
-        tt = ev.at(-1).t1; o2 = ev.at(-1).o1;
-        ev.push({ kind: 'stop', t0: tt, t1: tt + stopDur, d0: sd, d1: sd, o0: o2, o1: o2 + o2KgPerSec(p.stopW) * stopDur });
-        tt = ev.at(-1).t1; o2 = ev.at(-1).o1; lastD = sd;
-      }
-      const end = b.distance;
-      ev.push({ kind: 'walk', t0: tt, t1: tt + walkTimeAt(end) - walkTimeAt(lastD), d0: lastD, d1: end, o0: o2, o1: o2 + walkO2At(end) - walkO2At(lastD) });
-      r.events = ev;
+    const ev = [];
+    let tt = 0, lastD = 0, o2 = 0;
+    const tl = b.timeline;
+    const walkTimeAt = (d) => interp(tl, 'd', d, 't');
+    const walkO2At = (d) => interp(tl, 'd', d, 'o2');
+    for (const sd of r.stopAtD) {
+      ev.push({ kind: 'walk', t0: tt, t1: tt + walkTimeAt(sd) - walkTimeAt(lastD), d0: lastD, d1: sd, o0: o2, o1: o2 + walkO2At(sd) - walkO2At(lastD) });
+      tt = ev.at(-1).t1; o2 = ev.at(-1).o1;
+      ev.push({ kind: 'stop', t0: tt, t1: tt + stopDur, d0: sd, d1: sd, o0: o2, o1: o2 + o2KgPerSec(p.stopW) * stopDur });
+      tt = ev.at(-1).t1; o2 = ev.at(-1).o1; lastD = sd;
     }
+    const end = b.distance;
+    ev.push({ kind: 'walk', t0: tt, t1: tt + walkTimeAt(end) - walkTimeAt(lastD), d0: lastD, d1: end, o0: o2, o1: o2 + walkO2At(end) - walkO2At(lastD) });
+    r.events = ev;
+  }
+
+  /** distance along the route inside event e at fraction f of its duration */
+  distIn(e, f) {
+    if (e.kind !== 'walk') return e.d0;
+    const tl = this.result.budget.timeline;
+    const w0 = interp(tl, 'd', e.d0, 't');
+    const w1 = interp(tl, 'd', e.d1, 't');
+    return interp(tl, 't', w0 + (w1 - w0) * f, 'd');
+  }
+
+  /** First moment the cumulative O₂ use reaches `level` kg, or null if it never does. */
+  findO2(r, level) {
+    for (const e of r.events) {
+      if (e.o1 < level) continue;
+      const f = e.o1 > e.o0 ? THREE.MathUtils.clamp((level - e.o0) / (e.o1 - e.o0), 0, 1) : 0;
+      const t = e.t0 + (e.t1 - e.t0) * f;
+      const d = this.distIn(e, f);
+      const s = sampleAt(r.samples, d);
+      return { t, d, x: s.x, z: s.z, kind: e.kind };
+    }
+    return null;
+  }
+
+  /** position on route for simulated EVA time (s), including pauses at stops */
+  stateAt(t) {
+    const r = this.result;
+    if (!r.events) this.buildEvents(r);
     const e = r.events.find((x) => t <= x.t1) || r.events.at(-1);
     const f = e.t1 > e.t0 ? THREE.MathUtils.clamp((t - e.t0) / (e.t1 - e.t0), 0, 1) : 1;
-    let d;
-    if (e.kind === 'walk') {
-      const w0 = interp(b.timeline, 'd', e.d0, 't');
-      const w1 = interp(b.timeline, 'd', e.d1, 't');
-      d = interp(b.timeline, 't', w0 + (w1 - w0) * f, 'd');
-    } else d = e.d0;
-    return { d, o2: e.o0 + (e.o1 - e.o0) * f, kind: e.kind, done: t >= r.events.at(-1).t1 };
+    return { d: this.distIn(e, f), o2: e.o0 + (e.o1 - e.o0) * f, kind: e.kind, done: t >= r.events.at(-1).t1 };
   }
 
   update(dt) {
     if (!this.sim || !this.result) return;
-    const s = this.sim;
+    const s = this.sim, r = this.result;
+    const hud = this.app.hud, snd = this.app.sound;
+    if (s.dead) return; // frozen where the O₂ ran out until the plan changes or the sim is stopped
     s.t += dt * s.speed;
+    let dies = false;
+    if (r.o2Out && s.t >= r.o2Out.t) { s.t = r.o2Out.t; dies = true; }
     const st = this.stateAt(s.t);
-    const pos = sampleAt(this.result.samples, st.d);
+    if (dies) st.o2 = this.params.o2CapKg;
+    const pos = sampleAt(r.samples, st.d);
     const v = this.view;
     const y = v.yAt(pos.x, pos.z);
-    this.evaItem.world.set(pos.x, y + v.sizeX * 0.002, pos.z);
-    if (this.follow) {
+    this.evaItem.world.set(pos.x, y + v.markerLift(), pos.z);
+    s.pos = pos;
+    if (this.follow && !this.app.fpv?.active) {
       v.cam.target.x += (pos.x - v.cam.target.x) * Math.min(1, dt * 2.5);
       v.cam.target.z += (pos.z - v.cam.target.z) * Math.min(1, dt * 2.5);
     }
     s.state = st;
-    this.app.hud.updateSim(this, s.t, st);
-    if (st.done) {
-      this.app.hud.toast('EV1 BACK AT LZ-A · INGRESS');
-      this.sim = null;
-      setTimeout(() => this.evaItem && (this.evaItem.hiddenByUser = true), 2500);
-      this.app.hud.updateSim(this, null, null);
+
+    // milestones along the way
+    if (r.pnr && !s.pastPnr && st.d >= r.pnr.d) {
+      s.pastPnr = true;
+      hud.toast('▲ PAST THE POINT OF NO RETURN', 3400);
+      snd?.alarm(1);
     }
+    if (r.reserveAt && !s.inReserve && s.t >= r.reserveAt.t && !dies) {
+      s.inReserve = true;
+      hud.toast('▲ O₂ RESERVE REACHED · SUIT CAUTION', 3400);
+      snd?.alarm(2);
+    }
+    hud.updateSim(this, s.t, st);
+    if (dies) { this.die(pos); return; }
+    if (st.done) {
+      const home = this.returnToStart;
+      const breached = r.budget.remaining < r.budget.reserveKg;
+      hud.toast(home ? (breached ? 'EV1 BACK AT LZ-A · O₂ RESERVE BREACHED' : 'EV1 BACK AT LZ-A · INGRESS') : `EV1 AT ${this.waypoints.at(-1).name.toUpperCase()}`, 3400);
+      if (!breached) snd?.go();
+      this.sim = null;
+      this.app.fpv?.onSimStop(this, true);
+      setTimeout(() => { if (!this.sim && this.evaItem) this.evaItem.hiddenByUser = true; }, 2500);
+      hud.updateSim(this, null, null);
+    }
+  }
+
+  /** O₂ reached zero: freeze EV1 where it happened and tell the story of the mayday. */
+  die(pos) {
+    const s = this.sim, v = this.view, hud = this.app.hud;
+    s.dead = true;
+    s.deadAt = { ...pos, t: s.t, lt: earthMarsLightTime().seconds, fromLZ: Math.hypot(pos.x - this.waypoints[0].x, pos.z - this.waypoints[0].z) * 1000 };
+    this.setEvaLook(true);
+    if (this.o2Item) this.o2Item.hiddenByUser = true; // EV1's red marker takes its place
+    this.evaItem.hiddenByUser = false;
+    hud.banner('EV1 LOST · O₂ EXHAUSTED', 'nogo', 4600);
+    hud.flash(0.55, 1400, 'red');
+    this.app.sound?.flatline();
+    if (this.app.fpv?.active) this.app.fpv.onDeath(s.deadAt);
+    else v.flyTo({ target: new THREE.Vector3(pos.x, v.yAt(pos.x, pos.z), pos.z), dist: 0.9, el: 0.78 }, 2.2);
+    hud.updateSim(this, s.t, s.state);
+    clearTimeout(this._mayday);
+    this._mayday = setTimeout(() => {
+      if (this.sim !== s) return;
+      const m = Math.round(s.deadAt.lt / 60);
+      hud.toast(`MAYDAY SENT · EARTH HEARS IT IN ${m} MIN · TOO LATE`, 4200);
+    }, 3200);
   }
 
   frame() {
     // keep waypoint markers glued to terrain (exaggeration changes)
     const v = this.view;
-    for (const it of this.wpItems || []) it.world.set(it.xz.x, v.yAt(it.xz.x, it.xz.z) + v.sizeX * 0.003, it.xz.z);
+    const lift = v.markerLift(1.5);
+    for (const it of this.wpItems || []) it.world.set(it.xz.x, v.yAt(it.xz.x, it.xz.z) + lift, it.xz.z);
   }
 }
 

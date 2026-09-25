@@ -12,7 +12,7 @@ function el(tag, attrs = {}, parent) {
 
 const STATUS = ['#0ca30c', '#fab219', '#ec835a', '#d03b3b'];
 
-export function renderProfile(host, result, { slopeAt, limits, onHover, pnr }) {
+export function renderProfile(host, result, { slopeAt, limits, onHover, pnr, o2Out }) {
   host.innerHTML = '';
   const W = Math.max(240, host.clientWidth || 280), H = 118;
   const pad = { l: 44, r: 8, t: 10, b: 26 };
@@ -72,6 +72,19 @@ export function renderProfile(host, result, { slopeAt, limits, onHover, pnr }) {
     t.textContent = 'PNR';
   }
 
+  if (o2Out) {
+    // everything after the O₂ runs out is shaded: EV1 never gets there
+    el('rect', { x: X(o2Out.d), y: pad.t, width: Math.max(0, X(total) - X(o2Out.d)), height: plotB - pad.t, fill: '#d03b3b', 'fill-opacity': 0.14 }, svg);
+    el('line', { x1: X(o2Out.d), x2: X(o2Out.d), y1: pad.t, y2: plotB, stroke: '#ff5a5a', 'stroke-width': 2, 'stroke-dasharray': '4 3' }, svg);
+    const t = el('text', { x: X(o2Out.d) + 4, y: pad.t + 21, fill: '#ffb0b0', 'font-size': 10, 'font-family': 'JetBrains Mono' }, svg);
+    t.textContent = 'O₂ 0';
+  }
+
+  // live EV1 position during the simulation
+  const ev = el('g', { visibility: 'hidden' }, svg);
+  const evLine = el('line', { y1: pad.t, y2: plotB, stroke: '#ffffff', 'stroke-width': 1.5 }, ev);
+  const evDot = el('circle', { r: 4.5, fill: '#ffffff', stroke: '#1a1a19', 'stroke-width': 2 }, ev);
+
   // crosshair + tooltip
   const cross = el('line', { y1: pad.t, y2: plotB, stroke: '#c7b8aa', 'stroke-width': 1, visibility: 'hidden' }, svg);
   const dot = el('circle', { r: 4, fill: '#5fd4ff', stroke: '#1a1a19', 'stroke-width': 2, visibility: 'hidden' }, svg);
@@ -101,6 +114,17 @@ export function renderProfile(host, result, { slopeAt, limits, onHover, pnr }) {
   hit.addEventListener('pointerleave', () => {
     cross.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); tip.style.display = 'none'; onHover?.(null);
   });
+
+  return {
+    cursor(d, lvl = '') {
+      if (d == null) { ev.setAttribute('visibility', 'hidden'); return; }
+      const p = s[Math.round((Math.min(d, total) / total) * (s.length - 1))];
+      const col = lvl === 'dead' || lvl === 'crit' ? '#ff5a5a' : lvl === 'warn' ? '#fab219' : '#ffffff';
+      evLine.setAttribute('x1', X(d)); evLine.setAttribute('x2', X(d)); evLine.setAttribute('stroke', col);
+      evDot.setAttribute('cx', X(d)); evDot.setAttribute('cy', Y(p.e)); evDot.setAttribute('fill', col);
+      ev.setAttribute('visibility', 'visible');
+    },
+  };
 }
 
 function niceStep(x) {

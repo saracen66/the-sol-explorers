@@ -125,11 +125,25 @@ export class Director {
     // the Watney check, including a bad day
     const pl = a.planner;
     const cap0 = pl.params.o2CapKg;
-    this.cap('WHAT IF THE SUIT CARRIED ONLY 0.25 kg OF O₂?', 'The planner finds the point of no return and calls NO-GO', 4200);
-    pl.params.o2CapKg = 0.25;
+    this.cap('WHAT IF THE SUIT CARRIED ONLY 0.20 kg OF O₂?', 'The planner finds the point of no return and calls NO-GO', 4200);
+    pl.params.o2CapKg = 0.2;
     pl.userEdit = true;
     pl.compute();
     await this.wait(4.4);
+    const bad = pl.result;
+    if (bad && bad.o2Out) {
+      this.cap('AND IF THEY WALK ANYWAY?', 'Simulated EVA on the same plan', 0);
+      await s.flyTo({ dist: 2.2, el: 0.8 }, 1.2);
+      pl.follow = true;
+      pl.startSim(Math.max(900, bad.o2Out.t / 7));
+      await this.until(() => pl.sim && pl.sim.dead, 14);
+      a.hud.caption(null);
+      await this.wait(2.8);
+      const lt = pl.sim?.deadAt?.lt;
+      if (lt) this.cap('EARTH CANNOT HELP IN TIME', `A mayday takes ${Math.round(lt / 60)} min to reach Earth. The plan has to be right before egress.`, 4200);
+      await this.wait(4.4);
+      pl.stopSim();
+    }
     pl.params.o2CapKg = cap0;
     pl.userEdit = true;
     pl.compute();

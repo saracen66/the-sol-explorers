@@ -101,8 +101,9 @@ export class Hud {
       { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: 0.8 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(0.98)' }], { duration: ms, easing: 'ease-out' });
   }
 
-  flash(peak = 0.85, dur = 900) {
+  flash(peak = 0.85, dur = 900, tone = '') {
     const f = $('flash');
+    f.classList.toggle('red', tone === 'red');
     f.animate([{ opacity: 0 }, { opacity: peak, offset: 0.35 }, { opacity: 0 }], { duration: dur, easing: 'ease-out' });
   }
 
@@ -379,6 +380,7 @@ export class Hud {
           <div class="mark" style="left:${(r.sun.sunset / 24) * 100}%"></div></div>
         </div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
+        ${r.o2Out ? `<div class="assump dead-note"><b>✖ O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km</b> (${formatHM(r.sun.start + r.o2Out.t / 3698.9)} LTST, ${fmtDur(r.o2Out.t)} into the EVA) while ${r.o2Out.kind === 'stop' ? 'working at a stop' : 'walking'}. The red dashes are the part of the route EV1 never reaches. Press SIMULATE to see it.</div>` : ''}
         <div class="assump">${r.pnr ? `<b style="color:#ff7b7b">Point of no return</b> at ${(r.pnr.d / 1000).toFixed(2)} km (red marker). Past it, walking straight back needs ${r.pnr.need.toFixed(2)} kg of O₂ but only ${r.pnr.limit.toFixed(2)} kg is available above the reserve.` : 'No point of no return: from any point on the way out, EV1 can walk straight back to the airlock and keep the O₂ reserve.'}</div>
         <div class="sec-h" style="margin:14px 0 2px">Elevation profile <span class="tag">HiRISE 1 m DTM</span></div>
         <div class="profile" id="profile"></div>
@@ -402,7 +404,7 @@ export class Hud {
       </div>
       <div class="sec">
         <div class="sec-h">Assumptions <span class="tag">EDITABLE</span></div>
-        <div class="ctl"><label>Usable suit O₂</label><output>${pl.params.o2CapKg.toFixed(2)} kg</output><input type="range" id="p-o2" min="0.3" max="1.2" step="0.05" value="${pl.params.o2CapKg}"></div>
+        <div class="ctl"><label>Usable suit O₂</label><output>${pl.params.o2CapKg.toFixed(2)} kg</output><input type="range" id="p-o2" min="0.2" max="1.2" step="0.05" value="${pl.params.o2CapKg}"></div>
         <div class="ctl"><label>Max walking slope</label><output>${pl.params.maxSlope}°</output><input type="range" id="p-slope" min="8" max="30" step="1" value="${pl.params.maxSlope}"></div>
         <div class="ctl"><label>Time per stop</label><output>${pl.params.stopMin} min</output><input type="range" id="p-stop" min="5" max="60" step="5" value="${pl.params.stopMin}"></div>
         <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit. 1 L O₂ ≈ 20.1 kJ. Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
@@ -415,39 +417,66 @@ export class Hud {
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };
     const bindP = (id, key, parse = Number) => { $(id).onchange = (e) => { pl.params[key] = parse(e.target.value); pl.compute(); }; $(id).oninput = (e) => { e.target.previousElementSibling.textContent = id === 'p-o2' ? `${(+e.target.value).toFixed(2)} kg` : id === 'p-slope' ? `${e.target.value}°` : `${e.target.value} min`; }; };
     bindP('p-o2', 'o2CapKg'); bindP('p-slope', 'maxSlope'); bindP('p-stop', 'stopMin');
+    this.profileApi = null;
     if (r && !r.failed) {
-      requestAnimationFrame(() => renderProfile($('profile'), r, {
-        slopeAt: (x, z) => pl.view.slopeAt(x, z), limits: pl.view.cfg.slopeLim, onHover: (d) => pl.showHover(d), pnr: r.pnr,
-      }));
+      requestAnimationFrame(() => {
+        if (pl.result !== r || !$('profile')) return;
+        this.profileApi = renderProfile($('profile'), r, {
+          slopeAt: (x, z) => pl.view.slopeAt(x, z), limits: pl.view.cfg.slopeLim, onHover: (d) => pl.showHover(d), pnr: r.pnr, o2Out: r.o2Out,
+        });
+      });
     }
   }
 
   updateSim(pl, t, st) {
     const box = $('sim-status');
     const wrist = $('wrist');
-    if (t == null) { if (box) box.innerHTML = ''; wrist.classList.remove('show'); return; }
-    {
-      const r = pl.result;
-      const stops = r.stopAtD;
-      const idx = stops.findIndex((d) => d > st.d + 1);
-      const nextName = idx >= 0 ? pl.waypoints[idx + 1]?.name : pl.waypoints[0].name;
-      const nextD = (idx >= 0 ? stops[idx] : r.budget.distance) - st.d;
-      const left = pl.params.o2CapKg - st.o2;
-      const leftH = left / (r.budget.o2 / (r.budget.totalT / 3600));
-      wrist.innerHTML = `<div class="wh">EV1 · WRIST <b>${formatHM(pl.result.sun.start + t / 3698.9)}</b></div>
-        <div class="wn">NEXT ▸ ${nextName}<b>${fmtDist(Math.max(0, nextD))}</b></div>
-        <div class="wg"><span>O₂ <b>${left.toFixed(2)} kg</b><small>≈ ${leftH.toFixed(1)} h</small></span><span>DUST <b>τ 0.5</b><small>typical</small></span><span>${st.kind === 'stop' ? 'WORKING' : 'WALKING'}</span></div>`;
-      wrist.classList.add('show');
+    if (t == null) {
+      if (box) box.innerHTML = '';
+      wrist.classList.remove('show', 'warn', 'crit', 'dead');
+      this.profileApi?.cursor(null);
+      return;
     }
-    if (!box) return;
-    const b = pl.result.budget;
-    const clock = pl.result.sun.start + t / 3698.9;
-    const left = pl.params.o2CapKg - st.o2;
-    box.innerHTML = `<div class="meter"><div class="lbl"><span>EV1 · ${st.kind === 'stop' ? 'WORKING AT STOP' : 'WALKING'}</span><b>${formatHM(clock)} LTST</b></div>
-      <div class="track"><div class="fill" style="width:${(st.d / b.distance) * 100}%;background:var(--data)"></div></div>
-      <div class="lbl" style="margin-top:4px"><span>${fmtDist(st.d)} of ${fmtDist(b.distance)}</span><b>O₂ ${left.toFixed(2)} kg left</b></div></div>`;
+    const r = pl.result, b = r.budget, sim = pl.sim || {};
+    const cap = pl.params.o2CapKg;
+    const left = Math.max(0, cap - st.o2);
+    const clock = r.sun.start + t / 3698.9;
+    const lvl = sim.dead ? 'dead' : sim.inReserve ? 'crit' : sim.pastPnr ? 'warn' : '';
+    wrist.classList.toggle('warn', lvl === 'warn');
+    wrist.classList.toggle('crit', lvl === 'crit');
+    wrist.classList.toggle('dead', lvl === 'dead');
+    this.profileApi?.cursor(st.d, lvl);
+    if (sim.dead) {
+      const da = sim.deadAt;
+      const lt = da.lt;
+      const mm = (sec) => `${Math.floor(sec / 60)}m ${String(Math.round(sec % 60)).padStart(2, '0')}s`;
+      wrist.innerHTML = `<div class="wh">EV1 · SUIT ALARM <b>${formatHM(clock)}</b></div>
+        <div class="wn">O₂ 0.00 kg · NO RESPONSE<b>${fmtDist(da.fromLZ)}</b></div>
+        <div class="wg"><span>MAYDAY → EARTH<b>+${mm(lt)}</b><small>one-way light time</small></span><span>EARLIEST REPLY<b>+${mm(lt * 2)}</b><small>round trip</small></span><span>FROM AIRLOCK<b>${fmtDist(da.fromLZ)}</b><small>straight line</small></span></div>`;
+      wrist.classList.add('show');
+      if (box) box.innerHTML = `<div class="verdict nogo"><span class="ic">✖</span><div>EV1 LOST AT ${(st.d / 1000).toFixed(2)} KM<small>The suit ran dry ${fmtDur(t)} into the EVA, ${fmtDist(da.fromLZ)} from the airlock. A mayday takes ${mm(lt)} to reach Earth and a reply ${mm(lt * 2)} to come back. Nobody on Earth can help in time: the plan has to be right before egress.</small></div></div>`;
+      const f = $('o2-fill');
+      if (f) f.style.width = '100%';
+      return;
+    }
+    const stops = r.stopAtD;
+    const idx = stops.findIndex((d) => d > st.d + 1);
+    const nextName = idx >= 0 ? pl.waypoints[idx + 1]?.name : pl.returnToStart ? pl.waypoints[0].name : pl.waypoints.at(-1).name;
+    const nextD = (idx >= 0 ? stops[idx] : b.distance) - st.d;
+    const leftH = left / (b.o2 / (b.totalT / 3600));
+    const status = st.kind === 'stop' ? 'WORKING' : 'WALKING';
+    const tag = lvl === 'crit' ? '▲ O₂ RESERVE' : lvl === 'warn' ? '▲ PAST PNR' : status;
+    wrist.innerHTML = `<div class="wh">EV1 · WRIST <b>${formatHM(clock)}</b></div>
+      <div class="wn">NEXT ▸ ${nextName}<b>${fmtDist(Math.max(0, nextD))}</b></div>
+      <div class="wg"><span>O₂ <b>${left.toFixed(2)} kg</b><small>≈ ${leftH.toFixed(1)} h</small></span><span>DUST <b>τ 0.5</b><small>typical</small></span><span class="st">${tag}</span></div>`;
+    wrist.classList.add('show');
+    if (box) {
+      box.innerHTML = `<div class="meter"><div class="lbl"><span>EV1 · ${st.kind === 'stop' ? 'WORKING AT STOP' : 'WALKING'}</span><b>${formatHM(clock)} LTST</b></div>
+        <div class="track"><div class="fill" style="width:${(st.d / b.distance) * 100}%;background:${lvl ? 'var(--critical)' : 'var(--data)'}"></div></div>
+        <div class="lbl" style="margin-top:4px"><span>${fmtDist(st.d)} of ${fmtDist(b.distance)}</span><b>O₂ ${left.toFixed(2)} kg left</b></div></div>`;
+    }
     const f = $('o2-fill');
-    if (f) f.style.width = `${(st.o2 / pl.params.o2CapKg) * 100}%`;
+    if (f) f.style.width = `${Math.min(100, (st.o2 / cap) * 100)}%`;
   }
 
   // ------------------------------------------------------------------ sources
