@@ -171,6 +171,7 @@ body.cine .hud .panel, body.cine .hud .bottombar .hints, body.cine .hud .bottom-
 .btn.primary:hover { background: var(--hud-hi); }
 .btn.ghost { background: rgba(10,7,5,.5); }
 .btn.small { padding: 4px 9px; font-size: 11px; }
+.btn.muted { color: var(--text-3); text-decoration: line-through; }
 .btn[disabled] { opacity: .4; pointer-events: none; }
 .btn:focus-visible, .row:focus-visible, .layer:focus-visible, .seg button:focus-visible { outline: 2px solid var(--hud-hi); outline-offset: 2px; }
 .sheet-btn { display: none; }
@@ -426,8 +427,10 @@ body.compact.landscape .panel { left: auto; right: 10px; margin: 0; width: min(3
 body.compact .bottombar { height: auto; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); gap: 8px;
   background: linear-gradient(0deg, rgba(5,4,3,.94), rgba(5,4,3,.6) 70%, rgba(5,4,3,0)); }
 body.compact .readout, body.compact .hints { display: none; }
-body.compact .bottom-actions { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 480px; margin: 0 auto; }
-body.compact .bottom-actions .btn { padding: 10px 4px; font-size: 10.5px; letter-spacing: .08em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.compact .bottom-actions { flex: 1; display: grid; grid-template-columns: 38px repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 480px; margin: 0 auto; }
+body.compact #btn-sound { order: -1; }
+body.compact #btn-sound .t, body.compact #btn-sources .full { display: none; }
+body.compact .bottom-actions .btn { padding: 10px 3px; font-size: 10.5px; letter-spacing: .04em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body.compact .sheet-btn { display: block; }
 
 body.compact .prompt { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 32px); font-size: 11px; letter-spacing: .14em; line-height: 1.4; }

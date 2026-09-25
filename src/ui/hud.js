@@ -23,6 +23,8 @@ export class Hud {
     this.el = $('hud');
     $('btn-sources').onclick = () => this.showSources();
     $('btn-cine').onclick = () => { this.closeSheet(); app.director.toggle(); };
+    $('btn-sound').onclick = () => this.soundButton(app.sound.toggle());
+    this.soundButton(app.sound.on);
     // phones: the two side panels become one bottom sheet, opened from these tabs
     $('btn-info').onclick = () => this.toggleSheet('left');
     $('btn-layers').onclick = () => this.toggleSheet('right');
@@ -65,6 +67,13 @@ export class Hud {
     const r = $('readout');
     const html = list.map(([k, v]) => `<span><b>${k}</b>${v}</span>`).join('');
     if (html !== this._ro) { r.innerHTML = html; this._ro = html; }
+  }
+
+  soundButton(on) {
+    const b = $('btn-sound');
+    b.innerHTML = `♪<span class="t"> ${on ? 'SOUND' : 'MUTED'}</span>`;
+    b.classList.toggle('muted', !on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
   }
 
   hints(html) { $('hints').innerHTML = html; }

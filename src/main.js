@@ -10,6 +10,7 @@ import { Planner } from './terrain/Planner.js';
 import { PinTool } from './terrain/Pin.js';
 import { Labels } from './ui/labels.js';
 import { Hud } from './ui/hud.js';
+import { Sound } from './ui/sound.js';
 import { CRATER_VIEW_POIS, SITE_POIS, DEFAULT_PLAN } from './data/places.js';
 import { fmtNum } from './lib/geo.js';
 
@@ -35,6 +36,7 @@ class App {
     this.crossfade = new Crossfade(this.renderer);
     this.streaks = new Streaks(document.getElementById('fx'));
     this.director = new Director(this);
+    this.sound = new Sound();
     this.hud = new Hud(this);
     this.mode = 'boot';
     this.busy = false;
@@ -181,6 +183,8 @@ class App {
     this.hud.reticle(true);
     await this.orbit.flyToJezero(0.26);
     this.hud.toast('TARGET LOCKED · JEZERO CRATER');
+    this.sound.lock();
+    this.sound.whoosh(3.2);
     const handover = this.fillDist(this.crater);
     this.streaksOn = true;
     await this.orbit.dive(handover, (km) => {
@@ -207,6 +211,7 @@ class App {
     const c = this.crater;
     const D = this.fillDist(this.site);
     this.hud.reticle(true);
+    this.sound.whoosh(2.6);
     await c.flyTo({ target: new THREE.Vector3(this.zone.cx, c.yAt(this.zone.cx, this.zone.cz), this.zone.cz), dist: D, el: TOP, az: 0 }, 2.4);
     this.site.topDown(0, 0, D);
     this.site.mode = 'transit';
@@ -280,6 +285,7 @@ class App {
 
   setOrbitLayer(id) {
     this.orbit.setLayer(id);
+    this.sound.click();
     this.hud.renderOrbit(this.orbit);
   }
 
@@ -288,12 +294,13 @@ class App {
     if (!(v instanceof TerrainView)) return;
     v.toggleLayer(id, on);
     this.hud.terrainLegend(v);
+    this.sound.click();
   }
 
   onPOIClick(view, poi) {
     if (view === this.site && poi.id !== 'lz') {
       this.planner.addMode = false;
-      if (this.planner.addPOI(poi)) { this.hud.toast(`STOP ADDED · ${poi.name.toUpperCase()}`); return; }
+      if (this.planner.addPOI(poi)) { this.hud.toast(`STOP ADDED · ${poi.name.toUpperCase()}`); this.sound.pin(); return; }
     }
     const { x, z } = view.lonlatToXZ(poi.lat, poi.lon);
     view.pulse(x, z);
@@ -399,6 +406,7 @@ class App {
     const k = e.key.toLowerCase();
     if (k === 'c') { this.director.toggle(); return; }
     if (k === 'h') { document.getElementById('hud').classList.toggle('hidden'); document.getElementById('labels').style.opacity = document.getElementById('hud').classList.contains('hidden') ? 0.0 : 1; return; }
+    if (k === 'm') { this.hud.soundButton(this.sound.toggle()); return; }
     if (k === 'k') { this.director.captions = !this.director.captions; this.hud.toast(`CAPTIONS ${this.director.captions ? 'ON' : 'OFF'}`); return; }
     if (this.busy) return;
     if (k === 'escape' && this.pin?.open) { this.pin.close(); return; }
