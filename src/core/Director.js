@@ -104,6 +104,11 @@ export class Director {
     this.cap('SLOPE HAZARD', 'Green is walkable. Red is a cliff', 3000);
     await this.wait(3.2);
     a.toggleTerrainLayer('slope', false);
+    const tr = a.assets.traverse;
+    if (tr) {
+      this.cap('PERSEVERANCE · REAL DRIVE PATH', `${tr.totalKm} km over ${tr.lastSol.toLocaleString('en-US')} sols, from NASA/JPL mission waypoints`, 3400);
+      await this.wait(3.6);
+    }
     c.autoOrbit = 0;
 
     this.cap('MARSWALK ZONE', 'Where Perseverance landed and cached 10 sample tubes', 3200);

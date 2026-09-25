@@ -98,9 +98,10 @@ class App {
       pois: CRATER_VIEW_POIS, exag: 2.2, contour: [50, 250], gridKm: 5, dist: [2.5, 210], strata: 140,
       overview: { dist: 118, el: 0.78, az: 0.3, target: { lat: 18.42, lon: 77.62 } },
       lat0: 18.44, lon0: 77.6, slopeLim: [10, 20, 30], childEnterDist: 11,
-      meshStep: tier.meshStep, shadowSteps: tier.shadowSteps,
+      meshStep: tier.meshStep, shadowSteps: tier.shadowSteps, traverseOn: true,
     });
     this.crater.build();
+    this.crater.setTraverse(this.assets.traverse);
     this.crater.loadSlopeData();
 
     this.site = new TerrainView(this, {
@@ -112,6 +113,7 @@ class App {
       meshStep: tier.meshStep, shadowSteps: tier.shadowSteps,
     });
     this.site.build();
+    this.site.setTraverse(this.assets.traverse);
     this.site.loadSlopeData();
 
     // Marswalk zone box on the crater
@@ -425,8 +427,8 @@ class App {
       if (k === ' ') { this.orbit.autoSpin = !this.orbit.autoSpin; this.hud.renderOrbit(this.orbit); }
       if (k === 'enter') this.descendToJezero();
     } else {
-      const ids = ['visible', 'elev', 'slope', 'thermal', 'contour', 'holo'];
-      if (/^[1-6]$/.test(k)) this.toggleTerrainLayer(ids[+k - 1]);
+      const ids = ['visible', 'elev', 'slope', 'thermal', 'contour', 'holo', 'traverse'];
+      if (/^[1-7]$/.test(k)) this.toggleTerrainLayer(ids[+k - 1]);
       if (k === 'enter' && this.mode === 'crater') this.enterSite();
       if (k === ' ' && this.mode === 'site') { e.preventDefault(); this.planner.sim ? this.planner.stopSim() : this.planner.startSim(); }
     }

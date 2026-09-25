@@ -13,6 +13,7 @@ export const TERRAIN_LAYERS = [
   { id: 'thermal', key: '4', name: 'Ground firmness', srcCrater: 'Mars Odyssey THEMIS · night IR', srcSite: 'Mars Odyssey THEMIS · night IR' },
   { id: 'contour', key: '5', name: 'Contours', srcCrater: 'from DEM', srcSite: 'from DTM' },
   { id: 'holo', key: '6', name: 'Holo mode', srcCrater: 'display style', srcSite: 'display style' },
+  { id: 'traverse', key: '7', name: 'Perseverance traverse', srcCrater: 'NASA/JPL MMGIS · sols 0–1524', srcSite: 'NASA/JPL MMGIS · sols 0–1524' },
   { id: 'minerals', key: '', name: 'Minerals', srcCrater: 'MRO CRISM · phase 2', srcSite: 'MRO CRISM · phase 2', locked: true },
   { id: 'weather', key: '', name: 'Live weather', srcCrater: 'Perseverance MEDA · phase 2', srcSite: 'Perseverance MEDA · phase 2', locked: true },
 ];
@@ -45,8 +46,8 @@ export class TerrainView {
     this.lastUser = -10;
     this.pushOut = 0;
     this.pushIn = 0;
-    this.layers = { visible: true, elev: false, slope: false, thermal: false, contour: false, holo: false };
-    this.w = { visible: 1, elev: 0, slope: 0, thermal: 0, contour: 0, holo: 0 };
+    this.layers = { visible: true, elev: false, slope: false, thermal: false, contour: false, holo: false, traverse: !!cfg.traverseOn };
+    this.w = { visible: 1, elev: 0, slope: 0, thermal: 0, contour: 0, holo: 0, traverse: cfg.traverseOn ? 1 : 0 };
     this.pointer = new THREE.Vector2(-9, -9);
     this.cursor = null;
     this.mode = 'idle';
@@ -338,6 +339,53 @@ export class TerrainView {
     }
   }
 
+  /**
+   * Perseverance's real drive path: end-of-drive localisations from NASA/JPL's
+   * MMGIS "Where is Perseverance" feed. Points are [sol, lon, lat].
+   */
+  setTraverse(tr) {
+    if (!tr || !tr.points) return;
+    const hx = this.sizeX / 2, hz = this.sizeZ / 2;
+    const pts = [];
+    for (const [sol, lon, lat] of tr.points) {
+      const p = this.lonlatToXZ(lat, lon);
+      const ok = Math.abs(p.x) < hx && Math.abs(p.z) < hz;
+      if (ok) pts.push({ x: p.x, z: p.z, sol });
+      else if (pts.length) break; // left this tile (the site view keeps the first stretch)
+    }
+    if (pts.length < 2) return;
+    this.travMat = new LineMaterial({ color: 0xffd27a, linewidth: this.id === 'site' ? 2.6 : 2.2, transparent: true, opacity: 0.9, worldUnits: false });
+    const g = new LineGeometry();
+    g.setPositions(this.liftPoints(pts, this.routeLift() * 0.7));
+    const line = new Line2(g, this.travMat);
+    line.computeLineDistances();
+    line.frustumCulled = false;
+    line.userData = { pts, k: 0.7 };
+    this.scene.add(line);
+    this.travLine = line;
+    this.extraLines = [line];
+    // sol markers: landing, every N sols, last fix in this tile
+    const every = this.id === 'site' ? 100 : 250;
+    const marks = [pts[0]];
+    let nextSol = every;
+    for (const p of pts) if (p.sol >= nextSol) { marks.push(p); nextSol = (Math.floor(p.sol / every) + 1) * every; }
+    const last = pts.at(-1);
+    if (marks.at(-1) !== last) marks.push(last);
+    const endAll = tr.points.at(-1)[0];
+    this.travItems = marks.map((p, i) => {
+      const first = i === 0, end = p === last;
+      const txt = first ? `PERSEVERANCE LANDED · SOL 0<small>18 Feb 2021</small>`
+        : end && p.sol === endAll ? `SOL ${p.sol} · LAST FIX<small>Jun 2025 · ${tr.totalKm} km driven</small>`
+        : end ? `SOL ${p.sol}<small>drove out of this zone</small>` : `SOL ${p.sol}`;
+      const it = this.app.labels.add(this.id, {
+        className: `trav${first || end ? ' big' : ''}`, html: `<div class="dot"></div><div class="lb">${txt}</div>`,
+        world: new THREE.Vector3(p.x, 0, p.z), priority: first ? 4 : 0, occlude: () => false,
+      });
+      it.xz = p;
+      return it;
+    });
+  }
+
   // ------------------------------------------------------------------ camera
   applyCamera() {
     const { target, dist, el, az } = this.cam;
@@ -537,6 +585,15 @@ export class TerrainView {
     u.wContour.value = this.w.contour;
     u.wHolo.value = this.w.holo;
     u.wGrid.value = this.w.holo * 0.8;
+    if (this.travLine) {
+      this.travLine.visible = this.w.traverse > 0.02;
+      this.travMat.opacity = 0.9 * this.w.traverse;
+      const lift = this.markerLift(0.6);
+      for (const it of this.travItems) {
+        it.hiddenByUser = !this.layers.traverse;
+        it.world.set(it.xz.x, this.yAt(it.xz.x, it.xz.z) + lift, it.xz.z);
+      }
+    }
     u.uShadowOn.value = this.shadows ? 1 : 0;
     const sd = this.sunDir();
     u.uSun.value.copy(sd.vec);
@@ -560,7 +617,7 @@ export class TerrainView {
 
     if (this.routeMat) {
       _res.set(this.app.w, this.app.h);
-      for (const m of [this.routeMat, this.routeGlowMat, this.routeFlowMat, this.directMat, this.lostMat]) m.resolution.copy(_res);
+      for (const m of [this.routeMat, this.routeGlowMat, this.routeFlowMat, this.directMat, this.lostMat, this.travMat]) m?.resolution.copy(_res);
       this.routeFlowMat.dashOffset -= dt * (this.routeFlowMat.dashSize + this.routeFlowMat.gapSize) * 0.8;
     }
   }

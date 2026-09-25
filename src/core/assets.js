@@ -53,7 +53,7 @@ export async function loadAssets(renderer, tier, onProgress) {
   const imgLoader = new THREE.TextureLoader();
   const maxAniso = renderer.capabilities.getMaxAnisotropy();
   const tex = {};
-  const total = TEXTURES.length + 3;
+  const total = TEXTURES.length + 4;
   let done = 0;
   const tick = (label) => onProgress(++done / total, label);
 
@@ -81,17 +81,18 @@ export async function loadAssets(renderer, tier, onProgress) {
     });
   });
 
-  const [gElev, cHeight, sHeight] = await Promise.all([
+  const [gElev, cHeight, sHeight, traverse] = await Promise.all([
     heightPNG(url(manifest.global.elev.file)).then((a) => { tick('MOLA elevation grid'); return a; }),
     heightPNG(url(manifest.crater.file)).then((a) => { tick('Jezero CTX heightfield'); return a; }),
     heightPNG(url(manifest.site.file)).then((a) => { tick('Landing-site HiRISE heightfield'); return a; }),
+    fetch(url('m20_traverse.json')).then((r) => r.json()).then((j) => { tick('Perseverance traverse · MMGIS waypoints'); return j; }).catch(() => null),
     ...texJobs,
   ]);
 
   const ge = manifest.global.elev;
   const gOff = ge.offset || 0;
   return {
-    manifest, tex,
+    manifest, tex, traverse,
     heights: { crater: cHeight, site: sHeight },
     elevAt(lat, lon) {
       const x = Math.floor(((lon + 180) / 360) * ge.width) % ge.width;

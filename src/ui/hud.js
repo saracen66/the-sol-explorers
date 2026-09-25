@@ -287,7 +287,7 @@ export class Hud {
 
     if (!site) this.renderCraterLeft(view);
     else extraLeft?.();
-    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-6</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> pin &amp; route <kbd>F</kbd> helmet' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
+    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> pin &amp; route <kbd>F</kbd> helmet' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
   }
 
   sunInfo(view) {
@@ -312,6 +312,7 @@ export class Hud {
       <div><i style="background:var(--serious)"></i>${ICON.warn} ${lim[1]}–${lim[2]}° hazard</div>
       <div><i style="background:var(--critical)"></i>${ICON.stop} &gt;${lim[2]}° no-go</div></div></div>`);
     if (view.layers.thermal) parts.push(legendRamp('Ground firmness · THEMIS night IR (thermal-inertia proxy)', 'linear-gradient(90deg,#3a1a06,#7a3510,#c05a1c,#ec8a45,#f9c79a,#fff0e0)', ['loose dust / sand', 'firm rock']));
+    if (view.layers.traverse) parts.push(`<div class="legend"><div class="cap"><i class="trav-key"></i>Perseverance's real drive path: ${fmtNum(this.app.assets?.traverse?.points?.length || 400)} end-of-drive fixes, sol 0 to ${this.app.assets?.traverse?.lastSol ?? 1524} (${this.app.assets?.traverse?.totalKm ?? 34.96} km). NASA/JPL-Caltech MMGIS.</div></div>`);
     if (view.layers.contour) parts.push(`<div class="legend"><div class="cap">Contours every ${view.cfg.contour[0]} m · bold every ${view.cfg.contour[1]} m</div></div>`);
     L.innerHTML = parts.join('');
     this.right.querySelectorAll('[data-layer]').forEach((d) => d.classList.toggle('on', !!view.layers[d.dataset.layer]));
@@ -509,7 +510,11 @@ export class Hud {
       <table><tr><th>LAYER</th><th>MISSION / INSTRUMENT</th><th>PRODUCT</th></tr>
         <tr><td>Visible</td><td>MRO · HiRISE</td><td>Mars 2020 Terrain-Relative-Navigation orthomosaic, 25 cm (USGS)</td></tr>
         <tr><td>Elevation, slope, route</td><td>MRO · HiRISE stereo</td><td>Mars 2020 TRN DTM, 1 m (USGS)</td></tr>
-        <tr><td>Thermal</td><td>Mars Odyssey · THEMIS</td><td>Night-IR controlled mosaic, 100 m</td></tr></table>
+        <tr><td>Thermal</td><td>Mars Odyssey · THEMIS</td><td>Night-IR controlled mosaic, 100 m</td></tr>
+        <tr><td>Helmet-view skyline</td><td>MRO · CTX stereo</td><td>Computed from the 20 m crater DEM: highest angle per bearing, with Mars curvature</td></tr></table>
+      <h3>PERSEVERANCE TRAVERSE</h3>
+      <table><tr><th>LAYER</th><th>SOURCE</th><th>PRODUCT</th></tr>
+        <tr><td>Drive path, sol labels</td><td>NASA/JPL-Caltech · MMGIS "Where is Perseverance?"</td><td>End-of-drive localisations (M20_waypoints), sol 0–1524, archived daily by github.com/stiles/mars-perseverance-waypoints</td></tr></table>
       <h3>MODELS & REFERENCES</h3>
       <table>
         <tr><td>Mars time</td><td>Mars24 algorithm, Allison & McEwen (2000), NASA GISS. Sol count from Perseverance landing, 18 Feb 2021.</td></tr>
