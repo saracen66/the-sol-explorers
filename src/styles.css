@@ -560,3 +560,62 @@ body.fpv.compact .bottom-actions { display: none; }
 body.compact .helmet .h-exit { display: block; top: 110px; bottom: auto; right: 10px; transform: none; padding: 6px 8px; font-size: 10px; }
 body.fpv .toast { top: 140px; }
 body.fpv.compact .toast { top: 150px; }
+
+/* ------------------------------------------------ helmet view on touch screens: twin sticks */
+.joy { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); width: 124px; display: none; text-align: center; pointer-events: none; }
+body.touch.fpv .joy { display: block; }
+.joy.left { left: calc(22px + env(safe-area-inset-left, 0px)); }
+.joy.right { right: calc(22px + env(safe-area-inset-right, 0px)); }
+.joy-base { pointer-events: auto; touch-action: none; width: 124px; height: 124px; border-radius: 50%; display: grid; place-items: center;
+  border: 1.5px solid rgba(95,212,255,.45); background: radial-gradient(circle, rgba(95,212,255,.10), rgba(4,14,18,.38) 70%); }
+.joy-knob { width: 50px; height: 50px; border-radius: 50%; background: rgba(95,212,255,.32); border: 1.5px solid var(--data);
+  box-shadow: 0 0 14px rgba(95,212,255,.4); pointer-events: none; }
+.joy.on .joy-base { border-color: var(--data); }
+.joy.on .joy-knob { background: rgba(95,212,255,.6); }
+.joy-lb { display: block; margin-top: 3px; font-size: 10px; font-weight: 700; letter-spacing: .26em; color: var(--data); opacity: .75; }
+.joy.off { opacity: .28; }
+.joy.off .joy-base { pointer-events: none; }
+.helmet.dead .joy { display: none; }
+body.touch.fpv .h-suit, body.touch.fpv .h-nav { bottom: calc(172px + env(safe-area-inset-bottom, 0px)); }
+
+/* rotate prompt: portrait phones in the helmet view */
+.h-rotate { display: none; position: absolute; inset: 0; z-index: 3; pointer-events: auto; background: rgba(5,5,7,.88);
+  flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; }
+.h-rotate > b { font-size: 56px; line-height: 1; color: var(--data); animation: tilt 2.2s ease-in-out infinite; }
+.h-rotate > span { font-size: 18px; font-weight: 700; letter-spacing: .08em; color: var(--text); }
+.h-rotate small { display: block; margin-top: 6px; font-size: 13px; font-weight: 500; letter-spacing: .02em; color: var(--text-2); }
+.h-rotate .btn-row { justify-content: center; }
+@keyframes tilt { 0%, 20% { transform: rotate(0); } 50%, 75% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+@media (orientation: portrait) { body.touch.fpv:not(.fpv-portrait-ok) .h-rotate { display: flex; } }
+
+/* phone held upright (after STAY IN PORTRAIT) */
+body.touch.fpv.compact .joy { width: 106px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+body.touch.fpv.compact .joy.left { left: 12px; } body.touch.fpv.compact .joy.right { right: 12px; }
+body.touch.fpv.compact .joy-base { width: 106px; height: 106px; }
+body.touch.fpv.compact .joy-knob { width: 44px; height: 44px; }
+body.touch.fpv.compact .h-suit, body.touch.fpv.compact .h-nav { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+body.touch.fpv.compact .h-warp { bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+body.touch.fpv.compact .h-warp span { min-width: 66px; padding: 6px 4px; font-size: 11px; }
+body.touch.fpv.compact .h-warp button { width: 28px; }
+
+/* phone held sideways: everything moves to the corners around the two thumbs */
+body.fpv.compact.landscape .topbar { display: none; }
+body.fpv.compact.landscape .h-compass { top: calc(4px + env(safe-area-inset-top, 0px)); width: min(440px, 50vw); }
+body.fpv.compact.landscape .h-suit, body.fpv.compact.landscape .h-nav { top: 8px; bottom: auto; width: 170px; padding: 6px 8px; }
+body.fpv.compact.landscape .h-suit { left: calc(10px + env(safe-area-inset-left, 0px)); }
+body.fpv.compact.landscape .h-nav { right: calc(10px + env(safe-area-inset-right, 0px)); }
+body.fpv.compact.landscape .h-suit .row:nth-child(5), body.fpv.compact.landscape .h-suit .row:nth-child(6),
+body.fpv.compact.landscape .h-nav .row:nth-child(3), body.fpv.compact.landscape .h-nav .row:nth-child(6) { display: none; }
+body.fpv.compact.landscape .helmet .h-exit { top: auto; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); right: 50%; transform: translateX(50%); }
+body.fpv.compact.landscape .h-warp { bottom: calc(52px + env(safe-area-inset-bottom, 0px)); }
+body.fpv.compact.landscape .joy { width: 112px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+body.fpv.compact.landscape .joy.left { left: calc(18px + env(safe-area-inset-left, 0px)); }
+body.fpv.compact.landscape .joy.right { right: calc(18px + env(safe-area-inset-right, 0px)); }
+body.fpv.compact.landscape .joy-base { width: 112px; height: 112px; }
+body.fpv.compact.landscape .toast { top: 64px; }
+body.fpv.compact.landscape .h-dead { top: 40%; }
+/* phones: the helmet gets the whole screen (no title bar) */
+body.fpv.compact .topbar { display: none; }
+body.fpv.compact .h-compass { top: calc(8px + env(safe-area-inset-top, 0px)); }
+body.fpv.compact:not(.landscape) .helmet .h-exit { top: calc(66px + env(safe-area-inset-top, 0px)); }
+body.fpv.compact:not(.landscape) .toast { top: calc(110px + env(safe-area-inset-top, 0px)); }

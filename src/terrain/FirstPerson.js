@@ -14,6 +14,7 @@ import { walkSpeed, metabolicW, o2KgPerSec } from './eva.js';
 import { formatHM, earthMarsLightTime } from '../lib/marstime.js';
 import { fmtDist, fmtNum, fmtLat, fmtLon } from '../lib/geo.js';
 import { sampleAt } from './Planner.js';
+import { Joystick } from '../ui/Joystick.js';
 
 const EYE = 0.0018;          // km
 const RING_R = 8;            // km, radius of the horizon ring (moves with the camera)
@@ -110,7 +111,8 @@ export class FirstPerson {
       <div class="h-nav" id="h-nav"></div>
       <div class="h-warp" id="h-warp"><button data-w="-1" aria-label="Slower time warp" title="Slower ( [ )">−</button><span id="h-warp-v">TIME ×8</span><button data-w="1" aria-label="Faster time warp" title="Faster ( ] )">+</button></div>
       <div class="h-note" id="h-note"></div>
-      <div class="h-dead" id="h-dead"></div>`;
+      <div class="h-dead" id="h-dead"></div>
+      <div class="h-rotate" id="h-rotate"><b>⟲</b><span>Turn your phone sideways.<small>The helmet view has joysticks made for two thumbs.</small></span><div class="btn-row"><button class="btn small" id="h-portrait">STAY IN PORTRAIT</button><button class="btn small" id="h-rot-exit">✕ EXIT HELMET VIEW</button></div></div>`;
     document.getElementById('hud').appendChild(el);
     this.el = el;
     el.querySelector('#h-exit').onclick = () => this.exit();
@@ -119,6 +121,32 @@ export class FirstPerson {
       if (b) this.setWarp(this.warpIdx + +b.dataset.w);
     };
     el.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) e.stopPropagation(); });
+    el.querySelector('#h-portrait').onclick = () => document.body.classList.add('fpv-portrait-ok');
+    el.querySelector('#h-rot-exit').onclick = () => this.exit();
+    // phones and tablets: game-style twin sticks, left walks, right looks
+    if (this.app.touch) {
+      this.moveStick = new Joystick(el, 'left', 'MOVE');
+      this.lookStick = new Joystick(el, 'right', 'LOOK');
+    }
+  }
+
+  /** On phones, go fullscreen and lock to landscape where the browser allows it (Android).
+   *  Elsewhere (iPhone Safari) the rotate prompt asks instead. Needs a user tap. */
+  async goLandscape() {
+    if (!this.app.touch || !navigator.userActivation?.isActive) return;
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+        this.ownFullscreen = true;
+      }
+      await screen.orientation?.lock?.('landscape');
+    } catch { /* not allowed here: the rotate prompt covers it */ }
+  }
+
+  leaveLandscape() {
+    try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
+    if (this.ownFullscreen && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    this.ownFullscreen = false;
   }
 
   // ------------------------------------------------------------------ enter / exit
@@ -127,6 +155,7 @@ export class FirstPerson {
     const a = this.app, v = this.view;
     if (a.mode !== 'site' || a.busy) return;
     this.build();
+    this.goLandscape();
     a.pin?.close();
     a.planner.addMode = false;
     if (x == null) { const lz = a.planner.waypoints[0] || { x: 0, z: 0 }; x = lz.x; z = lz.z; }
@@ -200,6 +229,9 @@ export class FirstPerson {
     v.flyTo({ dist: 2.4, el: 0.8 }, 1.4);
     document.body.classList.remove('fpv');
     this.el.classList.remove('show', 'dead');
+    this.moveStick?.reset();
+    this.lookStick?.reset();
+    this.leaveLandscape();
     a.sound?.windLevel(0.035);
     a.sound?.breathing(false);
     if (a.planner.evaItem && a.planner.sim) a.planner.evaItem.hiddenByUser = false;
@@ -313,6 +345,18 @@ export class FirstPerson {
     const keys = a.keys;
     let speed = 0, grade = 0;
 
+    const L = this.lookStick?.value;
+    if (L && !this.dead && Math.hypot(L.x, L.y) > 0.06) {
+      const k = (this.fov / 62) * dt;
+      // square the input: fine aim near the centre, fast turns at the rim
+      const lx = L.x * Math.abs(L.x), ly = L.y * Math.abs(L.y);
+      if (this.follow) this.lookOffset = (this.lookOffset || 0) + lx * 2.2 * k;
+      else this.yaw += lx * 2.2 * k;
+      this.pitch = THREE.MathUtils.clamp(this.pitch - ly * 1.5 * k, -1.2, 1.1);
+      this.lastLook = performance.now();
+    }
+    this.moveStick?.el.classList.toggle('off', !!(this.follow || this.dead));
+
     if (this.dead) {
       this.dead.t += dt;
     } else if (this.follow && pl.sim && pl.sim.pos) {
@@ -330,8 +374,16 @@ export class FirstPerson {
       this.o2Used = st.o2;
     } else if (!this.follow) {
       // free walk: WASD / arrows, or walk to a clicked point
-      const f = (keys.has('w') || keys.has('arrowup') ? 1 : 0) - (keys.has('s') || keys.has('arrowdown') ? 1 : 0);
-      const s = (keys.has('d') || keys.has('arrowright') ? 1 : 0) - (keys.has('a') || keys.has('arrowleft') ? 1 : 0);
+      let f = (keys.has('w') || keys.has('arrowup') ? 1 : 0) - (keys.has('s') || keys.has('arrowdown') ? 1 : 0);
+      let s = (keys.has('d') || keys.has('arrowright') ? 1 : 0) - (keys.has('a') || keys.has('arrowleft') ? 1 : 0);
+      let run = keys.has('shift') ? 3 : 1;
+      const M = this.moveStick?.value;
+      const mm = M ? Math.min(1, Math.hypot(M.x, M.y)) : 0;
+      if (mm > 0.08) {
+        // analogue: a light push walks slowly, three quarters is normal pace, full push jogs (×3)
+        f = -M.y; s = M.x;
+        run = mm <= 0.75 ? mm / 0.75 : 1 + ((mm - 0.75) / 0.25) * 2;
+      }
       const turn = (keys.has('e') ? 1 : 0) - (keys.has('q') ? 1 : 0);
       this.yaw += turn * dt * 1.2;
       let mx = 0, mz = 0;
@@ -357,7 +409,6 @@ export class FirstPerson {
         const e1 = v.elevAt(this.pos.x + mx * 0.002, this.pos.z + mz * 0.002);
         grade = Math.atan2(e1 - e0, 2);
         const vw = walkSpeed(grade);
-        const run = keys.has('shift') ? 3 : 1;
         const step = (vw * this.warp * run * dt) / 1000; // km
         const nx = this.pos.x + mx * step, nz = this.pos.z + mz * step;
         const slope = v.slopeAt(nx, nz) ?? 0;
@@ -424,7 +475,9 @@ export class FirstPerson {
     if (roll) cam.rotateZ(roll);
     cam.near = 0.0004;
     cam.far = 40;
-    cam.fov = this.fov;
+    // portrait phones: widen the vertical angle so the horizontal view isn't a slit
+    const aspect = this.app.w / this.app.h;
+    cam.fov = aspect >= 1 ? this.fov : Math.min(100, (2 * Math.atan((Math.tan((this.fov * Math.PI) / 360) * 0.8) / aspect) * 180) / Math.PI);
     cam.updateProjectionMatrix();
     this.sky.position.copy(cam.position);
     this.ring.position.set(cam.position.x, cam.position.y, cam.position.z);
