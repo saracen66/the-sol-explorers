@@ -135,8 +135,8 @@ export class Director {
       this.cap('AND IF THEY WALK ANYWAY?', 'Simulated EVA on the same plan', 0);
       await s.flyTo({ dist: 2.2, el: 0.8 }, 1.2);
       pl.follow = true;
-      pl.startSim(Math.max(900, bad.o2Out.t / 7));
-      await this.until(() => pl.sim && pl.sim.dead, 14);
+      pl.startSim(Math.max(900, bad.o2Out.t / 6));
+      await this.until(() => pl.sim && pl.sim.dead, 25);
       a.hud.caption(null);
       await this.wait(2.8);
       const lt = pl.sim?.deadAt?.lt;
@@ -158,7 +158,16 @@ export class Director {
       const b = r2.budget;
       this.cap('THE WATNEY CHECK', `${b.o2.toFixed(2)} kg of O₂ used out of ${pl.params.o2CapKg.toFixed(2)} kg: ${b.marginPct.toFixed(0)} % left at the airlock`, 0);
     }
-    await this.until(() => !pl.sim, 22);
+    await this.until(() => !pl.sim, 7);
+    // ride along in the helmet
+    if (pl.sim) {
+      const p = pl.sim.pos || pl.waypoints[0];
+      a.fpv.enter(p.x, p.z);
+      this.cap('HELMET VIEW · TRUE SCALE', 'The skyline is the real crater rim, computed from the CTX elevation model', 0);
+      await this.wait(9);
+      a.fpv.exit();
+      await this.wait(1.6);
+    }
     pl.stopSim();
     a.hud.caption(null);
 

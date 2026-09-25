@@ -287,7 +287,7 @@ export class Hud {
 
     if (!site) this.renderCraterLeft(view);
     else extraLeft?.();
-    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-6</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> pin &amp; route' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
+    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-6</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> pin &amp; route <kbd>F</kbd> helmet' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
   }
 
   sunInfo(view) {
@@ -405,6 +405,7 @@ export class Hud {
           <button class="btn small" id="b-plan">RESET</button>
         </div>
         <div class="seg" style="margin-top:8px"><button id="b-ret" class="${pl.returnToStart ? 'on' : ''}">RETURN TO LZ</button><button id="b-follow" class="${pl.follow ? 'on' : ''}">FOLLOW CAM</button></div>
+        <button class="btn fpv-btn ${this.app.fpv?.active ? 'on' : ''}" id="b-fpv" title="Stand on the terrain at eye height (F)">${this.app.fpv?.active ? '✕ EXIT HELMET VIEW' : '◉ HELMET VIEW · WALK IT'}</button>
       </div>
       <div class="sec">
         <div class="sec-h">Watney check · EVA budget</div>
@@ -423,6 +424,7 @@ export class Hud {
     $('b-sim').onclick = () => { this.closeSheet(); pl.sim ? pl.stopSim() : pl.startSim(); };
     $('b-plan').onclick = () => this.app.resetPlan();
     $('b-ret').onclick = () => { pl.returnToStart = !pl.returnToStart; pl.compute(); };
+    $('b-fpv').onclick = () => { this.closeSheet(); this.app.fpv.active ? this.app.fpv.exit() : this.app.fpv.enter(); };
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };
     const bindP = (id, key, parse = Number) => { $(id).onchange = (e) => { pl.params[key] = parse(e.target.value); pl.compute(); }; $(id).oninput = (e) => { e.target.previousElementSibling.textContent = id === 'p-o2' ? `${(+e.target.value).toFixed(2)} kg` : id === 'p-slope' ? `${e.target.value}°` : `${e.target.value} min`; }; };
     bindP('p-o2', 'o2CapKg'); bindP('p-slope', 'maxSlope'); bindP('p-stop', 'stopMin');

@@ -145,6 +145,7 @@ export class TerrainView {
       uTime: { value: 0 }, uShadowOn: { value: 1 },
       uSlopeLim: { value: new THREE.Vector3(...this.cfg.slopeLim) },
       uReveal: { value: 1 },
+      uFpv: { value: 0 }, uFogCol: { value: new THREE.Color(0.80, 0.62, 0.47).convertSRGBToLinear() }, uFogK: { value: 0.3 },
     };
     this.mesh = new THREE.Mesh(geo, new THREE.ShaderMaterial({
       vertexShader: terrainVert, fragmentShader: terrainFrag, uniforms: this.uniforms,
@@ -181,6 +182,7 @@ export class TerrainView {
     }));
     walls.frustumCulled = false;
     this.scene.add(walls);
+    this.walls = walls;
 
     // holo-table floor
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(this.sizeX * 5, this.sizeZ * 5).rotateX(-Math.PI / 2),
@@ -382,6 +384,7 @@ export class TerrainView {
 
   // ------------------------------------------------------------------ input
   onWheel(e) {
+    if (this.fpvOn) { this.app.fpv.onWheel(e); return; }
     if (this.mode === 'fly' || this.mode === 'transit') return;
     const dy = e.deltaY * (e.deltaMode === 1 ? 30 : 1);
     this.lastUser = this.time;
@@ -412,6 +415,7 @@ export class TerrainView {
   }
 
   onDrag(dx, dy, buttons, shift) {
+    if (this.fpvOn) { this.app.fpv.onDrag(dx, dy); return; }
     if (this.mode === 'fly' || this.mode === 'transit') return;
     this.lastUser = this.time;
     if (buttons === 2 || shift) {
@@ -520,7 +524,8 @@ export class TerrainView {
       this.cam.target.y = THREE.MathUtils.lerp(this.cam.target.y, ty, damp(dt, 5));
       if (this.autoOrbit) this.cam.az += dt * this.autoOrbit;
     }
-    this.applyCamera();
+    if (this.fpvOn) this.app.fpv.applyCamera(dt);
+    else this.applyCamera();
     this.updateStalks();
 
     // layers
@@ -546,7 +551,7 @@ export class TerrainView {
     }
 
     // cursor
-    const hit = this.mode === 'fly' || this.mode === 'transit' ? null : this.pick();
+    const hit = this.mode === 'fly' || this.mode === 'transit' || this.fpvOn ? null : this.pick();
     this.cursor = hit;
     if (hit) {
       u.uCursor.value.set(hit.x, hit.z, 1);

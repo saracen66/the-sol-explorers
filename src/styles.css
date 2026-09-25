@@ -449,3 +449,74 @@ body.compact .modal table { display: block; overflow-x: auto; }
 body.compact .loader-logo { font-size: 30px; letter-spacing: .22em; }
 body.compact .loader-sub { font-size: 10.5px; letter-spacing: .2em; }
 body.compact .scanlines { display: none; }
+
+/* ------------------------------------------------ helmet view (first person) */
+.fpv-btn { width: 100%; margin-top: 10px; justify-content: center; border-color: var(--data-dim); color: var(--data); }
+.fpv-btn.on { color: #fff; }
+.helmet { position: absolute; inset: 0; pointer-events: none; display: none; }
+.helmet.show { display: block; }
+.helmet .visor { position: absolute; inset: 0;
+  background: radial-gradient(ellipse 72% 78% at 50% 46%, transparent 62%, rgba(10,18,24,.55) 86%, rgba(0,0,0,.92) 100%),
+              linear-gradient(115deg, rgba(160,210,255,.07) 0%, transparent 28%, transparent 70%, rgba(160,210,255,.05) 100%); }
+body.fpv .panel, body.fpv .topbar .crumbs, body.fpv .vignette, body.fpv .bottombar .hints, body.fpv .wrist { opacity: 0 !important; pointer-events: none !important; }
+body.fpv #labels .mk.wpn .lb.wr, body.fpv #labels .mk .card { display: none; }
+.h-compass { position: absolute; top: 74px; height: 56px; left: 50%; transform: translateX(-50%); width: min(720px, 86vw); overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); }
+.h-tape { position: absolute; inset: 0; }
+.h-tape i { position: absolute; top: 4px; width: 1px; height: 8px; background: rgba(95,212,255,.6); font-style: normal; }
+.h-tape i.m { height: 12px; background: var(--data); }
+.h-tape i { font-family: var(--mono); font-style: normal; font-size: 0; }
+.h-tape i.m { font-size: 11px; color: var(--data); text-indent: 5px; line-height: 12px; white-space: nowrap; }
+.h-tape em { position: absolute; top: 18px; transform: translateX(-50%); display: block; width: max-content; font-style: normal; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: #07202a; background: var(--data); padding: 0 5px; white-space: nowrap; line-height: 15px; }
+.h-tape em small { color: #07202a; opacity: .75; margin-left: 4px; font-size: 10px; }
+.h-tape em.tl { background: var(--hud); }
+.h-tape em.off { opacity: .45; }
+.h-caret { position: absolute; left: 50%; top: 0; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid #fff; transform: translateX(-50%); }
+.h-compass b { position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; color: #fff; display: none; }
+.h-exit { position: absolute; top: 76px; right: 22px; pointer-events: auto; }
+.h-cross { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; transform: translate(-50%, -50%); opacity: .55;
+  background: linear-gradient(var(--data), var(--data)) center/1px 8px no-repeat, linear-gradient(var(--data), var(--data)) center/8px 1px no-repeat; }
+.h-suit, .h-nav { position: absolute; bottom: 70px; width: 236px; padding: 10px 12px; background: rgba(4,14,18,.55); border: 1px solid var(--data-dim);
+  color: var(--text); font-size: 11px; letter-spacing: .12em; }
+.h-suit { left: 22px; } .h-nav { right: 22px; }
+.helmet .hk { color: var(--data); font-weight: 700; letter-spacing: .22em; font-size: 10.5px; margin-bottom: 6px; }
+.helmet .row { display: flex; justify-content: space-between; color: var(--text-3); margin-top: 3px; }
+.helmet .row b { font-family: var(--mono); letter-spacing: 0; color: var(--text); font-weight: 600; font-size: 12px; }
+.helmet b.warn { color: var(--warning) !important; } .helmet b.crit { color: #ff7b7b !important; }
+.h-suit .o2 { display: flex; justify-content: space-between; align-items: baseline; }
+.h-suit .o2 b { font-family: var(--mono); font-size: 26px; letter-spacing: 0; color: var(--data); }
+.h-suit .o2 b small { font-size: 12px; color: var(--text-3); }
+.h-suit .o2.warn b { color: var(--warning); } .h-suit .o2.crit b, .h-suit .o2.dead b { color: #ff5a5a; }
+.h-suit .o2.crit b { animation: blink .8s steps(2) infinite; }
+.h-suit .bar { position: relative; height: 5px; background: rgba(95,212,255,.12); margin: 4px 0 6px; }
+.h-suit .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--data); }
+.h-suit .bar.warn i { background: var(--warning); } .h-suit .bar.crit i, .h-suit .bar.dead i { background: #ff5a5a; }
+.h-suit .bar u { position: absolute; top: -3px; bottom: -3px; width: 1px; background: #fff; }
+.h-warp { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 0; pointer-events: auto;
+  border: 1px solid var(--data-dim); background: rgba(4,14,18,.55); font-family: var(--mono); font-size: 12px; color: var(--data); }
+.h-warp span { padding: 6px 10px; min-width: 96px; text-align: center; }
+.h-warp button { background: none; border: 0; color: var(--data); width: 32px; height: 30px; cursor: pointer; font-size: 16px; }
+.h-warp button:hover { background: rgba(95,212,255,.15); }
+.h-note { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); color: #ffcf9a; font-weight: 700; letter-spacing: .18em; font-size: 13px;
+  text-shadow: 0 0 10px #000; opacity: 0; transition: opacity .3s; }
+.h-note.show { opacity: 1; }
+.h-dead { position: absolute; left: 50%; top: 56%; transform: translateX(-50%); text-align: center; display: none; pointer-events: auto; width: min(560px, 90vw); }
+.h-dead b { display: block; font-family: var(--display); font-size: 30px; letter-spacing: .2em; color: #ff6b6b; text-shadow: 0 0 20px rgba(255,0,0,.6); }
+.h-dead span { display: block; margin: 8px 0 14px; color: #ffd0d0; font-size: 15px; letter-spacing: .04em; }
+.helmet.dead .h-dead { display: block; animation: fadein 2.5s ease-in; }
+.helmet.dead .visor { background: radial-gradient(ellipse 72% 78% at 50% 46%, rgba(120,0,0,.25) 30%, rgba(40,0,0,.85) 86%, #000 100%); transition: background 2s; }
+.helmet.dead .h-compass, .helmet.dead .h-cross, .helmet.dead .h-warp { opacity: .2; }
+@keyframes fadein { from { opacity: 0; } 60% { opacity: 0; } }
+body.compact .h-suit, body.compact .h-nav { width: calc(50vw - 16px); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); padding: 7px 8px; font-size: 9.5px; letter-spacing: .06em; }
+body.compact .h-suit { left: 10px; } body.compact .h-nav { right: 10px; }
+body.compact .h-suit .o2 b { font-size: 19px; }
+body.compact .helmet .row b { font-size: 10.5px; }
+body.compact .h-nav .row:nth-child(2), body.compact .h-nav .row:nth-child(7), body.compact .h-suit .row:nth-child(6) { display: none; }
+body.compact .h-warp { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+body.compact .h-exit { top: auto; bottom: calc(160px + env(safe-area-inset-bottom, 0px)); right: 50%; transform: translateX(50%); display: none; }
+body.compact .h-compass { top: 64px; }
+body.fpv.compact .bottom-actions { display: none; }
+body.compact .helmet .h-exit { display: block; top: 110px; bottom: auto; right: 10px; transform: none; padding: 6px 8px; font-size: 10px; }
+body.fpv .toast { top: 140px; }
+body.fpv.compact .toast { top: 150px; }

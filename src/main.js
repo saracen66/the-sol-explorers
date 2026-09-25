@@ -8,6 +8,7 @@ import { OrbitView } from './orbit/OrbitView.js';
 import { TerrainView } from './terrain/TerrainView.js';
 import { Planner } from './terrain/Planner.js';
 import { PinTool } from './terrain/Pin.js';
+import { FirstPerson } from './terrain/FirstPerson.js';
 import { Labels } from './ui/labels.js';
 import { Hud } from './ui/hud.js';
 import { Sound } from './ui/sound.js';
@@ -129,6 +130,7 @@ class App {
     this.planner.init();
     this.planner.setPlan(DEFAULT_PLAN); // route solved now, so its line shaders compile during loading
     this.pin = new PinTool(this);
+    this.fpv = new FirstPerson(this);
 
     // Warm up behind the loading screen: compile every shader, upload every texture,
     // bake the first shadows and allocate the transition buffers, so nothing of that
@@ -161,7 +163,7 @@ class App {
     this.labels.setVisible('orbit', mode === 'orbit');
     this.labels.setVisible('crater', mode === 'crater');
     for (const g of ['site', 'wp', 'eva', 'pin']) this.labels.setVisible(g, mode === 'site');
-    if (mode !== 'site') this.pin?.close();
+    if (mode !== 'site') { this.pin?.close(); if (this.fpv?.active) this.fpv.exit(); }
   }
 
   fillDist(view) {
@@ -248,6 +250,7 @@ class App {
       this.hud.prompt(null);
       this.busy = false;
     } else if (view === this.site) {
+      if (this.fpv.active) { this.fpv.exit(); return; }
       this.busy = true;
       this.planner.stopSim();
       this.hud.clearPanels();
@@ -387,6 +390,7 @@ class App {
   onCanvasClick() {
     if (document.body.classList.contains('sheet-open')) { this.hud.closeSheet(); return; }
     if (this.busy) return;
+    if (this.mode === 'site' && this.fpv.active) { this.fpv.onClick(); return; }
     if (this.mode === 'site') {
       const p = this.site.pick();
       if (this.planner.addMode) {
@@ -410,6 +414,10 @@ class App {
     if (k === 'k') { this.director.captions = !this.director.captions; this.hud.toast(`CAPTIONS ${this.director.captions ? 'ON' : 'OFF'}`); return; }
     if (this.busy) return;
     if (k === 'escape' && this.pin?.open) { this.pin.close(); return; }
+    if (this.mode === 'site' && this.fpv.active) {
+      if (k === 'escape' || k === 'f') { this.fpv.exit(); return; }
+      if (this.fpv.onKey(k)) return;
+    } else if (this.mode === 'site' && k === 'f') { this.fpv.enter(); return; }
     if (k === 'escape' || k === 'backspace') { this.exitUp(); return; }
     if (this.mode === 'orbit') {
       if (['1', '2', '3'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal'][+k - 1]);
@@ -435,7 +443,8 @@ class App {
     const dt = Math.min(this.maxDt, this.timer.getDelta());
     const v = this.active;
 
-    if (v instanceof TerrainView && !this.busy) {
+    if (v === this.site && this.fpv.active) this.fpv.update(dt);
+    else if (v instanceof TerrainView && !this.busy) {
       const kx = (this.keys.has('d') || this.keys.has('arrowright') ? 1 : 0) - (this.keys.has('a') || this.keys.has('arrowleft') ? 1 : 0);
       const kz = (this.keys.has('s') || this.keys.has('arrowdown') ? 1 : 0) - (this.keys.has('w') || this.keys.has('arrowup') ? 1 : 0);
       if (kx || kz) v.onKeyPan(kx, kz, dt);
@@ -459,7 +468,7 @@ class App {
 
     this.streaks.intensity += ((this.streaksOn ? 1 : 0) - this.streaks.intensity) * Math.min(1, dt * 3);
     this.streaks.update(dt);
-    if (now - this.readoutAt > 100) { this.readoutAt = now; this.hud.readout(v.readout()); }
+    if (now - this.readoutAt > 100) { this.readoutAt = now; this.hud.readout(this.fpv?.active ? this.fpv.readout() : v.readout()); }
     if (!this.busy) this.updatePrompts();
     this.director.update(dt);
   }
@@ -482,6 +491,7 @@ class App {
       this.zoneLabel.world.set(z.cx, c.yAt(z.cx, z.z0) + c.stalkH() * 0.6, z.z0);
     } else {
       this.hud.reticle(false);
+      if (this.fpv.active) { this.hud.prompt(null); return; }
       this.hud.prompt(this.planner.addMode ? `${this.touch ? 'TAP' : 'CLICK'} THE MAP TO ADD A STOP` : null);
     }
   }

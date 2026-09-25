@@ -411,7 +411,7 @@ export class Planner {
     s.deadAt = { ...pos, t: s.t, lt: earthMarsLightTime().seconds, fromLZ: Math.hypot(pos.x - this.waypoints[0].x, pos.z - this.waypoints[0].z) * 1000 };
     this.setEvaLook(true);
     if (this.o2Item) this.o2Item.hiddenByUser = true; // EV1's red marker takes its place
-    this.evaItem.hiddenByUser = false;
+    this.evaItem.hiddenByUser = !!this.app.fpv?.active; // in the helmet you are EV1
     hud.banner('EV1 LOST · O₂ EXHAUSTED', 'nogo', 4600);
     hud.flash(0.55, 1400, 'red');
     this.app.sound?.flatline();
