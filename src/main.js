@@ -306,6 +306,8 @@ class App {
     if (view === this.site && poi.id !== 'lz') {
       this.planner.addMode = false;
       if (this.planner.addPOI(poi)) { this.hud.toast(`STOP ADDED · ${poi.name.toUpperCase()}`); this.sound.pin(); return; }
+      const n = this.planner.waypoints.findIndex((w) => w.poi && w.poi.id === poi.id);
+      if (n >= 0) this.hud.toast(`ALREADY IN THE PLAN · STOP ${n + 1}`);
     }
     const { x, z } = view.lonlatToXZ(poi.lat, poi.lon);
     view.pulse(x, z);
