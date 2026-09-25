@@ -32,6 +32,18 @@ export class Hud {
     // phones: the two side panels become one bottom sheet, opened from these tabs
     $('btn-info').onclick = () => this.toggleSheet('left');
     $('btn-layers').onclick = () => this.toggleSheet('right');
+    // desktop: each side panel can be tucked away and brought back from its edge tab
+    let hidden = {};
+    try { hidden = JSON.parse(localStorage.getItem('sol-atlas-panels') || '{}'); } catch { /* storage blocked */ }
+    for (const side of ['left', 'right']) {
+      this.setPanelHidden(side, !!hidden[side]);
+      $(`tog-${side}`).onclick = () => {
+        this.setPanelHidden(side, !document.body.classList.contains(`hide-${side}`));
+        try {
+          localStorage.setItem('sol-atlas-panels', JSON.stringify({ left: document.body.classList.contains('hide-left'), right: document.body.classList.contains('hide-right') }));
+        } catch { /* ignore */ }
+      };
+    }
     $('modal-x').onclick = () => ($('modal').hidden = true);
     $('modal').onclick = (e) => { if (e.target.id === 'modal') $('modal').hidden = true; };
     this.tickTelemetry();
@@ -138,7 +150,18 @@ export class Hud {
     $('btn-layers').classList.remove('on');
   }
 
-  sheetLabel(text) { $('btn-info').textContent = text; }
+  sheetLabel(text) {
+    $('btn-info').textContent = text;
+    $('tog-left').querySelector('span').textContent = text;
+  }
+
+  setPanelHidden(side, hide) {
+    document.body.classList.toggle(`hide-${side}`, hide);
+    const t = $(`tog-${side}`);
+    t.setAttribute('aria-expanded', hide ? 'false' : 'true');
+    t.title = hide ? 'Show this panel' : 'Hide this panel';
+    t.querySelector('i').textContent = (side === 'left') === hide ? '›' : '‹';
+  }
 
   // ------------------------------------------------------------------ ORBIT
   renderOrbit(orbit) {
