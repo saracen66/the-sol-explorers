@@ -50,6 +50,12 @@ export class Labels {
         const x = (v.x * 0.5 + 0.5) * w, y = (-v.y * 0.5 + 0.5) * h;
         it.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
         it.screen = { x, y };
+        if (it.card === undefined) it.card = it.el.querySelector('.card');
+        if (it.card) {
+          // keep the hover card on screen near the right and bottom edges
+          it.el.classList.toggle('flipx', x > w - 300);
+          it.el.classList.toggle('flipy', y > h - 220);
+        }
         shown.push(it);
       }
     }
