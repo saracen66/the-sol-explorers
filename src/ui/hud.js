@@ -97,7 +97,11 @@ export class Hud {
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   }
 
-  hints(html) { $('hints').innerHTML = html; }
+  hints(html) {
+    const h = $('hints');
+    h.innerHTML = html;
+    h.title = h.textContent.replace(/\s+/g, ' ').trim();
+  }
 
   prompt(html) {
     const p = $('prompt');
@@ -319,7 +323,9 @@ export class Hud {
 
     if (!site) this.renderCraterLeft(view);
     else extraLeft?.();
-    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> pin &amp; route <kbd>F</kbd> helmet' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
+    this.hints(site
+      ? '<kbd>CLICK</kbd> pin &amp; route <kbd>F</kbd> helmet <kbd>DRAG</kbd> orbit <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>RMB</kbd> pan <kbd>ESC</kbd> up'
+      : '<kbd>ENTER</kbd> Marswalk zone <kbd>DRAG</kbd> orbit <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>RMB</kbd> pan <kbd>ESC</kbd> up');
   }
 
   sunInfo(view) {

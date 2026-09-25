@@ -251,7 +251,8 @@ body.compact .rec-btn, body.touch .rec-btn { display: none; }
 .readout { display: flex; gap: 16px; font-family: var(--mono); font-size: 12.5px; color: var(--text-2); min-width: 420px; }
 .readout b { color: var(--text-3); font-weight: 400; margin-right: 5px; font-family: var(--ui); letter-spacing: .14em; font-size: 11px; }
 .readout span { font-variant-numeric: tabular-nums; }
-.hints { flex: 1; text-align: center; font-size: 12px; letter-spacing: .16em; color: var(--text-3); }
+.hints { flex: 1; min-width: 0; text-align: center; font-size: 12px; letter-spacing: .12em; color: var(--text-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* one line: the least useful hints fall off the end */
 .hints kbd { font-family: var(--mono); border: 1px solid var(--line); padding: 0 5px; color: var(--text-2); margin: 0 3px; font-size: 11px; }
 .bottom-actions { display: flex; gap: 8px; }
 
