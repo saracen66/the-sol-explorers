@@ -297,7 +297,8 @@ body.compact .rec-btn, body.touch .rec-btn { display: none; }
 .wrist .wh { display: flex; justify-content: space-between; font-size: 10.5px; letter-spacing: .22em; color: var(--data); font-weight: 700; }
 .wrist .wh b { font-family: var(--mono); letter-spacing: 0; font-weight: 600; }
 .wrist .wn { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; margin: 4px 0 6px; letter-spacing: .04em; }
-.wrist .wn b { font-family: var(--mono); color: var(--data); }
+.wrist .wn b { font-family: var(--mono); color: var(--data); white-space: nowrap; flex: none; margin-left: 10px; }
+.wrist .wn span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wrist .wg { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; letter-spacing: .14em; color: var(--text-3); }
 .wrist .wg b { display: block; font-family: var(--mono); font-size: 14px; color: var(--text); letter-spacing: 0; }
 .wrist .wg small { display: block; font-size: 10px; letter-spacing: .06em; }
@@ -431,6 +432,8 @@ body.compact .mk.pin .pcard { width: 228px; }
 .modal code { font-family: var(--mono); font-size: 12px; color: var(--data); }
 
 @media (max-width: 1100px) {
+  .brand-sub { display: none; }
+  .brand-name, .crumbs button, .chip .k, .chip .v { white-space: nowrap; }
   :root { --pw: 270px; }
   .telemetry .chip:nth-child(3) { display: none; }
   .readout { min-width: 0; }
@@ -586,7 +589,7 @@ body.touch.fpv .h-suit, body.touch.fpv .h-nav { bottom: calc(172px + env(safe-ar
 .h-rotate small { display: block; margin-top: 6px; font-size: 13px; font-weight: 500; letter-spacing: .02em; color: var(--text-2); }
 .h-rotate .btn-row { justify-content: center; }
 @keyframes tilt { 0%, 20% { transform: rotate(0); } 50%, 75% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
-@media (orientation: portrait) { body.touch.fpv:not(.fpv-portrait-ok) .h-rotate { display: flex; } }
+@media (orientation: portrait) and (max-width: 600px) { body.touch.fpv:not(.fpv-portrait-ok) .h-rotate { display: flex; } }
 
 /* phone held upright (after STAY IN PORTRAIT) */
 body.touch.fpv.compact .joy { width: 106px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
@@ -619,3 +622,5 @@ body.fpv.compact .topbar { display: none; }
 body.fpv.compact .h-compass { top: calc(8px + env(safe-area-inset-top, 0px)); }
 body.fpv.compact:not(.landscape) .helmet .h-exit { top: calc(66px + env(safe-area-inset-top, 0px)); }
 body.fpv.compact:not(.landscape) .toast { top: calc(110px + env(safe-area-inset-top, 0px)); }
+/* touch screens in the helmet: the bottom bar would sit under the joysticks */
+body.touch.fpv .bottombar { display: none; }

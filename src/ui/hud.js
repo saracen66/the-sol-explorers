@@ -517,7 +517,7 @@ export class Hud {
     const status = st.kind === 'stop' ? 'WORKING' : 'WALKING';
     const tag = lvl === 'crit' ? '▲ O₂ RESERVE' : lvl === 'warn' ? '▲ PAST PNR' : status;
     wrist.innerHTML = `<div class="wh">EV1 · WRIST <b>${formatHM(clock)}</b></div>
-      <div class="wn">NEXT ▸ ${nextName}<b>${fmtDist(Math.max(0, nextD))}</b></div>
+      <div class="wn"><span>NEXT ▸ ${nextName}</span><b>${fmtDist(Math.max(0, nextD))}</b></div>
       <div class="wg"><span>O₂ <b>${left.toFixed(2)} kg</b><small>≈ ${leftH.toFixed(1)} h</small></span><span>DUST <b>τ 0.5</b><small>typical</small></span><span class="st">${tag}</span></div>`;
     wrist.classList.add('show');
     if (box) {

@@ -63,7 +63,8 @@ class App {
     this.renderer.setSize(this.w, this.h, false);
     this.crossfade.setSize(this.w, this.h, pr);
     this.streaks.resize(this.w, this.h, pr);
-    const compact = this.w <= 760 || (this.touch && this.h <= 500);
+    // phones, and tablets held upright: one bottom sheet instead of two side panels
+    const compact = this.w <= 900 || (this.touch && this.h <= 500);
     document.body.classList.toggle('compact', compact);
     document.body.classList.toggle('landscape', compact && this.w > this.h);
     const aspect = this.w / this.h;

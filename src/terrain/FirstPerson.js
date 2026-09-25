@@ -133,7 +133,7 @@ export class FirstPerson {
   /** On phones, go fullscreen and lock to landscape where the browser allows it (Android).
    *  Elsewhere (iPhone Safari) the rotate prompt asks instead. Needs a user tap. */
   async goLandscape() {
-    if (!this.app.touch || !navigator.userActivation?.isActive) return;
+    if (!this.app.touch || Math.min(this.app.w, this.app.h) > 600 || !navigator.userActivation?.isActive) return; // phones only
     try {
       if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
         await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
