@@ -278,7 +278,7 @@ export class Hud {
 
     if (!site) this.renderCraterLeft(view);
     else extraLeft?.();
-    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-6</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> add stop' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
+    this.hints(`<kbd>DRAG</kbd> orbit <kbd>RMB/SHIFT</kbd> pan <kbd>SCROLL</kbd> zoom <kbd>1-6</kbd> layers <kbd>ESC</kbd> up${site ? ' <kbd>CLICK</kbd> pin &amp; route' : ' <kbd>ENTER</kbd> Marswalk zone'}`);
   }
 
   sunInfo(view) {
@@ -347,11 +347,11 @@ export class Hud {
     const r = pl.result;
     const wps = pl.waypoints.map((w, i) => `
       <div class="wp"><div class="n"><span>${i + 1}</span></div>
-        <div style="min-width:0"><div class="nm">${w.name}</div><div class="ds" title="${w.poi?.reason || ''}">${w.poi?.reason || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}</div></div>
+        <div style="min-width:0"><div class="nm">${w.name}</div><div class="ds" title="${w.poi?.reason || ''}">${w.poi?.reason || w.note || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}</div></div>
         ${i > 0 ? `<button class="x" data-rm="${i}" title="Remove stop">✕</button>` : '<span></span>'}
       </div>`).join('');
     let body = '';
-    if (!r) body = '<div class="sub">Add at least one stop: click the map, or pick a point of interest.</div>';
+    if (!r) body = '<div class="sub">Click anywhere on the map to drop a pin and route there, or pick a point of interest.</div>';
     else if (r.failed) body = `<div class="verdict nogo"><span class="ic">${ICON.stop}</span><div>NO SAFE ROUTE<small>Every path crosses slopes over ${pl.params.maxSlope}°. Move the stop or raise the slope limit.</small></div></div>`;
     else {
       const b = r.budget;

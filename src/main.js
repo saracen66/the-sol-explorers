@@ -7,6 +7,7 @@ import { Director } from './core/Director.js';
 import { OrbitView } from './orbit/OrbitView.js';
 import { TerrainView } from './terrain/TerrainView.js';
 import { Planner } from './terrain/Planner.js';
+import { PinTool } from './terrain/Pin.js';
 import { Labels } from './ui/labels.js';
 import { Hud } from './ui/hud.js';
 import { CRATER_VIEW_POIS, SITE_POIS, DEFAULT_PLAN } from './data/places.js';
@@ -125,6 +126,7 @@ class App {
     this.planner = new Planner(this, this.site, SITE_POIS);
     this.planner.init();
     this.planner.setPlan(DEFAULT_PLAN); // route solved now, so its line shaders compile during loading
+    this.pin = new PinTool(this);
 
     // Warm up behind the loading screen: compile every shader, upload every texture,
     // bake the first shadows and allocate the transition buffers, so nothing of that
@@ -156,7 +158,8 @@ class App {
     this.mode = mode;
     this.labels.setVisible('orbit', mode === 'orbit');
     this.labels.setVisible('crater', mode === 'crater');
-    for (const g of ['site', 'wp', 'eva']) this.labels.setVisible(g, mode === 'site');
+    for (const g of ['site', 'wp', 'eva', 'pin']) this.labels.setVisible(g, mode === 'site');
+    if (mode !== 'site') this.pin?.close();
   }
 
   fillDist(view) {
@@ -377,9 +380,12 @@ class App {
   onCanvasClick() {
     if (document.body.classList.contains('sheet-open')) { this.hud.closeSheet(); return; }
     if (this.busy) return;
-    if (this.mode === 'site' && this.planner.addMode) {
+    if (this.mode === 'site') {
       const p = this.site.pick();
-      if (p) { this.planner.addMode = false; this.planner.addAt(p.x, p.z); }
+      if (this.planner.addMode) {
+        if (p) { this.planner.addMode = false; this.planner.addAt(p.x, p.z); }
+      } else if (this.pin.open) this.pin.close(); // like a map app: a second click clears the pin
+      else if (p) this.pin.drop(p.x, p.z);
     } else if (this.mode === 'crater') {
       const p = this.crater.pick();
       const z = this.zone;
@@ -395,6 +401,7 @@ class App {
     if (k === 'h') { document.getElementById('hud').classList.toggle('hidden'); document.getElementById('labels').style.opacity = document.getElementById('hud').classList.contains('hidden') ? 0.0 : 1; return; }
     if (k === 'k') { this.director.captions = !this.director.captions; this.hud.toast(`CAPTIONS ${this.director.captions ? 'ON' : 'OFF'}`); return; }
     if (this.busy) return;
+    if (k === 'escape' && this.pin?.open) { this.pin.close(); return; }
     if (k === 'escape' || k === 'backspace') { this.exitUp(); return; }
     if (this.mode === 'orbit') {
       if (['1', '2', '3'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal'][+k - 1]);
@@ -438,8 +445,8 @@ class App {
       this.renderer.render(v.scene, v.camera);
     }
 
-    if (this.mode === 'site') { this.planner.update(dt); this.planner.frame(); }
-    const groups = this.mode === 'orbit' ? ['orbit'] : this.mode === 'crater' ? ['crater'] : ['site', 'wp', 'eva'];
+    if (this.mode === 'site') { this.planner.update(dt); this.planner.frame(); this.pin.frame(); }
+    const groups = this.mode === 'orbit' ? ['orbit'] : this.mode === 'crater' ? ['crater'] : ['site', 'wp', 'eva', 'pin'];
     for (const g of groups) this.labels.update(g, v.camera, this.w, this.h);
 
     this.streaks.intensity += ((this.streaksOn ? 1 : 0) - this.streaks.intensity) * Math.min(1, dt * 3);
