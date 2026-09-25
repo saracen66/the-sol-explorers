@@ -123,6 +123,13 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `e52c2e5` | 2026-09-24 17:26 | Serve heightmaps as lossless PNGs and fix point-of-no-return sampling |
 | `c3ce972` | 2026-09-24 17:49 | Add Netlify build config |
 | `b3b2e6e` | 2026-09-24 17:52 | Rewrite README, add screenshots and a project log |
+| `0817e6e` | 2026-09-24 20:15 | Make it smooth on desktop and usable on phones |
+| `b2eb729` | 2026-09-25 06:26 | EVA sim: EV1 stops and turns red where the suit runs out of O₂ |
+| `f901372` | 2026-09-25 06:31 | Drop a pin anywhere in the Marswalk zone and route there |
+| `5cc270c` | 2026-09-25 06:33 | Synthesised sound design with a mute button |
+| `f6730c5` | 2026-09-25 06:47 | Helmet view: walk the HiRISE terrain in first person |
+| `ab92893` | 2026-09-25 06:51 | Perseverance's real traverse as a map layer |
+| `b419886` | 2026-09-25 06:54 | REC button: record the tab straight to a video file |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -184,6 +191,48 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 
 **Deployed:** commit `0817e6e` → Netlify deploy `6ab584ca`, ready at 20:15 UTC (19 new files: the phone textures, the 4k globe, the new bundle).
 
+### 2026-09-25: polish build: O₂ death point, route anywhere, helmet view, real traverse
+
+**Asked for by the team**
+- Review Sayma's prototype (https://github.com/sayma-the-celestia-web/The-SOL-Explorers) and take anything good.
+- Add more real data and useful features.
+- When the O₂ runs out in the EVA simulation, EV1 should stop and turn red where it happens, instead of reaching the end anyway.
+- Pick any point on the map and route there, like Google Maps.
+- A first-person view (a teammate's idea).
+- Something other teams can't easily match.
+- Push each feature as soon as it's done.
+
+**Review of Sayma's build** (React + Tailwind + Gemini)
+- Taken, as ideas: synthesised Web Audio sound design and in-app recording (`services/soundManager.ts`, `services/recorder.ts`). Both were rebuilt from scratch for Sol Atlas.
+- Not taken:
+  - her images, which are AI-generated (some are captioned as HiRISE);
+  - several approximate coordinates;
+  - the Gemini dependency, since the demo must work offline, with no API key, during judging.
+- Worth a look for the pitch: the human-vs-rover "guidance" idea and the MOXIE oxygen-production angle.
+
+**Prior art checked:** [enomis-dev/perseverance-traverse-3d](https://github.com/enomis-dev/perseverance-traverse-3d) already shows Perseverance's path on 3D Jezero terrain. A traverse on its own is not unique; what sets Sol Atlas apart is the EVA planner, the O₂ physics and the helmet view built on the real DTM.
+
+**Shipped, one push per feature**
+
+| Commit | Feature | How it was checked |
+|---|---|---|
+| `b2eb729` | **O₂-exhaustion point.** The planner walks the EVA's walk/stop timeline and finds the moment cumulative O₂ reaches the tank size. It shows in the verdict, as red dashes on the unreachable route, and as a shaded band in the profile. In the simulation, EV1 warns past the PNR and at the reserve, then freezes as a red marker where the O₂ hits zero. The wrist display shows the mayday light-time (≈ 14 min one way, 28 min for a reply). The autopilot now walks a 0.20 kg plan to show this. | 0.25 kg still makes it home (0.019 kg left), so the demo uses 0.20 kg. There, O₂ runs out at 5.83 km, 2 h 50 min in, 1.21 km from LZ-A, and the sim stops there. |
+| `f901372` | **Drop a pin, route anywhere.** Click or tap the zone. The card shows coordinates, elevation, slope class and direct distance, with ROUTE HERE / ADD STOP / STAND HERE. | Desktop: ROUTE HERE gave a 4.66 km loop, GO. iPhone 14: the card stays on screen, nothing overflows. |
+| `5cc270c` | **Sound** (Web Audio, no files): wind, descent whoosh, lock-on and pin chimes, GO/NO-GO, suit alarms, flat-line tone, helmet breathing. ♪ button and `M`; the choice is remembered. | Phone bottom bar: all five buttons fit (scrollWidth = clientWidth). |
+| `f6730c5` | **Helmet view** (`F`): 1.8 m eye height at true scale; Mars sky with a blue glow around the Sun; haze; procedural close-up grain. Walking burns O₂ via Pandolf under a displayed time warp; helmet HUD. In the EVA simulation the camera rides along, and collapses when the O₂ runs out. | The skyline is computed from the CTX DEM (highest angle 4.5° toward 263°, the western rim). Tap-to-walk works on iPhone emulation. The full autopilot runs to the end with no errors. |
+| `ab92893` | **Perseverance traverse** (layer `7`): 400 end-of-drive fixes, sol 0–1524, 34.96 km, from NASA/JPL MMGIS as archived by stiles/mars-perseverance-waypoints. Baked into `public/data/m20_traverse.json` (10 KB). | Crater: 400 points, landing → Séítah → delta → rim. Zone: 96 points (sols 0–407). |
+| `b419886` | **● REC** (`R`): records the tab (HUD and sound) to a `.webm`. Desktop only. | Headless Chrome can't capture a tab, so it was tested with a stand-in canvas stream: an 8 s recording downloaded as a 97 KB webm. The cancel path shows a toast. |
+
+**Deployed:** `b419886` → Netlify deploy `6ab61a8c`, production, ready 06:54 UTC (3 changed files uploaded).
+
+**Bugs found and fixed while testing**
+- The compass labels in the helmet stretched into wide bars: their `wp` class collided with the planner's waypoint-row style. Renamed.
+- In the helmet, the red straight-line comparison projected as a vertical streak, so it is hidden there.
+- The helmet HUD showed stale O₂ and position at the moment of death when the simulation jumped ahead. Death now snaps to the exact point.
+- On narrow phones the pin card ran off screen. It is now clamped horizontally.
+
+**Note:** the "caveman" and "ponytail" skills the user mentioned aren't installed in this environment, so they weren't used. Playwright (headless Chromium) did all the testing and screenshots.
+
 ---
 
 ## Decisions and assumptions
@@ -200,6 +249,10 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 | Heights as RG-packed PNGs | Lossless, works on every static host and in Claude artifacts |
 | Shadows baked to a texture, not per pixel | Same look, a fraction of the cost; re-baked only when the sun or exaggeration changes |
 | Automatic quality levels + adaptive resolution | One build that runs on a gaming PC and on a phone without manual settings |
+| Helmet skyline computed from the CTX DEM, not an image | It is true for the exact spot, and it's something a painted backdrop can't claim |
+| Helmet walking uses real walking speeds × a displayed time warp | Keeps the O₂ numbers honest while staying watchable |
+| Demo "death" plan uses a 0.20 kg suit | 0.25 kg still gets home on the default loop; 0.20 kg runs dry at 5.83 km |
+| Only ideas taken from Sayma's prototype, not assets | Her images are AI-generated and some positions are approximate; everything shown in Sol Atlas must be real data |
 
 ---
 
@@ -209,7 +262,9 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 - [ ] Open https://sol-atlas.netlify.app in a desktop browser and click through orbit → crater → Marswalk zone. The build machine can't reach netlify.app, so the live page hasn't been checked in a browser yet.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
-- [ ] Record the pitch video with the autopilot (`C`, `K`, `H`).
+- [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.
+- [ ] Try the helmet view on a real phone (frame rate and touch look/walk feel).
+- [ ] Pitch script: add a beat for "Earth can't help in time" (the mayday light-time when O₂ runs out) and one for the helmet view.
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
 - [ ] Add team member names and roles to README → Credits.
 - [ ] Choose a licence for the code (none chosen yet).
