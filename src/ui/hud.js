@@ -85,6 +85,11 @@ export class Hud {
     if (html !== this._ro) { r.innerHTML = html; this._ro = html; }
   }
 
+  simButton(on) {
+    const b = $('b-sim');
+    if (b) { b.textContent = on ? '■ STOP EVA' : '▶ SIMULATE EVA'; b.classList.toggle('primary', on); }
+  }
+
   soundButton(on) {
     const b = $('btn-sound');
     b.innerHTML = `♪<span class="t"> ${on ? 'SOUND' : 'MUTED'}</span>`;
@@ -429,7 +434,7 @@ export class Hud {
         <div id="wps">${wps}</div>
         <div class="btn-row">
           <button class="btn small ${pl.addMode ? 'primary' : ''}" id="b-add">${pl.addMode ? 'CLICK MAP…' : '+ ADD STOP'}</button>
-          <button class="btn small" id="b-sim" ${r && !r.failed ? '' : 'disabled'}>▶ SIMULATE EVA</button>
+          <button class="btn small ${pl.sim ? 'primary' : ''}" id="b-sim" ${r && !r.failed ? '' : 'disabled'}>${pl.sim ? '■ STOP EVA' : '▶ SIMULATE EVA'}</button>
           <button class="btn small" id="b-plan">RESET</button>
         </div>
         <div class="seg" style="margin-top:8px"><button id="b-ret" class="${pl.returnToStart ? 'on' : ''}">RETURN TO LZ</button><button id="b-follow" class="${pl.follow ? 'on' : ''}">FOLLOW CAM</button></div>

@@ -286,6 +286,7 @@ export class Planner {
     this.evaItem.hiddenByUser = !!this.app.fpv?.active;
     this.setEvaLook(false);
     this.app.hud.toast('EVA SIMULATION · EV1 EGRESS');
+    this.app.hud.simButton(true);
     this.app.sound?.lock();
     this.app.fpv?.onSimStart(this);
   }
@@ -296,7 +297,7 @@ export class Planner {
     if (this.evaItem) { this.evaItem.hiddenByUser = true; this.setEvaLook(false); }
     this.view.autoFollow = null;
     clearTimeout(this._mayday);
-    if (had) { this.app.hud.updateSim(this, null, null); this.app.fpv?.onSimStop(this); }
+    if (had) { this.app.hud.updateSim(this, null, null); this.app.fpv?.onSimStop(this); this.app.hud.simButton(false); }
   }
 
   setEvaLook(dead) {
@@ -399,6 +400,7 @@ export class Planner {
       if (!breached) snd?.go();
       this.sim = null;
       this.app.fpv?.onSimStop(this, true);
+      hud.simButton(false);
       setTimeout(() => { if (!this.sim && this.evaItem) this.evaItem.hiddenByUser = true; }, 2500);
       hud.updateSim(this, null, null);
     }
