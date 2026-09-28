@@ -4,7 +4,7 @@
 
 The SOL Explorers · NASA Space Apps Challenge 2026 · challenge: *Interplanetary Survival Guide: Martian Map*
 
-**Live demo:** https://sol-atlas.netlify.app · **Project log:** [PROJECT_LOG.md](PROJECT_LOG.md) · **Handoff for developers and AI assistants:** [AGENTS.md](AGENTS.md)
+**Live demo:** https://sol-atlas.netlify.app · **Project log:** [PROJECT_LOG.md](PROJECT_LOG.md) · **Handoff for developers and AI assistants:** [AGENTS.md](AGENTS.md) · **AI use:** [AI_DISCLOSURE.md](AI_DISCLOSURE.md)
 
 ![Sol Atlas: Mars from orbit with landing sites and data layers](docs/screenshots/01-orbit.jpg)
 
@@ -35,6 +35,7 @@ This is the **phase-1 prototype** made for the 240-second local-judging video. J
 - [Deploy](#deploy)
 - [Project structure](#project-structure)
 - [Limitations and roadmap](#limitations-and-roadmap)
+- [AI use disclosure](#ai-use-disclosure)
 - [Credits](#credits)
 
 ---
@@ -121,7 +122,7 @@ Sound and REC came from ideas in teammate Sayma's prototype. Her images and seve
 
 ## Data layers
 
-Every layer is real mission data. Nothing is hand-painted.
+Every layer is real mission data. Nothing is hand-painted. The exact files, with links, ready to paste into the Space Apps submission form, are in [docs/SUBMISSION_DATA.md](docs/SUBMISSION_DATA.md).
 
 | Level | Layer | Mission / instrument | Product |
 |---|---|---|---|
@@ -361,6 +362,12 @@ Limitation to restore into the list above: The helmet view's close-up pebbles an
 - Live MEDA weather.
 - Dust-storm alerts from orbit.
 - An offline mode for suits and rovers.
+
+---
+
+## AI use disclosure
+
+The code, data-processing scripts and documentation of Sol Atlas were written with an AI coding assistant, **Claude Code (Anthropic)**, under the team's direction; the team set the goals, tested every version and asked for fixes. The pitch script and background research were also drafted with AI help. **All map data is real NASA mission data.** No image, video or sound in the app or this repository is AI-generated (the screenshots are captures of the running app), and the app makes no AI calls at runtime. The full statement, with a checklist for the pitch video, is in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 
 ---
 
