@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "Sol Atlas — a layered Marswalk planner built on real NASA Mars data. The SOL Explorers · NASA Space Apps Challenge 2026.",
+  "aiDisclosure": "Code, data-processing scripts and documentation were written with an AI coding assistant (Claude Code, Anthropic) under the team's direction. All map data is real NASA mission data; no AI-generated images, video or audio are used. See AI_DISCLOSURE.md.",
   "type": "module",
   "scripts": {
     "dev": "vite",
