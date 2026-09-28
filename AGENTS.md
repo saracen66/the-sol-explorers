@@ -34,6 +34,11 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 - **Keep the record.** After each piece of work, add to PROJECT_LOG.md (timeline entry and commit table) and keep this file current.
 - **Phones matter.** The judges and team open the link on phones. Test phone layouts (iPhone 14 emulation, portrait and landscape) as well as desktop.
 - **Plain, honest wording** in the UI and docs. Say what was checked and how.
+- **Space Apps rules we follow:**
+  - Every outside resource is listed in [docs/SUBMISSION_DATA.md](docs/SUBMISSION_DATA.md), ready for the form's two data fields. When you add a dataset, add it there too.
+  - AI use is disclosed in [AI_DISCLOSURE.md](AI_DISCLOSURE.md), the README, the `ai-disclosure` meta tag, `package.json` and the DATA SOURCES window. Keep them in step.
+  - No NASA logos. Any AI-generated image or video needs a visible watermark.
+- **2026 timeline:** challenge summaries were released 17 Sep. Full statements with NASA's official datasets come out 28 Oct. The hackathon is 14–15 Nov. The first-round submission is a short video plus this repo.
 
 ## 3. Run it
 

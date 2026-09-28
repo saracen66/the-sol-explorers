@@ -141,6 +141,10 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `0e91905` | 2026-09-25 15:50 | Keyboard hints stay on one line |
 | `61d8eaa` | 2026-09-25 15:55 | Phone helmet view: landscape mode and twin joysticks |
 | `2cc283c` | 2026-09-25 16:02 | Tablets: upright iPads get the phone layout; tidy narrow screens |
+| `c5f5985` | 2026-09-25 16:12 | Handoff docs and a smoke test so anyone (or any AI) can pick up |
+| `6a47807` | 2026-09-28 | Switch the helmet view off for the first-round submission |
+| `f2cd1be` | 2026-09-28 | Data list ready to paste into the Space Apps submission form |
+| `8b404bb` | 2026-09-28 | AI use disclosure, as the Space Apps rules require |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -282,6 +286,29 @@ Added mid-way: make the helmet view work on phones, landscape with game-style jo
 - `CLAUDE.md`: points to it.
 - `scripts/smoke.cjs`: 12-check Playwright smoke test (desktop and `DEVICE="iPhone 14"`, both passing).
 
+### 2026-09-28: Space Apps guideline check, AI disclosure, data list, helmet view switched off
+
+**Questions from the owner:** Is all the data real and reliable? Is there newer data? Are we following NASA's guidelines?
+
+**What we found** (spaceappschallenge.org itself is blocked from the build machine, so this came through web search)
+- **Data:**
+  - Every map layer is real NASA mission data: Viking, MOLA, THEMIS, CTX, HiRISE and Mars 2020.
+  - Calculations use published NASA algorithms (Mars24, JPL planet positions) and a published walking-effort model (Pandolf 1977).
+  - Our own assumptions are labelled in the app.
+  - The Perseverance traverse is out of date: the archive copy stops at sol 1524 (June 2025), while the rover is near sol 1990. NASA's live feed (`mars.nasa.gov`) is blocked by this environment's network policy.
+- **NASA data** is strongly encouraged but not strictly required. Every outside resource must be listed in the submission form.
+- **AI tools** are allowed but must be disclosed: code and data in descriptive text and metadata; AI images and video with a visible watermark; no NASA branding.
+- **2026 dates:** summaries 17 Sep; full statements with datasets 28 Oct; hackathon 14–15 Nov.
+- **Prior work:** one search summary quotes the FAQ as saying teams may not start work on challenges before the hackathon; an older page says preparing early is fine. It is not settled; the owner is to confirm with the local lead. The owner's decision: submit a smaller demo for the first-round video, with the helmet view hidden.
+
+**Shipped, one commit each**
+
+| Commit | Change | Checked |
+|---|---|---|
+| `6a47807` | Helmet view switched off with `FEATURES.helmetView = false` in the new `src/config.js`. No code removed; every entry point is gated (button, F key, STAND HERE, autopilot ride-along, skyline row in DATA SOURCES). README helmet parts are wrapped in HTML comments marked `HELMET VIEW, hidden for the first-round submission`. Also fixed the controls table in the README, which had been split. | Smoke test passes on desktop and iPhone 14 (no button, no joysticks, F ignored). Full autopilot runs without the helmet segment, no console errors. README renders with 10 tables, no broken rows, no visible helmet text. |
+| `f2cd1be` | `docs/SUBMISSION_DATA.md`: paste-ready "NASA Data" and "Space Agency Partner & Other Data" blocks with exact archive links, a per-feature table, and newer data to consider. | All 7 NASA file links answered HTTP 200 (86 MB to 4.2 GB each). The Mars24 and JPL links were confirmed through search. |
+| `8b404bb` | AI disclosure: `AI_DISCLOSURE.md`, README section, `ai-disclosure` meta tag, `aiDisclosure` in package.json, and a paragraph in the DATA SOURCES window. | Checked in the running app: the meta tag is present and the paragraph shows. |
+
 ---
 
 ## Decisions and assumptions
@@ -311,6 +338,11 @@ Added mid-way: make the helmet view work on phones, landscape with game-style jo
 - [ ] Open https://sol-atlas.netlify.app in a desktop browser and click through orbit → crater → Marswalk zone. The build machine can't reach netlify.app, so the live page hasn't been checked in a browser yet.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
+- [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
+- [ ] On 28 Oct, when the full challenge statement is out, match our datasets to NASA's listed names in `docs/SUBMISSION_DATA.md`, the form and the video.
+- [ ] After the first-round submission, switch the helmet view back on: set `FEATURES.helmetView = true` and remove the README comment wrappers.
+- [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
+- [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.
 - [ ] Try the helmet view on a real phone: frame rate, joystick feel, and the Android landscape lock.
 - [ ] Pitch script: add a beat for "Earth can't help in time" (the mayday light-time when O₂ runs out) and one for the helmet view.
