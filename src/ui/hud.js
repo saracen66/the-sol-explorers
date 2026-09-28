@@ -324,7 +324,7 @@ export class Hud {
     if (!site) this.renderCraterLeft(view);
     else extraLeft?.();
     this.hints(site
-      ? '<kbd>CLICK</kbd> pin &amp; route <kbd>F</kbd> helmet <kbd>DRAG</kbd> orbit <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>RMB</kbd> pan <kbd>ESC</kbd> up'
+      ? `<kbd>CLICK</kbd> pin &amp; route${this.app.fpv ? ' <kbd>F</kbd> helmet' : ''} <kbd>DRAG</kbd> orbit <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>RMB</kbd> pan <kbd>ESC</kbd> up`
       : '<kbd>ENTER</kbd> Marswalk zone <kbd>DRAG</kbd> orbit <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>RMB</kbd> pan <kbd>ESC</kbd> up');
   }
 
@@ -444,7 +444,7 @@ export class Hud {
           <button class="btn small" id="b-plan">RESET</button>
         </div>
         <div class="seg" style="margin-top:8px"><button id="b-ret" class="${pl.returnToStart ? 'on' : ''}">RETURN TO LZ</button><button id="b-follow" class="${pl.follow ? 'on' : ''}">FOLLOW CAM</button></div>
-        <button class="btn fpv-btn ${this.app.fpv?.active ? 'on' : ''}" id="b-fpv" title="Stand on the terrain at eye height (F)">${this.app.fpv?.active ? '✕ EXIT HELMET VIEW' : '◉ HELMET VIEW · WALK IT'}</button>
+        ${this.app.fpv ? `<button class="btn fpv-btn ${this.app.fpv.active ? 'on' : ''}" id="b-fpv" title="Stand on the terrain at eye height (F)">${this.app.fpv.active ? '✕ EXIT HELMET VIEW' : '◉ HELMET VIEW · WALK IT'}</button>` : ''}
       </div>
       <div class="sec">
         <div class="sec-h">Watney check · EVA budget</div>
@@ -463,7 +463,7 @@ export class Hud {
     $('b-sim').onclick = () => { this.closeSheet(); pl.sim ? pl.stopSim() : pl.startSim(); };
     $('b-plan').onclick = () => this.app.resetPlan();
     $('b-ret').onclick = () => { pl.returnToStart = !pl.returnToStart; pl.compute(); };
-    $('b-fpv').onclick = () => { this.closeSheet(); this.app.fpv.active ? this.app.fpv.exit() : this.app.fpv.enter(); };
+    if ($('b-fpv')) $('b-fpv').onclick = () => { this.closeSheet(); this.app.fpv.active ? this.app.fpv.exit() : this.app.fpv.enter(); };
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };
     const bindP = (id, key, parse = Number) => { $(id).onchange = (e) => { pl.params[key] = parse(e.target.value); pl.compute(); }; $(id).oninput = (e) => { e.target.previousElementSibling.textContent = id === 'p-o2' ? `${(+e.target.value).toFixed(2)} kg` : id === 'p-slope' ? `${e.target.value}°` : `${e.target.value} min`; }; };
     bindP('p-o2', 'o2CapKg'); bindP('p-slope', 'maxSlope'); bindP('p-stop', 'stopMin');
@@ -549,7 +549,7 @@ export class Hud {
         <tr><td>Visible</td><td>MRO · HiRISE</td><td>Mars 2020 Terrain-Relative-Navigation orthomosaic, 25 cm (USGS)</td></tr>
         <tr><td>Elevation, slope, route</td><td>MRO · HiRISE stereo</td><td>Mars 2020 TRN DTM, 1 m (USGS)</td></tr>
         <tr><td>Thermal</td><td>Mars Odyssey · THEMIS</td><td>Night-IR controlled mosaic, 100 m</td></tr>
-        <tr><td>Helmet-view skyline</td><td>MRO · CTX stereo</td><td>Computed from the 20 m crater DEM: highest angle per bearing, with Mars curvature</td></tr></table>
+        ${this.app.fpv ? '<tr><td>Helmet-view skyline</td><td>MRO · CTX stereo</td><td>Computed from the 20 m crater DEM: highest angle per bearing, with Mars curvature</td></tr>' : ''}</table>
       <h3>PERSEVERANCE TRAVERSE</h3>
       <table><tr><th>LAYER</th><th>SOURCE</th><th>PRODUCT</th></tr>
         <tr><td>Drive path, sol labels</td><td>NASA/JPL-Caltech · MMGIS "Where is Perseverance?"</td><td>End-of-drive localisations (M20_waypoints), sol 0–1524, archived daily by github.com/stiles/mars-perseverance-waypoints</td></tr></table>

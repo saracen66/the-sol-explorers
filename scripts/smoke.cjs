@@ -1,5 +1,6 @@
 // Playwright smoke test for Sol Atlas: runs orbit → crater → Marswalk zone → pin → route
-// → EVA sim → helmet view and reports console errors and horizontal overflow.
+// → EVA sim → helmet view (if switched on in src/config.js) and reports console errors
+// and horizontal overflow.
 //
 //   npm run build && npx vite preview --port 4173 &
 //   NODE_PATH=$(npm root -g) node scripts/smoke.cjs
@@ -62,17 +63,26 @@ const DEVICE = process.env.DEVICE;
   await shot('3-o2-out');
   await page.evaluate(() => { const pl = window.solAtlas.planner; pl.stopSim(); pl.params.o2CapKg = 0.6; pl.compute(); });
 
-  await page.evaluate(() => { window.solAtlas.maxDt = 0.1; window.solAtlas.fpv.enter(); });
-  await page.waitForTimeout(1500);
-  check(await page.evaluate(() => window.solAtlas.fpv.active), 'helmet view entered');
-  if (await page.isVisible('#h-rotate')) await tap('#h-portrait');
-  const w0 = await page.evaluate(() => window.solAtlas.fpv.warpIdx);
-  await tap('#h-warp button:last-child');
-  check((await page.evaluate(() => window.solAtlas.fpv.warpIdx)) === w0 + 1, 'time-warp + button');
-  await shot('4-helmet');
-  await tap('#h-exit');
-  await page.waitForTimeout(800);
-  check(!(await page.evaluate(() => window.solAtlas.fpv.active)), 'helmet view exited');
+  // helmet view: only when switched on in src/config.js
+  const helmet = await page.evaluate(() => !!window.solAtlas.fpv);
+  if (!helmet) {
+    check(await page.evaluate(() => !document.getElementById('b-fpv') && !document.querySelector('.joy')), 'helmet view switched off: no button, no joysticks');
+    await page.keyboard.press('f');
+    await page.waitForTimeout(300);
+    check(await page.evaluate(() => !document.body.classList.contains('fpv')), 'F key does nothing while the helmet view is off');
+  } else {
+    await page.evaluate(() => { window.solAtlas.maxDt = 0.1; window.solAtlas.fpv.enter(); });
+    await page.waitForTimeout(1500);
+    check(await page.evaluate(() => window.solAtlas.fpv.active), 'helmet view entered');
+    if (await page.isVisible('#h-rotate')) await tap('#h-portrait');
+    const w0 = await page.evaluate(() => window.solAtlas.fpv.warpIdx);
+    await tap('#h-warp button:last-child');
+    check((await page.evaluate(() => window.solAtlas.fpv.warpIdx)) === w0 + 1, 'time-warp + button');
+    await shot('4-helmet');
+    await tap('#h-exit');
+    await page.waitForTimeout(800);
+    check(!(await page.evaluate(() => window.solAtlas.fpv.active)), 'helmet view exited');
+  }
 
   await page.keyboard.press('c');
   await page.waitForTimeout(1500);

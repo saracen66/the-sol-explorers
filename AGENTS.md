@@ -22,6 +22,13 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 
 ## 2. How the team wants work done
 
+> **The helmet (first-person) view is switched off for the first-round submission** (qualification video + repo).
+> Its code is intact and still loads; only the entry points are gated.
+> To bring it back:
+> 1. Set `FEATURES.helmetView = true` in `src/config.js`. That restores the HELMET VIEW button, the `F` key, STAND HERE on pins, and the autopilot ride-along.
+> 2. Remove the comment wrappers in README.md marked `HELMET VIEW, hidden for the first-round submission`.
+> The team plans to switch it back on after the first submission. Don't delete any of it.
+
 - **Real data only.** Every layer is real mission data, credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
 - **One problem, one commit, one push.** The owner asked for a push after each feature or fix, not one big batch.
 - **Keep the record.** After each piece of work, add to PROJECT_LOG.md (timeline entry and commit table) and keep this file current.
@@ -68,7 +75,8 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/terrain/Planner.js` | Stops, A* routes (`pathfinding.js`), EVA budget (`eva.js`), point of no return, **O₂-out point** (`buildEvents`/`findO2`), EVA simulation (`startSim`/`update`/`die`) |
 | `src/terrain/eva.js` | Pandolf metabolic model → O₂; walking speed vs grade; the verdict |
 | `src/terrain/Pin.js` | Drop-a-pin card: ROUTE HERE / ADD STOP / STAND HERE |
-| `src/terrain/FirstPerson.js` | Helmet view: sky, CTX skyline ring, walking with O₂ burn, helmet HUD, ride-along, death sequence, phone landscape and joysticks |
+| `src/config.js` | Feature switches. `helmetView` is currently **false** |
+| `src/terrain/FirstPerson.js` | Helmet view (switched off, see `src/config.js`): sky, CTX skyline ring, walking with O₂ burn, helmet HUD, ride-along, death sequence, phone landscape and joysticks |
 | `src/ui/hud.js` | All DOM panels: planner, layers, legends, wrist display, sources modal, sound, REC and panel-hide buttons |
 | `src/ui/labels.js` | DOM labels pinned to 3D points; priority declutter; hover-card edge flipping |
 | `src/ui/profile.js` | SVG elevation profile (PNR line, O₂-out band, live EV1 cursor) |
@@ -106,7 +114,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | Orbit | drag spins · scroll zooms and locks onto Jezero · `1-3` layers · `G` grid · `Space` spin · `Enter` descend |
 | Crater / zone | drag orbits · right-drag or Shift pans · scroll zooms · `1-7` layers (7 = Perseverance traverse) · `Esc` goes up |
 | Zone | click drops a pin · `Space` runs the EVA sim · `F` helmet view |
-| Helmet | drag or right stick looks · `WASD` or left stick walks · `Shift` runs · click or tap walks there · `[` `]` time warp · `Esc` / `F` exits |
+| Helmet (when switched on) | drag or right stick looks · `WASD` or left stick walks · `Shift` runs · click or tap walks there · `[` `]` time warp · `Esc` / `F` exits |
 | Anywhere | `C` autopilot (`Esc` or ■ stops it) · `R` record · `M` sound · `H` hide HUD · `K` captions |
 
 ## 6. Testing
@@ -136,7 +144,7 @@ Working and pushed:
 - A* planner with O₂ budget, PNR and O₂-out point;
 - EVA simulation with death and mayday light-time;
 - drop-a-pin routing;
-- helmet view (desktop, and phones with joysticks and landscape);
+- helmet view (desktop, and phones with joysticks and landscape), **switched off for now** (see §2);
 - synthesised sound, REC, autopilot;
 - collapsible panels, phone and tablet layouts.
 

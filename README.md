@@ -8,9 +8,13 @@ The SOL Explorers · NASA Space Apps Challenge 2026 · challenge: *Interplanetar
 
 ![Sol Atlas: Mars from orbit with landing sites and data layers](docs/screenshots/01-orbit.jpg)
 
-In *The Martian*, Mark Watney survives by doing the maths himself: oxygen, distance, daylight, terrain. Sol Atlas does that maths for the first crews. It stacks data from five NASA missions on one 3D map, finds the safest route for a walk on foot to any point you pick, and checks whether the astronaut gets home with oxygen to spare. If the plan comes up short, the EVA simulation shows exactly where the suit runs dry. Then you can put on the helmet and walk the real terrain at eye height.
+In *The Martian*, Mark Watney survives by doing the maths himself: oxygen, distance, daylight, terrain. Sol Atlas does that maths for the first crews. It stacks data from five NASA missions on one 3D map, finds the safest route for a walk on foot to any point you pick, and checks whether the astronaut gets home with oxygen to spare. If the plan comes up short, the EVA simulation shows exactly where the suit runs dry.
+
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
+Then you can put on the helmet and walk the real terrain at eye height.
 
 ![Helmet view: the delta-front scarp in Jezero at true scale, from the HiRISE 1 m elevation model](docs/screenshots/08-helmet-view.jpg)
+-->
 
 This is the **phase-1 prototype** made for the 240-second local-judging video. Jezero Crater is the only site unlocked; the other landing sites are marked "phase 2".
 
@@ -59,7 +63,7 @@ The gold line is **Perseverance's real drive path**: 400 end-of-drive positions 
 
 A 5 × 5 km zone around Perseverance's landing site and the Three Forks sample depot, at 25 cm per pixel on a 1 m elevation model. This is where you plan the walk:
 
-- **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
+- **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan.<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js). **STAND HERE** puts you there in the helmet view. -->
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
 - **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, and daylight left, ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
 - **Point of no return.** If the suit can't carry enough oxygen, a red marker shows the last point where turning back still keeps the reserve.
@@ -78,6 +82,7 @@ A 5 × 5 km zone around Perseverance's landing site and the Three Forks sample d
 |---|---|
 | ![Dropped-pin card with ROUTE HERE](docs/screenshots/12-drop-pin.jpg) | ![EV1 frozen in red where the suit ran out of oxygen, with the mayday light-time](docs/screenshots/11-o2-exhausted-map.jpg) |
 
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
 ### 4. Helmet view
 
 Press **`F`**, **◉ HELMET VIEW**, or **STAND HERE** on a pin to stand on the terrain at 1.8 m eye height, with no vertical exaggeration.
@@ -91,6 +96,7 @@ Press **`F`**, **◉ HELMET VIEW**, or **STAND HERE** on a pin to stand on the t
 | Slope hazard as a helmet overlay | O₂ exhausted, in the helmet |
 |---|---|
 | ![Slope-hazard layer seen from eye level](docs/screenshots/09-helmet-slope-overlay.jpg) | ![Helmet view after the suit runs out of oxygen](docs/screenshots/10-helmet-o2-exhausted.jpg) |
+-->
 
 ---
 
@@ -101,10 +107,13 @@ Press **`F`**, **◉ HELMET VIEW**, or **STAND HERE** on a pin to stand on the t
 | **O₂-exhaustion point** on the route, in the profile and in the simulation | You see *where* a bad plan kills the astronaut, not just that it's NO-GO |
 | **Mayday light-time** at the moment O₂ runs out | Shows why Mars crews must plan for themselves: Earth hears the call ~14 min later |
 | **Drop a pin, route anywhere** | Plan to any point in the zone, not only named places |
-| **Helmet view** with the real skyline | The only first-person view we know of that's built on the actual DTM and horizon |
 | **Perseverance's real traverse** | More real mission data: 400 drive fixes over 1,524 sols |
 | **Synthesised sound** (♪ / `M`) | Wind, lock-on, alarms, suit breathing. All generated in the browser, no audio files |
 | **● REC** (`R`) | Records the tab (HUD and sound included) to a video file for the pitch |
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
+Restore this row into the table above:
+| **Helmet view** with the real skyline | The only first-person view we know of that's built on the actual DTM and horizon |
+-->
 
 Sound and REC came from ideas in teammate Sayma's prototype. Her images and several coordinates weren't reusable (AI-generated pictures, approximate positions), so only the ideas were carried over.
 
@@ -125,9 +134,12 @@ Every layer is real mission data. Nothing is hand-painted.
 | Marswalk zone | Visible | MRO · HiRISE | Mars 2020 Terrain-Relative-Navigation orthomosaic, 25 cm/px (USGS) |
 | Marswalk zone | Elevation, slope, route | MRO · HiRISE stereo | Mars 2020 TRN DTM, 1 m/px (USGS) |
 | Crater + zone | Perseverance traverse | Mars 2020 · rover localisation | NASA/JPL MMGIS "Where is Perseverance?" end-of-drive waypoints, sol 0–1524, archived by [stiles/mars-perseverance-waypoints](https://github.com/stiles/mars-perseverance-waypoints) |
-| Helmet view | Skyline | MRO · CTX stereo | Computed from the 20 m crater DEM: highest angle per bearing, Mars curvature included |
 | Phase 2 | Minerals | MRO · CRISM | not yet: shown as locked |
 | Phase 2 | Live weather | Perseverance · MEDA | not yet: the conditions panel shows typical values, labelled "not live" |
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
+Restore this row into the table above:
+| Helmet view | Skyline | MRO · CTX stereo | Computed from the 20 m crater DEM: highest angle per bearing, Mars curvature included |
+-->
 
 "Ground firmness" works like this: rock and coarse grains stay warm through the night, while dust and fine sand cool fast. So night-time infrared brightness tells firm ground from loose ground.
 
@@ -145,8 +157,11 @@ Every layer is real mission data. Nothing is hand-painted.
 | Point of no return | First point on the way out where O₂ used so far + O₂ to walk straight back (plus a 25 % detour allowance) would eat into the reserve | 0.30 kg suit → PNR at Séítah; 0.25 kg → mid-route at 2.98 km |
 | O₂ runs out | The EVA's walk/stop timeline carries cumulative O₂; the first moment it reaches the tank size gives the time and place | 0.20 kg suit on the default loop: O₂ out at 5.83 km, 2 h 50 min in, 1.21 km from the airlock |
 | Mayday delay | One-way and round-trip light time from the same Earth–Mars model as the header clock | ~14 min one way on 25 Sep 2026 |
-| Helmet skyline | For each of 360 bearings, march the CTX DEM from 2.6 to 46 km and keep the highest elevation angle, after subtracting the curvature drop d²/2R | Highest skyline 4.5° toward bearing 263° (the western rim and delta) |
 | Elevations | Heights decoded from the DEMs | Three Forks: −2,570 m vs published −2,568 m |
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
+Restore this row into the table above:
+| Helmet skyline | For each of 360 bearings, march the CTX DEM from 2.6 to 46 km and keep the highest elevation angle, after subtracting the curvature drop d²/2R | Highest skyline 4.5° toward bearing 263° (the western rim and delta) |
+-->
 
 Default EVA assumptions, all editable in the planner: 75 kg astronaut, 58 kg suit and backpack, 0.60 kg usable O₂ (about 8 h), 25 % reserve, 20° walking-slope limit, 20 min per science stop.
 
@@ -173,14 +188,18 @@ The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séíta
 | Drag | spin the planet | orbit the camera |
 | Right-drag or Shift-drag | | pan |
 | Scroll | zoom; locks onto Jezero when close | zoom toward the cursor. Keep scrolling out to go up a level |
-| Click | Jezero, or the lock-on, to descend | the Marswalk zone to enter it. In the zone, click anywhere to **drop a pin** (ROUTE HERE / ADD STOP / STAND HERE), or click a named place to add it as a stop |
-| Keys | `1`–`3` layers · `G` grid · `Space` rotation · `Enter` descend | `1`–`7` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation · `F` helmet view |
+| Click | Jezero, or the lock-on, to descend | the Marswalk zone to enter it. In the zone, click anywhere to **drop a pin** (ROUTE HERE / ADD STOP), or click a named place to add it as a stop |
+| Keys | `1`–`3` layers · `G` grid · `Space` rotation · `Enter` descend | `1`–`7` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation |
 | Anywhere | `C` autopilot · `H` hide HUD · `K` captions on/off · `M` sound · `R` record | |
+| Touch | drag to spin · pinch to zoom · tap Jezero to descend | drag to orbit · pinch to zoom · two-finger drag to pan · tap to select |
+
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
+Keys row above also had: · `F` helmet view. Click row: the pin card also had STAND HERE.
 
 **Helmet view:** drag to look · `WASD` / arrows to walk (`Shift` = faster) · `Q`/`E` turn · click or tap a spot to walk there · scroll or pinch to zoom · `[` `]` or the − / + buttons change the time warp · `Esc` or `F` to leave.
 
 **Helmet view on phones:** turn the phone sideways (on Android it goes fullscreen and locks to landscape). The **left stick walks**: a light push is a slow walk, full push jogs. The **right stick looks around**. You can still tap a spot to walk there.
-| Touch | drag to spin · pinch to zoom · tap Jezero to descend | drag to orbit · pinch to zoom · two-finger drag to pan · tap to select |
+-->
 
 On desktop, each side panel has a small **‹ / ›** tab on its inner edge that tucks it away; the tab stays at the screen edge to bring it back, and the choice is remembered.
 
@@ -215,7 +234,7 @@ Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about two min
 4. Marswalk zone: the safest route.
 5. Perseverance's real drive path across the crater.
 6. "What if the suit carried only 0.20 kg of O₂?" The point of no return appears and the call is NO-GO. "And if they walk anyway?" EV1 stops in red where the O₂ runs out, and the mayday light-time appears.
-7. EVA flyover with the wrist display, then a few seconds riding along in the helmet view.
+7. EVA flyover with the wrist display.<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js). Then a few seconds riding along in the helmet view. -->
 8. Pick Three Forks: the route draws and **MARSWALK READY** shows.
 9. Holo-mode end card.
 
@@ -304,8 +323,8 @@ src/
                         atmosphere, moons, stars
   terrain/              TerrainView: 3D terrain, layer shader, GPU shadows, contours, holo mode, traverse, camera
                         Planner: stops, A* routes, EVA budget, point of no return, O₂-out point, EVA flyover
-                        FirstPerson: helmet view (sky, real skyline, walking, suit HUD, ride-along)
-                        Pin: drop a pin, route here / add stop / stand here
+                        FirstPerson: first-person view (switched off, see src/config.js)
+                        Pin: drop a pin, route here / add stop
                         pathfinding.js (A*), eva.js (metabolic + O₂ model)
   ui/                   HUD panels and legends, elevation-profile chart, labels pinned to 3D points,
                         sound.js (Web Audio synth), recorder.js (tab → video)
@@ -330,8 +349,11 @@ scripts/smoke.cjs       Playwright smoke test (desktop or DEVICE="iPhone 14")
 - The CRISM mineral layer and live MEDA weather aren't in yet.
 - Some place positions are approximate (see [Places](#places-on-the-map)).
 - The EVA model is a planning estimate, not flight-certified. Its assumptions are listed in the planner.
-- The helmet view's close-up pebbles and grain are procedural. HiRISE resolves 25 cm, so anything smaller is decoration, and the terrain mesh is sampled every ~5 m.
 - The traverse data ends at sol 1524 (June 2025), when the public archive stopped updating.
+
+<!-- HELMET VIEW, hidden for the first-round submission (FEATURES.helmetView in src/config.js).
+Limitation to restore into the list above: The helmet view's close-up pebbles and grain are procedural. HiRISE resolves 25 cm, so anything smaller is decoration, and the terrain mesh is sampled every ~5 m.
+-->
 
 **Next**
 - More sites, including ice-rich plains from NASA's SWIM ice-mapping project.

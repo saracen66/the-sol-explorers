@@ -210,8 +210,8 @@ export class Director {
       this.cap('THE WATNEY CHECK', `${b.o2.toFixed(2)} kg of O₂ used out of ${pl.params.o2CapKg.toFixed(2)} kg: ${b.marginPct.toFixed(0)} % left at the airlock`, 0);
     }
     await this.until(() => !pl.sim, 7);
-    // ride along in the helmet
-    if (pl.sim) {
+    // ride along in the helmet (only when the helmet view is switched on, see src/config.js)
+    if (pl.sim && a.fpv) {
       const p = pl.sim.pos || pl.waypoints[0];
       a.fpv.enter(p.x, p.z);
       this.cap('HELMET VIEW · TRUE SCALE', 'The skyline is the real crater rim, computed from the CTX elevation model', 0);
