@@ -202,7 +202,9 @@ Keys row above also had: · `F` helmet view. Click row: the pin card also had ST
 **Helmet view on phones:** turn the phone sideways (on Android it goes fullscreen and locks to landscape). The **left stick walks**: a light push is a slow walk, full push jogs. The **right stick looks around**. You can still tap a spot to walk there.
 -->
 
+<!-- PANEL TABS, hidden for the first-round submission (FEATURES.panelToggle in src/config.js).
 On desktop, each side panel has a small **‹ / ›** tab on its inner edge that tucks it away; the tab stays at the screen edge to bring it back, and the choice is remembered.
+-->
 
 On phones and upright tablets, the side panels open as a sheet from the tabs at the bottom of the screen (**JEZERO / CRATER / PLANNER** and **LAYERS**). Tap the map to close the sheet.
 

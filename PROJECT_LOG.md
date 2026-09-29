@@ -309,6 +309,18 @@ Added mid-way: make the helmet view work on phones, landscape with game-style jo
 | `f2cd1be` | `docs/SUBMISSION_DATA.md`: paste-ready "NASA Data" and "Space Agency Partner & Other Data" blocks with exact archive links, a per-feature table, and newer data to consider. | All 7 NASA file links answered HTTP 200 (86 MB to 4.2 GB each). The Mars24 and JPL links were confirmed through search. |
 | `8b404bb` | AI disclosure: `AI_DISCLOSURE.md`, README section, `ai-disclosure` meta tag, `aiDisclosure` in package.json, and a paragraph in the DATA SOURCES window. | Checked in the running app: the meta tag is present and the paragraph shows. |
 
+### 2026-09-29: panel hide / show tabs switched off for the first round
+
+The owner asked to hide the ‹ / › tabs on the desktop side panels (added in `4491d35`) for the first-round submission, like the helmet view.
+
+- New switch: `FEATURES.panelToggle = false` in `src/config.js`. While it's off, the tabs are hidden and both panels always show. Any earlier "hidden" choice saved in a visitor's browser is ignored, so nobody can get stuck with a panel they can't bring back.
+- The code is kept. The README paragraph about the tabs is wrapped in a comment marked `PANEL TABS, hidden for the first-round submission`. AGENTS.md §2 says how to restore it.
+- The smoke test now also checks that no panel tab is visible.
+
+**Checked:**
+- The smoke test passes on desktop and iPhone 14 (13 checks each, no console errors).
+- With `sol-atlas-panels` set to both-hidden in localStorage, the crater view still shows both panels (left edge at 18 px, right edge at 1262 px) and no tabs.
+
 ---
 
 ## Decisions and assumptions
@@ -340,7 +352,7 @@ Added mid-way: make the helmet view work on phones, landscape with game-style jo
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
 - [ ] On 28 Oct, when the full challenge statement is out, match our datasets to NASA's listed names in `docs/SUBMISSION_DATA.md`, the form and the video.
-- [ ] After the first-round submission, switch the helmet view back on: set `FEATURES.helmetView = true` and remove the README comment wrappers.
+- [ ] After the first-round submission, switch the helmet view and the panel tabs back on: set `FEATURES.helmetView` and `FEATURES.panelToggle` to `true`, and remove the README comment wrappers (`HELMET VIEW …` and `PANEL TABS …`).
 - [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.
