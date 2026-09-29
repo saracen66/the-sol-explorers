@@ -5,7 +5,6 @@ import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
 import { Recorder } from './recorder.js';
-import { FEATURES } from '../config.js';
 
 const $ = (id) => document.getElementById(id);
 const ICON = {
@@ -34,14 +33,10 @@ export class Hud {
     $('btn-info').onclick = () => this.toggleSheet('left');
     $('btn-layers').onclick = () => this.toggleSheet('right');
     // desktop: each side panel can be tucked away and brought back from its edge tab
-    // (switched off for the first-round submission, see src/config.js: panels always show)
     let hidden = {};
-    if (FEATURES.panelToggle) {
-      try { hidden = JSON.parse(localStorage.getItem('sol-atlas-panels') || '{}'); } catch { /* storage blocked */ }
-    }
+    try { hidden = JSON.parse(localStorage.getItem('sol-atlas-panels') || '{}'); } catch { /* storage blocked */ }
     for (const side of ['left', 'right']) {
       this.setPanelHidden(side, !!hidden[side]);
-      if (!FEATURES.panelToggle) { $(`tog-${side}`).hidden = true; continue; }
       $(`tog-${side}`).onclick = () => {
         this.setPanelHidden(side, !document.body.classList.contains(`hide-${side}`));
         try {

@@ -28,8 +28,6 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 > 1. Set `FEATURES.helmetView = true` in `src/config.js`. That restores the HELMET VIEW button, the `F` key, STAND HERE on pins, and the autopilot ride-along.
 > 2. Remove the comment wrappers in README.md marked `HELMET VIEW, hidden for the first-round submission`.
 > The team plans to switch it back on after the first submission. Don't delete any of it.
->
-> **The panel hide / show tabs** (‹ / › on the inner edge of each desktop side panel) are also switched off: `FEATURES.panelToggle = false`. While off, both panels always show. To restore, set it to `true` and unwrap the README comment marked `PANEL TABS, hidden for the first-round submission`.
 
 - **Real data only.** Every layer is real mission data, credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
 - **One problem, one commit, one push.** The owner asked for a push after each feature or fix, not one big batch.
@@ -82,7 +80,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/terrain/Planner.js` | Stops, A* routes (`pathfinding.js`), EVA budget (`eva.js`), point of no return, **O₂-out point** (`buildEvents`/`findO2`), EVA simulation (`startSim`/`update`/`die`) |
 | `src/terrain/eva.js` | Pandolf metabolic model → O₂; walking speed vs grade; the verdict |
 | `src/terrain/Pin.js` | Drop-a-pin card: ROUTE HERE / ADD STOP / STAND HERE |
-| `src/config.js` | Feature switches. `helmetView` and `panelToggle` are currently **false** |
+| `src/config.js` | Feature switches. `helmetView` is currently **false** |
 | `src/terrain/FirstPerson.js` | Helmet view (switched off, see `src/config.js`): sky, CTX skyline ring, walking with O₂ burn, helmet HUD, ride-along, death sequence, phone landscape and joysticks |
 | `src/ui/hud.js` | All DOM panels: planner, layers, legends, wrist display, sources modal, sound, REC and panel-hide buttons |
 | `src/ui/labels.js` | DOM labels pinned to 3D points; priority declutter; hover-card edge flipping |
@@ -108,7 +106,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
   - `cine`: autopilot running.
   - `fpv`: helmet view.
   - `sheet-open`: the phone bottom sheet is open.
-  - `hide-left` / `hide-right`: desktop panels tucked away (only possible when `FEATURES.panelToggle` is on).
+  - `hide-left` / `hide-right`: desktop panels tucked away.
 - **Textures decoded with ImageBitmap are already flipped** (`userData.flippedBitmap`); `loadSlopeData` accounts for it.
 - **Heights** are 16-bit values packed in PNG red and green (`R*256+G`), mapped to `[meta.min, meta.max]` metres.
 - **Helmet view units:** eye height is `0.0018` km; the camera near plane is `0.0004` km. The route line is lifted 0.6 m there, versus `sizeX*0.0012` on the map.
@@ -153,7 +151,7 @@ Working and pushed:
 - drop-a-pin routing;
 - helmet view (desktop, and phones with joysticks and landscape), **switched off for now** (see §2);
 - synthesised sound, REC, autopilot;
-- collapsible panels (**switched off for now**, see §2), phone and tablet layouts.
+- collapsible panels, phone and tablet layouts.
 
 Open (see PROJECT_LOG for the full list):
 - Test on the team's real phones and GPUs, especially the helmet view.

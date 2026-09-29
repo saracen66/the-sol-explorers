@@ -104,7 +104,6 @@ body.cine #btn-cine:hover, body.cine #btn-cine:focus-visible { opacity: 1; }
   background: var(--panel); border: 1px solid var(--line); color: var(--hud); font-size: 18px; line-height: 1;
   transition: left .6s, right .6s, height .3s, opacity .6s; }
 .panel-tog:hover { color: var(--hud-hi); border-color: var(--hud); }
-.panel-tog[hidden] { display: none !important; }
 .panel-tog:focus-visible { outline: 2px solid var(--hud-hi); outline-offset: 2px; }
 .panel-tog i { font-style: normal; }
 .panel-tog span { display: none; font-size: 11px; font-weight: 700; letter-spacing: .24em; writing-mode: vertical-rl; }

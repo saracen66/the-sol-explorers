@@ -35,8 +35,6 @@ const DEVICE = process.env.DEVICE;
   await page.waitForFunction(() => document.getElementById('loader').classList.contains('done'), null, { timeout: 300000 });
   await page.evaluate(() => { window.solAtlas.maxDt = 2.5; });
   check(true, `loaded (tier ${await page.evaluate(() => window.solAtlas.tier.name)})`);
-  // panel hide / show tabs: switched off for now (src/config.js), so no tab may be visible
-  check(await page.evaluate(() => [...document.querySelectorAll('.panel-tog')].every((t) => getComputedStyle(t).display === 'none')), 'panel hide tabs not shown');
   await shot('1-orbit');
 
   await page.evaluate(() => window.solAtlas.descendToJezero());
