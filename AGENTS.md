@@ -28,6 +28,8 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 > 1. Set `FEATURES.helmetView = true` in `src/config.js`. That restores the HELMET VIEW button, the `F` key, STAND HERE on pins, and the autopilot ride-along.
 > 2. Remove the comment wrappers in README.md marked `HELMET VIEW, hidden for the first-round submission`.
 > The team plans to switch it back on after the first submission. Don't delete any of it.
+>
+> **The CRATER panel** (the left panel in the Jezero Crater view: crater facts, the Marswalk-zone card, the points-of-interest list; the CRATER sheet button on phones) is also switched off: `FEATURES.craterPanel = false`. The crater view, its layers panel and the ‹ / › collapse tabs are unaffected. To restore it, set the switch to `true`.
 
 - **Real data only.** Every layer is real mission data, credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
 - **One problem, one commit, one push.** The owner asked for a push after each feature or fix, not one big batch.
@@ -80,7 +82,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/terrain/Planner.js` | Stops, A* routes (`pathfinding.js`), EVA budget (`eva.js`), point of no return, **O₂-out point** (`buildEvents`/`findO2`), EVA simulation (`startSim`/`update`/`die`) |
 | `src/terrain/eva.js` | Pandolf metabolic model → O₂; walking speed vs grade; the verdict |
 | `src/terrain/Pin.js` | Drop-a-pin card: ROUTE HERE / ADD STOP / STAND HERE |
-| `src/config.js` | Feature switches. `helmetView` is currently **false** |
+| `src/config.js` | Feature switches. `helmetView` and `craterPanel` are currently **false** |
 | `src/terrain/FirstPerson.js` | Helmet view (switched off, see `src/config.js`): sky, CTX skyline ring, walking with O₂ burn, helmet HUD, ride-along, death sequence, phone landscape and joysticks |
 | `src/ui/hud.js` | All DOM panels: planner, layers, legends, wrist display, sources modal, sound, REC and panel-hide buttons |
 | `src/ui/labels.js` | DOM labels pinned to 3D points; priority declutter; hover-card edge flipping |

@@ -5,6 +5,7 @@ import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
 import { Recorder } from './recorder.js';
+import { FEATURES } from '../config.js';
 
 const $ = (id) => document.getElementById(id);
 const ICON = {
@@ -164,6 +165,13 @@ export class Hud {
     $('tog-left').querySelector('span').textContent = text;
   }
 
+  /** Show or hide the left-panel sheet button on phones (hidden when that panel is switched off). */
+  infoTab(on) {
+    $('btn-info').hidden = !on;
+    document.body.classList.toggle('no-info-tab', !on);
+    if (!on && document.body.classList.contains('sheet-left')) this.closeSheet();
+  }
+
   setPanelHidden(side, hide) {
     document.body.classList.toggle(`hide-${side}`, hide);
     const t = $(`tog-${side}`);
@@ -176,6 +184,7 @@ export class Hud {
   renderOrbit(orbit) {
     this.setCrumbs('orbit');
     this.sheetLabel('JEZERO');
+    this.infoTab(true);
     const jz = LANDING_SITES[0];
     const sites = LANDING_SITES.map((s) => `
       <button class="row ${s.status === 'active' ? 'active' : s.status === 'fiction' ? '' : 'locked'}" data-site="${s.id}">
@@ -266,6 +275,7 @@ export class Hud {
     const site = view.id === 'site';
     this.setCrumbs(view.id);
     this.sheetLabel(site ? 'PLANNER' : 'CRATER');
+    this.infoTab(site || FEATURES.craterPanel);
     const rows = TERRAIN_LAYERS.map((l) => `
       <div class="layer ${l.locked ? 'locked' : ''} ${view.layers[l.id] ? 'on' : ''}" data-layer="${l.id}" title="${l.locked ? 'Planned for phase 2' : ''}">
         <span class="box">${l.locked ? '' : ''}</span>
@@ -321,7 +331,9 @@ export class Hud {
     this.sunInfo(view);
     this.terrainLegend(view);
 
-    if (!site) this.renderCraterLeft(view);
+    // the CRATER panel is switched off for the first-round submission (src/config.js)
+    if (!site && FEATURES.craterPanel) this.renderCraterLeft(view);
+    else if (!site) this.left.innerHTML = '';
     else extraLeft?.();
     this.hints(site
       ? `<kbd>CLICK</kbd> pin &amp; route${this.app.fpv ? ' <kbd>F</kbd> helmet' : ''} <kbd>DRAG</kbd> orbit <kbd>SCROLL</kbd> zoom <kbd>1-7</kbd> layers <kbd>RMB</kbd> pan <kbd>ESC</kbd> up`

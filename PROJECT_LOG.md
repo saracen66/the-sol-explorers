@@ -145,6 +145,9 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `6a47807` | 2026-09-28 | Switch the helmet view off for the first-round submission |
 | `f2cd1be` | 2026-09-28 | Data list ready to paste into the Space Apps submission form |
 | `8b404bb` | 2026-09-28 | AI use disclosure, as the Space Apps rules require |
+| `cee3c87` | 2026-09-28 | Log the guideline check and the first-round changes |
+| `994e693` | 2026-09-29 | (mistake) Switch off the panel hide/show tabs |
+| `400c0d8` | 2026-09-29 | Undo: bring back the panel hide/show tabs |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -309,6 +312,26 @@ Added mid-way: make the helmet view work on phones, landscape with game-style jo
 | `f2cd1be` | `docs/SUBMISSION_DATA.md`: paste-ready "NASA Data" and "Space Agency Partner & Other Data" blocks with exact archive links, a per-feature table, and newer data to consider. | All 7 NASA file links answered HTTP 200 (86 MB to 4.2 GB each). The Mars24 and JPL links were confirmed through search. |
 | `8b404bb` | AI disclosure: `AI_DISCLOSURE.md`, README section, `ai-disclosure` meta tag, `aiDisclosure` in package.json, and a paragraph in the DATA SOURCES window. | Checked in the running app: the meta tag is present and the paragraph shows. |
 
+### 2026-09-29: CRATER panel hidden for the first round
+
+The owner sent a screenshot of the collapsed left-panel tab labelled **CRATER** and asked to hide "this".
+- First attempt, `994e693`, got it wrong: it switched off the ‹ / › collapse tabs everywhere. Undone in `400c0d8`; the collapse tabs stay.
+- What was meant: hide the **CRATER panel** itself.
+
+**Change:**
+- New switch `FEATURES.craterPanel = false` in `src/config.js`.
+- In the crater view the left panel (crater facts, Marswalk-zone card, points-of-interest list) is not rendered, so its collapse tab disappears too.
+- On phones the CRATER sheet button is hidden and the bottom bar re-flows to four buttons.
+- The layers panel, its collapse tab, the orbit JEZERO panel and the Marswalk PLANNER are unchanged. The zone is still entered from the map (click the zone box, or zoom in).
+- `renderCraterLeft` is kept.
+- The smoke test checks the panel is hidden.
+
+**Checked:**
+- Desktop and iPhone 14: the crater view has no left panel or tab.
+- The right tab still collapses, and the layers sheet opens on the phone.
+- The planner and PLANNER button come back in the zone, and going back up hides the panel again.
+- No sideways scroll, no errors.
+
 ---
 
 ## Decisions and assumptions
@@ -340,7 +363,7 @@ Added mid-way: make the helmet view work on phones, landscape with game-style jo
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
 - [ ] On 28 Oct, when the full challenge statement is out, match our datasets to NASA's listed names in `docs/SUBMISSION_DATA.md`, the form and the video.
-- [ ] After the first-round submission, switch the helmet view back on: set `FEATURES.helmetView = true` and remove the README comment wrappers.
+- [ ] After the first-round submission, switch the helmet view and the CRATER panel back on: set `FEATURES.helmetView` and `FEATURES.craterPanel` to `true`, and remove the README `HELMET VIEW …` comment wrappers.
 - [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.

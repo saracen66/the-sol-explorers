@@ -472,6 +472,8 @@ body.compact .bottom-actions { flex: 1; display: grid; grid-template-columns: 38
 body.compact #btn-sound { order: -1; }
 body.compact #btn-sound .t, body.compact #btn-sources .full { display: none; }
 body.compact #btn-cine .full { display: none; }
+.sheet-btn[hidden] { display: none !important; }
+body.compact.no-info-tab .bottom-actions { grid-template-columns: 38px repeat(3, minmax(0, 1fr)); }
 body.compact .bottom-actions .btn { padding: 10px 3px; font-size: 10.5px; letter-spacing: .04em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body.compact .sheet-btn { display: block; }
 
