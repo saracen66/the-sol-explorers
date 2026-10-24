@@ -148,6 +148,7 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `cee3c87` | 2026-09-28 | Log the guideline check and the first-round changes |
 | `994e693` | 2026-09-29 | (mistake) Switch off the panel hide/show tabs |
 | `400c0d8` | 2026-09-29 | Undo: bring back the panel hide/show tabs |
+| `fd539dc` | 2026-09-29 | Hide the CRATER panel in the crater view for the first round |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -332,6 +333,24 @@ The owner sent a screenshot of the collapsed left-panel tab labelled **CRATER** 
 - The planner and PLANNER button come back in the zone, and going back up hides the panel again.
 - No sideways scroll, no errors.
 
+### 2026-10-24: all hidden features switched back on
+
+The owner asked to unhide everything that was hidden for the first-round submission.
+
+- `src/config.js`: `helmetView` and `craterPanel` are both `true` again. The switches stay, so a feature can be hidden again by flipping one word.
+- Back in the app:
+  - helmet view: the HELMET VIEW button, the `F` key and hint, STAND HERE on pins, the autopilot ride-along, the skyline row in DATA SOURCES, joysticks on touch screens;
+  - the CRATER panel in the crater view (and its collapse tab), and the CRATER sheet button on phones.
+- README: the nine `HELMET VIEW, hidden…` comment blocks were removed by reversing the exact diff of `6a47807`, so the text is word for word as before. The controls-table fix from that commit was re-applied: the Touch row is back inside the table.
+- AGENTS.md §2 now just lists the two switches and says both are on. The smoke test reports the CRATER panel's state instead of asserting it's hidden.
+
+**Checked:**
+- Smoke test passes on desktop and iPhone 14, including entering and exiting the helmet view and the time-warp button; no console errors.
+- Desktop: the CRATER panel shows with its ENTER button; the pin card has route, add and walk buttons; STAND HERE enters the helmet; `F` toggles it both ways.
+- The full autopilot runs with the helmet ride-along.
+- Phone: the CRATER button is back, no sideways scroll.
+- README renders 11 tables, no broken rows, no leftover comments.
+
 ---
 
 ## Decisions and assumptions
@@ -363,7 +382,7 @@ The owner sent a screenshot of the collapsed left-panel tab labelled **CRATER** 
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
 - [ ] On 28 Oct, when the full challenge statement is out, match our datasets to NASA's listed names in `docs/SUBMISSION_DATA.md`, the form and the video.
-- [ ] After the first-round submission, switch the helmet view and the CRATER panel back on: set `FEATURES.helmetView` and `FEATURES.craterPanel` to `true`, and remove the README `HELMET VIEW …` comment wrappers.
+- [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
 - [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.

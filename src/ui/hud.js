@@ -331,7 +331,7 @@ export class Hud {
     this.sunInfo(view);
     this.terrainLegend(view);
 
-    // the CRATER panel is switched off for the first-round submission (src/config.js)
+    // the CRATER panel (can be switched off in src/config.js)
     if (!site && FEATURES.craterPanel) this.renderCraterLeft(view);
     else if (!site) this.left.innerHTML = '';
     else extraLeft?.();

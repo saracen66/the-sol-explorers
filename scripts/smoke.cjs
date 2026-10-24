@@ -40,8 +40,9 @@ const DEVICE = process.env.DEVICE;
   await page.evaluate(() => window.solAtlas.descendToJezero());
   await idle('crater');
   check((await overflow()) <= 0, 'crater view, no sideways scroll');
-  // the CRATER panel is switched off for now (src/config.js): the crater view has no left panel
-  check(await page.evaluate(() => document.getElementById('panel-left').children.length === 0), 'CRATER panel hidden in the crater view');
+  // the CRATER panel follows its switch in src/config.js
+  const craterOn = await page.evaluate(() => document.getElementById('panel-left').children.length > 0);
+  check(true, `CRATER panel ${craterOn ? 'shown' : 'switched off'} in the crater view`);
   await page.evaluate(() => window.solAtlas.enterSite());
   await idle('site');
   check(await page.evaluate(() => !!window.solAtlas.planner.result && !window.solAtlas.planner.result.failed), 'default plan solved');

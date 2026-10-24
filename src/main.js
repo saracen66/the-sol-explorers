@@ -134,7 +134,7 @@ class App {
     this.planner.init();
     this.planner.setPlan(DEFAULT_PLAN); // route solved now, so its line shaders compile during loading
     this.pin = new PinTool(this);
-    // helmet view: switched off for the first-round submission (see src/config.js)
+    // helmet view (can be switched off in src/config.js)
     this.fpv = FEATURES.helmetView ? new FirstPerson(this) : null;
 
     // Warm up behind the loading screen: compile every shader, upload every texture,
