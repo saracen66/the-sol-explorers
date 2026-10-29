@@ -153,6 +153,9 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `21d54eb` | 2026-10-29 | Add the Apache 2.0 licence |
 | `5356b2e` | 2026-10-29 | AI disclosure: why we used AI, the prompts, and our own work |
 | `49fe383` | 2026-10-29 | Submission checklist for the NASA project page and the Bangladesh deadlines |
+| `44bd8b0` | 2026-10-29 | Add ESA Mars Express HRSC relief around Jezero |
+| `eaf08f3` | 2026-10-29 | Remove a teammate's name from the credits for her prototype |
+| `7abccd4` | 2026-10-29 | List the team members in the README |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -379,6 +382,18 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 | `49fe383` | `docs/SUBMISSION_CHECKLIST.md`: Bangladesh deadlines, eligibility and single-point items, video rules, a draft for every NASA project-page field, and what to compare against the full statement. SUBMISSION_DATA.md credits USGS as the other agency behind the processed maps |
 
 **Checked:** `npm run build` passes. No app code changed, so the Playwright smoke test wasn't re-run. The README renders the new Licence section and contents link.
+
+### 2026-10-29: ESA HRSC relief, a teammate's name removed, team list
+
+**Asked by the owner:** add a Space Agency Partner dataset (ESA Mars Express HRSC); remove a teammate's name from the prototype credits (she is an adult; it was there only to say where the sound and REC ideas came from); add the team list from the NASA page; open spaceappschallenge.org through Playwright.
+
+| Commit | Change | Checked |
+|---|---|---|
+| `44bd8b0` | The globe's regional relief and elevation colours around Jezero and Isidis (12° × 12°) now come from the USGS **HRSC and MOLA blended DEM v2** (200 m; ESA Mars Express HRSC stereo blended with MOLA) instead of MOLA alone (463 m). `build_data.py` reads only the window it needs from the 11 GB untiled file (about 90 s). Credited in the layer panel, the legend, DATA SOURCES, the README and SUBMISSION_DATA.md; the Jezero card now says 6 missions. | Side-by-side crops show sharper craters and channels near Jezero. Smoke test passes on desktop and iPhone 14 with no console errors; phone layers sheet has no sideways scroll; the longer layer credit fits on both. Only `r_normal`/`r_topo` (and their lite copies) changed; the other rebuilt files were restored |
+| `eaf08f3` | The teammate's name and GitHub link removed from the README, code comments, AGENTS.md, AI_DISCLOSURE.md, this log and the checklist. The ideas are still credited, to "a teammate's prototype". | `grep` finds no remaining mention outside git history |
+| `7abccd4` | README → Credits lists the four members from the team's NASA page. Roles are still open | — |
+
+**Not done:** spaceappschallenge.org through Playwright. The browser in the build container goes through the same network proxy, which refuses the site (HTTP 403), and no computer of the team's is connected to the session, so a browser on the owner's machine can't be driven from here.
 
 ---
 

@@ -24,7 +24,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 
 > **Feature switches** live in `src/config.js`: `helmetView` (first-person view) and `craterPanel` (the CRATER panel in the crater view). Both are **on**. They were switched off for the first-round submission (Sep–Oct 2026) and switched back on on 24 Oct 2026. If a feature needs hiding again, flip its switch rather than deleting code.
 
-- **Real data only.** Every layer is real mission data, credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
+- **Real data only.** Every layer is real mission data (NASA, plus ESA Mars Express HRSC in the regional relief), credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
 - **One problem, one commit, one push.** The owner asked for a push after each feature or fix, not one big batch.
 - **Keep the record.** After each piece of work, add to PROJECT_LOG.md (timeline entry and commit table) and keep this file current.
 - **Phones matter.** The judges and team open the link on phones. Test phone layouts (iPhone 14 emulation, portrait and landscape) as well as desktop.
@@ -61,7 +61,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | Mode | Class | Scene units | Data |
 |---|---|---|---|
-| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes |
+| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
 | `crater` | `TerrainView` id `crater` | **km** (89 × 101 km tile) | CTX 5 m image, 20 m DEM |
 | `site` | `TerrainView` id `site` | **km** (5 × 5 km tile) | HiRISE 25 cm image, 1 m DTM |
 
