@@ -201,7 +201,7 @@ export class Hud {
           <span class="k">Centre</span><span class="v">18.40°N 77.60°E</span>
           <span class="k">Diameter</span><span class="v">≈ 45 km</span>
           <span class="k">Region</span><span class="v">Isidis Planitia rim</span>
-          <span class="k">Datasets</span><span class="v">7 layers · 5 missions</span>
+          <span class="k">Datasets</span><span class="v">7 layers · 6 missions</span>
         </div>
         <div class="btn-row"><button class="btn primary" id="btn-descend">▼ Descend to Jezero</button></div>
       </div>
@@ -265,7 +265,7 @@ export class Hud {
   orbitLegend(layer) {
     const L = $('orbit-legend');
     if (!L) return;
-    if (layer === 'topo') L.innerHTML = legendRamp('Elevation (MOLA, m)', 'linear-gradient(90deg,#0d366b,#184f95,#2a78d6,#5598e7,#9ec5f4,#eef6ff)', ['−8,200', '0', '+21,200']);
+    if (layer === 'topo') L.innerHTML = legendRamp('Elevation (MOLA; HRSC near Jezero, m)', 'linear-gradient(90deg,#0d366b,#184f95,#2a78d6,#5598e7,#9ec5f4,#eef6ff)', ['−8,200', '0', '+21,200']);
     else if (layer === 'thermal') L.innerHTML = legendRamp('Night-time IR brightness (relative)', 'linear-gradient(90deg,#3a1a06,#7a3510,#c05a1c,#ec8a45,#f9c79a,#fff0e0)', ['cools fast · dust', 'stays warm · rock']);
     else L.innerHTML = '<div class="legend"><div class="cap muted">Viking Orbiter mosaic, colour by NASA Ames. Seasonal frost shows at the poles.</div></div>';
   }
@@ -545,11 +545,12 @@ export class Hud {
   showSources() {
     $('modal-body').innerHTML = `
       <h2>DATA SOURCES & CREDITS</h2>
-      <p>Everything in Sol Atlas is real mission data. Nothing is hand-painted. Files were pulled from the public USGS Astrogeology archive (<code>asc-pds-services</code>) and processed by <code>scripts/build_data.py</code>.</p>
+      <p>Everything in Sol Atlas is real mission data, from NASA plus ESA's Mars Express. Nothing is hand-painted. Files were pulled from the public USGS Astrogeology archive (<code>asc-pds-services</code>) and processed by <code>scripts/build_data.py</code>.</p>
       <h3>ORBIT VIEW</h3>
       <table><tr><th>LAYER</th><th>MISSION / INSTRUMENT</th><th>PRODUCT</th></tr>
         <tr><td>Visible colour</td><td>Viking Orbiter 1 & 2</td><td>MDIM 2.1 global mosaic, recoloured by NASA Ames (232 m)</td></tr>
         <tr><td>Topography / relief</td><td>Mars Global Surveyor · MOLA</td><td>MOLA 128/64 ppd merged DEM (463 m)</td></tr>
+        <tr><td>Relief around Jezero and Isidis (zoomed in)</td><td>ESA Mars Express · HRSC, with MGS MOLA</td><td>HRSC and MOLA blended DEM v2, 200 m (USGS; HRSC data ESA/DLR/FU Berlin)</td></tr>
         <tr><td>Night thermal IR</td><td>Mars Odyssey · THEMIS</td><td>USGS controlled night-IR mosaic v2 (100 m)</td></tr></table>
       <h3>JEZERO CRATER</h3>
       <table><tr><th>LAYER</th><th>MISSION / INSTRUMENT</th><th>PRODUCT</th></tr>

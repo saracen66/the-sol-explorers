@@ -38,8 +38,9 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 ## Paste into "Space Agency Partner & Other Data"
 
 ```
+- ESA Mars Express, HRSC (High Resolution Stereo Camera; ESA/DLR/FU Berlin): elevation models of the Jezero and Isidis region, used through the USGS "Mars HRSC MOLA Blended DEM Global 200m v2" (Fergason, Hare & Laura 2018), which merges HRSC stereo DTMs with NASA's MOLA. Relief and elevation colours on the globe when zoomed in on Jezero (200 m instead of MOLA's 463 m).
+  https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif
 - U.S. Geological Survey (USGS) Astrogeology Science Center: processed, controlled and archived the NASA maps above (CTX and HiRISE mosaics and elevation models, the THEMIS controlled mosaic), served from its public "asc-pds-services" archive on AWS.
-- No data from non-US space agencies is used yet.
 - stiles/mars-perseverance-waypoints (GitHub): a daily archive of NASA/JPL's Perseverance waypoint feed, used because the NASA site could not be reached from our build machine. The positions are NASA's, unchanged.
   https://github.com/stiles/mars-perseverance-waypoints
 - Scientific references: Pandolf, Givoni & Goldman (1977), load-carriage metabolic equation, used for the EVA oxygen model; Tobler's hiking function (walking speed vs slope); Mangold et al. (2021), Science, Jezero delta geology.
@@ -55,6 +56,7 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 | App feature | NASA data | Processing (in `scripts/build_data.py`) |
 |---|---|---|
 | Globe colour | Viking MDIM 2.1 (NASA Ames colour) | Resampled to 2k / 4k / 8k by device |
+| Regional relief around Jezero and Isidis | ESA Mars Express HRSC + MGS MOLA blended DEM, 200 m (USGS) | 12° × 12° window read at full resolution, averaged to 2048², normal map and elevation ramp |
 | Globe relief, elevation colours | MGS MOLA 128/64 ppd DEM | Normal map (relief ×18), blue elevation ramp, 1024 × 512 elevation grid for readouts |
 | Night thermal / ground firmness | Mars Odyssey THEMIS night IR 100 m | Clipped to ±54° (streaky edges), gentle contrast curve, orange ramp |
 | Crater imagery | MRO CTX 5 m orthomosaic (JPL) | 4096 × 4658 px (~22 m/px), tinted with the Viking colour of the same ground |

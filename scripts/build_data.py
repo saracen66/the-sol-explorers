@@ -13,7 +13,9 @@ Nothing here is hand-painted: every pixel comes from a NASA mission dataset.
     - MGS MOLA 128/64 ppd elevation                            -> g_normal_4k.jpg, g_topo_4k.jpg, g_elev.png
     - Mars Odyssey THEMIS night-IR controlled mosaic (100 m)   -> g_thermal_4k.jpg
   Region (Isidis / Jezero, 12 x 12 deg decal on the globe)
-    - same three sources at full resolution                    -> r_*.jpg
+    - Viking colour and THEMIS at full resolution              -> r_color.jpg, r_thermal.jpg
+    - HRSC + MOLA blended DEM (200 m; ESA Mars Express HRSC
+      blended with MGS MOLA by USGS)                           -> r_normal.jpg, r_topo.jpg
   Crater (Jezero, ~89 x 101 km)
     - Mars 2020 Science Investigation CTX ortho mosaic (5 m)   -> c_visible.jpg
     - Mars 2020 Science Investigation CTX DEM (20 m)           -> c_height.png, c_normal.jpg, c_slope.png
@@ -38,6 +40,7 @@ import urllib.request
 
 import numpy as np
 import rasterio
+import rasterio.windows
 from PIL import Image
 from rasterio.crs import CRS
 from rasterio.enums import Resampling
@@ -63,6 +66,7 @@ R_MARS = 3396190.0  # IAU Mars 2000 sphere (m)
 SRC = {
     "color": "wms_basemaps/Mars/MDIM21_AMESColor/MDIM21_AMES_recolor_dd360_jpeg_cog.tif",
     "mola": "wms_basemaps/Mars/MOLA/mola128_mola64_merge_90Nto90S_SimpleC_clon0_cog.tif",
+    "hrsc_mola": "mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif",
     "themis_night": "wms_basemaps/Mars/THEMIS_USGS/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018_cog.tif",
     "ctx_ortho": "mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXortho_mosaic_5m.tif",
     "ctx_dem": "mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXDEM_20m.tif",
@@ -325,8 +329,13 @@ def stage_region(m):
             bands.append(dst)
     save_rgb(np.dstack(bands) / 255.0, "r_color.jpg", 88)
 
-    log("REGION MOLA")
-    h = warp(remote("mola"), (H, W), tr, GEO_CRS, Resampling.cubic)
+    log("REGION HRSC + MOLA blend")
+    # Same lon/lat sphere as the region grid, so a windowed read is enough. The file is
+    # 11 GB and untiled (one strip per row); only the ~25 MB under the window is fetched.
+    with rasterio.open(remote("hrsc_mola")) as d:
+        win = rasterio.windows.from_bounds(r["lon0"], r["lat0"], r["lon1"], r["lat1"], d.transform)
+        h = d.read(1, window=win, out_shape=(H, W), resampling=Resampling.average,
+                   masked=True).astype(np.float32).filled(np.nan)
     h = fill_nodata(np.nan_to_num(h), np.isnan(h))
     dx = (r["lon1"] - r["lon0"]) / W * KX
     dy = (r["lat1"] - r["lat0"]) / H * KY
