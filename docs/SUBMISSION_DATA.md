@@ -4,7 +4,7 @@ The project submission form has two data fields: **NASA Data**, and **Space Agen
 
 All NASA map files were read directly from the USGS Astrogeology Science Center's public cloud archive (`asc-pds-services`, on AWS). USGS processes and archives NASA's planetary maps. Every link below was checked and answered on 28 Sep 2026.
 
-> **The full challenge statement came out on 28 October 2026.** Compare this list with the datasets NASA names for the challenge, and reuse NASA's exact dataset names in the form and the video. The other project-page fields, deadlines and rules are in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md).
+> **NASA's resource list for the challenge is published on 13 November 2026** (the challenge page's Resources tab says so). On that day, compare this list with the datasets NASA names, and reuse NASA's exact dataset names in the form and the video. The other project-page fields, deadlines and rules are in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md).
 
 ---
 

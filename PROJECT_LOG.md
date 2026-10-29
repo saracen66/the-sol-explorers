@@ -425,7 +425,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
-- [ ] Match our datasets to NASA's listed names in the full challenge statement (out 28 Oct; spaceappschallenge.org is blocked from the build machine, so a teammate must open it). See `docs/SUBMISSION_CHECKLIST.md`.
+- [ ] **13 Nov morning:** match our datasets to NASA's names in the challenge's Resources tab, which only goes live on 13 Nov (the page said so on 29 Oct). See `docs/SUBMISSION_CHECKLIST.md`.
 - [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
 - [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).

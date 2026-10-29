@@ -63,7 +63,7 @@ The guide flags a clash for Video 2 (a "1 November" date vs the 13 Nov 18:30 run
 
 ## Still to check against the full challenge statement
 
-The full statement (with NASA's named datasets) came out on 28 Oct, but spaceappschallenge.org can't be reached from the build machine, so it hasn't been compared yet. Someone on the team should open the challenge page (set **Show Challenges From** to 2026) and:
+The challenge page is live, but its **Resources** tab says *"Resources will be available on Friday, November 13"* (checked 29 Oct 2026 by the owner, screenshot). That is day 1 of the Bangladesh hackathon. On the morning of 13 Nov, open the challenge page (set **Show Challenges From** to 2026), read the **Details** and **Resources** tabs, and:
 
 - [ ] Compare its resource list with [SUBMISSION_DATA.md](SUBMISSION_DATA.md). Where NASA names a product we use, copy NASA's exact name into the form and say it in the video.
 - [ ] Check that every objective in the statement is answered somewhere in the app or the pitch.
