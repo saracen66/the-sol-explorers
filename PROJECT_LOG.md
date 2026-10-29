@@ -149,6 +149,10 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `994e693` | 2026-09-29 | (mistake) Switch off the panel hide/show tabs |
 | `400c0d8` | 2026-09-29 | Undo: bring back the panel hide/show tabs |
 | `fd539dc` | 2026-09-29 | Hide the CRATER panel in the crater view for the first round |
+| `8c928ea` | 2026-10-24 | Switch every hidden feature back on |
+| `21d54eb` | 2026-10-29 | Add the Apache 2.0 licence |
+| `5356b2e` | 2026-10-29 | AI disclosure: why we used AI, the prompts, and our own work |
+| `49fe383` | 2026-10-29 | Submission checklist for the NASA project page and the Bangladesh deadlines |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -351,6 +355,31 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - Phone: the CRATER button is back, no sideways scroll.
 - README renders 11 tables, no broken rows, no leftover comments.
 
+### 2026-10-29: rules check against the Participants Guide and the challenge
+
+**Asked by the owner:** go through the Bangladesh Participants Guide and the build guide's page for challenge 11 (*Martian Map*), check the project against them, say whether we need the data sources the guide lists, and do what's needed.
+
+**What we found**
+- **Following the rules already:** a 2026 challenge, named; a public repo whose default branch holds the current code (checked through the GitHub API); NASA open data at the core; AI use disclosed; no NASA logos; the app needs no API key and runs offline once loaded.
+- **Missing:**
+  - no licence, although work built for Space Apps must stay open source (Apache 2.0 by default);
+  - the AI disclosure named the tool but didn't explain the prompts or show the team's own work, which the guide's FAQ asks for;
+  - no team member names or roles in the repo (they must be on the NASA page too).
+- **Under-18 rule:** recognisable names, voices or faces of anyone under 18 must not appear in any video or submission. The repo names teammate Sayma in several places; the owner needs to confirm her age.
+- **Data sources:** the build guide's page for challenge 11 lists NASA Mars Trek, the PDS Mars archive and SpiceyPy. The build guide is a third-party companion, not NASA's statement. The rule is only that NASA open data must be used, and Sol Atlas already uses full-resolution NASA products for Jezero (the Mars 2020 CTX and HiRISE maps, via USGS), the same kind of data Trek shows as tiles. No switch to Mars Trek is needed. The NASA data usage score gives 5/5 for NASA data plus another agency's or third-party data; USGS processing and the waypoint archive count, and a non-US agency layer (e.g. ESA HRSC) would strengthen it further.
+- **Dates:** Bangladesh runs a day early (13–14 Nov). AGENTS.md had 14–15 Nov.
+- **Not checked:** the official full statement (released 28 Oct). spaceappschallenge.org is blocked from the build machine and web search didn't return its text.
+
+**Shipped, one commit each**
+
+| Commit | Change |
+|---|---|
+| `21d54eb` | `LICENSE` (Apache 2.0), `"license"` in package.json, Licence section in the README |
+| `5356b2e` | AI_DISCLOSURE.md: why we used AI, the main prompts by date, where our own work went |
+| `49fe383` | `docs/SUBMISSION_CHECKLIST.md`: Bangladesh deadlines, eligibility and single-point items, video rules, a draft for every NASA project-page field, and what to compare against the full statement. SUBMISSION_DATA.md credits USGS as the other agency behind the processed maps |
+
+**Checked:** `npm run build` passes. No app code changed, so the Playwright smoke test wasn't re-run. The README renders the new Licence section and contents link.
+
 ---
 
 ## Decisions and assumptions
@@ -381,7 +410,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
-- [ ] On 28 Oct, when the full challenge statement is out, match our datasets to NASA's listed names in `docs/SUBMISSION_DATA.md`, the form and the video.
+- [ ] Match our datasets to NASA's listed names in the full challenge statement (out 28 Oct; spaceappschallenge.org is blocked from the build machine, so a teammate must open it). See `docs/SUBMISSION_CHECKLIST.md`.
 - [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
 - [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
@@ -389,8 +418,9 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] Try the helmet view on a real phone: frame rate, joystick feel, and the Android landscape lock.
 - [ ] Pitch script: add a beat for "Earth can't help in time" (the mayday light-time when O₂ runs out) and one for the helmet view.
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
-- [ ] Add team member names and roles to README → Credits.
-- [ ] Choose a licence for the code (none chosen yet).
+- [ ] Add team member names and roles to README → Credits, after checking the under-18 rule (see `docs/SUBMISSION_CHECKLIST.md`).
+- [x] Licence for the code: Apache 2.0 (29 Oct 2026).
+- [ ] Merge `claude/hopeful-babbage-m9v81r` (rules check, 29 Oct) into `claude/busy-heisenberg-8gasem`, the default and production branch.
 - [ ] Phase 2: CRISM mineral layer, live MEDA weather, more sites (SWIM ice maps), dust-storm alerts, offline mode.
 
 ---

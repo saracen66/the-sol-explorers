@@ -17,7 +17,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 
 - **Live:** https://sol-atlas.netlify.app (Netlify project `sol-atlas`, team `saracen66`)
 - **Repo:** https://github.com/saracen66/the-sol-explorers
-- **Working branch:** `claude/busy-heisenberg-8gasem`. Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. `main` has not been set up as the production branch yet (see open items).
+- **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 rules check (licence, AI prompts, submission checklist) is on `claude/hopeful-babbage-m9v81r` and needs merging into it. `main` has not been set up as the production branch yet (see open items).
 - The deliverable it supports is a **240-second pitch video**. The built-in autopilot (`C`) and recorder (`R`) exist for that.
 
 ## 2. How the team wants work done
@@ -33,7 +33,10 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
   - Every outside resource is listed in [docs/SUBMISSION_DATA.md](docs/SUBMISSION_DATA.md), ready for the form's two data fields. When you add a dataset, add it there too.
   - AI use is disclosed in [AI_DISCLOSURE.md](AI_DISCLOSURE.md), the README, the `ai-disclosure` meta tag, `package.json` and the DATA SOURCES window. Keep them in step.
   - No NASA logos. Any AI-generated image or video needs a visible watermark.
-- **2026 timeline:** challenge summaries were released 17 Sep. Full statements with NASA's official datasets come out 28 Oct. The hackathon is 14–15 Nov. The first-round submission is a short video plus this repo.
+  - The code stays open source: Apache 2.0, in [LICENSE](LICENSE).
+  - No recognisable name, voice or face of anyone under 18 in any video or in the submission (repo included).
+  - What goes on the NASA project page, the videos and the deadlines: [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
+- **2026 timeline:** challenge summaries were released 17 Sep; full statements with NASA's official datasets on 28 Oct. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
 
 ## 3. Run it
 
@@ -152,7 +155,8 @@ Open (see PROJECT_LOG for the full list):
 - Test on the team's real phones and GPUs, especially the helmet view.
 - Open a PR into `main` and switch Netlify production to `main`.
 - Record the pitch video (REC + autopilot).
-- Team names and a licence in the README.
+- Team member names and roles in the README (check the under-18 rule first).
+- Compare our datasets with the full challenge statement (spaceappschallenge.org is blocked from the build machine).
 - Phase 2 ideas: CRISM minerals, live MEDA weather, more sites, dust-storm alerts, offline mode.
 
 Rejected ideas and why:
