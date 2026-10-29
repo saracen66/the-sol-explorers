@@ -155,7 +155,7 @@ Open (see PROJECT_LOG for the full list):
 - Test on the team's real phones and GPUs, especially the helmet view.
 - Open a PR into `main` and switch Netlify production to `main`.
 - Record the pitch video (REC + autopilot).
-- Team member names and roles in the README (check the under-18 rule first).
+- Roles for each team member (names are in README → Credits).
 - Compare our datasets with the full challenge statement (spaceappschallenge.org is blocked from the build machine).
 - Phase 2 ideas: CRISM minerals, live MEDA weather, more sites, dust-storm alerts, offline mode.
 

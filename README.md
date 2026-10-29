@@ -353,7 +353,14 @@ The code, data-processing scripts and documentation of Sol Atlas were written wi
 
 ## Credits
 
-**Team:** The SOL Explorers, NASA Space Apps Challenge 2026.
+**Team:** The SOL Explorers, NASA Space Apps Challenge 2026, Bangladesh.
+
+| Member | Role |
+|---|---|
+| S.M. Riasijtur Rahman | Team owner |
+| MD. Yemtias Jani Mishad | Team member |
+| Md Rifat Hasan | Team member |
+| Sayma Ferdousi Fariha | Team member |
 
 **Data:**
 - NASA / JPL-Caltech / University of Arizona (HiRISE)

@@ -20,7 +20,7 @@ The guide flags a clash for Video 2 (a "1 November" date vs the 13 Nov 18:30 run
 - [x] Public repository: https://github.com/saracen66/the-sol-explorers is public, and its default branch holds the current code. Still open it once in a private window before submitting.
 - [x] Uses NASA open data: Viking, MGS MOLA, Mars Odyssey THEMIS, MRO CTX, MRO HiRISE, Mars 2020. See [SUBMISSION_DATA.md](SUBMISSION_DATA.md).
 - [x] Open source: Apache 2.0 ([LICENSE](../LICENSE)).
-- [ ] Every team member registered on the team's NASA page, **with a photo and their role** (Members tab), plus a team photo.
+- [ ] Every team member registered on the team's NASA page, **with a photo and their role** (Members tab), plus a team photo. The NASA page lists all four: S.M. Riasijtur Rahman (team owner), MD. Yemtias Jani Mishad, Md Rifat Hasan, Sayma Ferdousi Fariha. Roles still need adding there and in the README.
 
 ## The three single points (cheap, often lost)
 

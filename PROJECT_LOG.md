@@ -418,7 +418,8 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] Try the helmet view on a real phone: frame rate, joystick feel, and the Android landscape lock.
 - [ ] Pitch script: add a beat for "Earth can't help in time" (the mayday light-time when O₂ runs out) and one for the helmet view.
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
-- [ ] Add team member names and roles to README → Credits, after checking the under-18 rule (see `docs/SUBMISSION_CHECKLIST.md`).
+- [x] Team member names in README → Credits (29 Oct 2026, from the team's NASA page).
+- [ ] Add each member's role in README → Credits and on the NASA page.
 - [x] Licence for the code: Apache 2.0 (29 Oct 2026).
 - [ ] Merge `claude/hopeful-babbage-m9v81r` (rules check, 29 Oct) into `claude/busy-heisenberg-8gasem`, the default and production branch.
 - [ ] Phase 2: CRISM mineral layer, live MEDA weather, more sites (SWIM ice maps), dust-storm alerts, offline mode.
