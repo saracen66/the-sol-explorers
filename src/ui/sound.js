@@ -1,6 +1,6 @@
 // Synthesised sound design: every sound is generated with Web Audio, no files.
 // The context starts on the first user gesture (browser autoplay rules).
-// Idea borrowed from Sayma's prototype (services/soundManager.ts), rebuilt for Sol Atlas.
+// Idea borrowed from a teammate's prototype (services/soundManager.ts), rebuilt for Sol Atlas.
 
 const KEY = 'sol-atlas-sound';
 

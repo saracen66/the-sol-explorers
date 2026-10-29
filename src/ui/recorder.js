@@ -1,6 +1,6 @@
 // Screen recorder for the pitch video: captures this browser tab (HUD, labels and
 // the synthesised sound included) and downloads it as a video file.
-// Idea from Sayma's prototype (services/recorder.ts); this version records the
+// Idea from a teammate's prototype (services/recorder.ts); this version records the
 // whole tab rather than just the WebGL canvas, so the overlays are in the video.
 
 export class Recorder {

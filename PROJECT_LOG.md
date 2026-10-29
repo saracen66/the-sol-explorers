@@ -217,7 +217,7 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 ### 2026-09-25: polish build: O₂ death point, route anywhere, helmet view, real traverse
 
 **Asked for by the team**
-- Review Sayma's prototype (https://github.com/sayma-the-celestia-web/The-SOL-Explorers) and take anything good.
+- Review a teammate's prototype and take anything good.
 - Add more real data and useful features.
 - When the O₂ runs out in the EVA simulation, EV1 should stop and turn red where it happens, instead of reaching the end anyway.
 - Pick any point on the map and route there, like Google Maps.
@@ -225,10 +225,10 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 - Something other teams can't easily match.
 - Push each feature as soon as it's done.
 
-**Review of Sayma's build** (React + Tailwind + Gemini)
+**Review of the teammate's prototype** (React + Tailwind + Gemini)
 - Taken, as ideas: synthesised Web Audio sound design and in-app recording (`services/soundManager.ts`, `services/recorder.ts`). Both were rebuilt from scratch for Sol Atlas.
 - Not taken:
-  - her images, which are AI-generated (some are captioned as HiRISE);
+  - its images, which are AI-generated (some are captioned as HiRISE);
   - several approximate coordinates;
   - the Gemini dependency, since the demo must work offline, with no API key, during judging.
 - Worth a look for the pitch: the human-vs-rover "guidance" idea and the MOXIE oxygen-production angle.
@@ -365,7 +365,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
   - no licence, although work built for Space Apps must stay open source (Apache 2.0 by default);
   - the AI disclosure named the tool but didn't explain the prompts or show the team's own work, which the guide's FAQ asks for;
   - no team member names or roles in the repo (they must be on the NASA page too).
-- **Under-18 rule:** recognisable names, voices or faces of anyone under 18 must not appear in any video or submission. The repo names teammate Sayma in several places; the owner needs to confirm her age.
+- **Under-18 rule:** recognisable names, voices or faces of anyone under 18 must not appear in any video or submission. The repo named one teammate in several places; the owner confirmed she is an adult and asked for the name to be removed anyway (done the same day).
 - **Data sources:** the build guide's page for challenge 11 lists NASA Mars Trek, the PDS Mars archive and SpiceyPy. The build guide is a third-party companion, not NASA's statement. The rule is only that NASA open data must be used, and Sol Atlas already uses full-resolution NASA products for Jezero (the Mars 2020 CTX and HiRISE maps, via USGS), the same kind of data Trek shows as tiles. No switch to Mars Trek is needed. The NASA data usage score gives 5/5 for NASA data plus another agency's or third-party data; USGS processing and the waypoint archive count, and a non-US agency layer (e.g. ESA HRSC) would strengthen it further.
 - **Dates:** Bangladesh runs a day early (13–14 Nov). AGENTS.md had 14–15 Nov.
 - **Not checked:** the official full statement (released 28 Oct). spaceappschallenge.org is blocked from the build machine and web search didn't return its text.
@@ -399,7 +399,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 | Helmet skyline computed from the CTX DEM, not an image | It is true for the exact spot, and it's something a painted backdrop can't claim |
 | Helmet walking uses real walking speeds × a displayed time warp | Keeps the O₂ numbers honest while staying watchable |
 | Demo "death" plan uses a 0.20 kg suit | 0.25 kg still gets home on the default loop; 0.20 kg runs dry at 5.83 km |
-| Only ideas taken from Sayma's prototype, not assets | Her images are AI-generated and some positions are approximate; everything shown in Sol Atlas must be real data |
+| Only ideas taken from a teammate's early prototype, not assets | Its images are AI-generated and some positions are approximate; everything shown in Sol Atlas must be real data |
 
 ---
 

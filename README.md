@@ -108,7 +108,7 @@ Press **`F`**, **◉ HELMET VIEW**, or **STAND HERE** on a pin to stand on the t
 | **Synthesised sound** (♪ / `M`) | Wind, lock-on, alarms, suit breathing. All generated in the browser, no audio files |
 | **● REC** (`R`) | Records the tab (HUD and sound included) to a video file for the pitch |
 
-Sound and REC came from ideas in teammate Sayma's prototype. Her images and several coordinates weren't reusable (AI-generated pictures, approximate positions), so only the ideas were carried over.
+Sound and REC came from ideas in a teammate's early prototype. Its images and several coordinates weren't reusable (AI-generated pictures, approximate positions), so only the ideas were carried over.
 
 ---
 
@@ -366,7 +366,7 @@ The code, data-processing scripts and documentation of Sol Atlas were written wi
 - Mars 2020 science maps: Mangold et al. (2021), *Science*
 - Perseverance waypoints: NASA/JPL-Caltech MMGIS, archived daily in [stiles/mars-perseverance-waypoints](https://github.com/stiles/mars-perseverance-waypoints)
 
-**Ideas:** synthesised sound design and in-app recording were inspired by Sayma's prototype for the team.
+**Ideas:** synthesised sound design and in-app recording were inspired by a teammate's early prototype.
 
 NASA imagery is not copyrighted. No NASA logos are used.
 

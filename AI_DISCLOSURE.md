@@ -48,5 +48,5 @@ The assistant worked from plain-language requests by the team, given over severa
 
 - [ ] In the submission form, point to this file (or paste its first table) wherever AI use is asked about.
 - [ ] If the pitch video uses any **AI-generated images, footage or voice-over** (for example text-to-speech), add a **visible watermark** saying it is AI-generated, and mention AI generation in the video's description or metadata. Screen recordings of the app itself are not AI-generated imagery.
-- [ ] If Sayma's prototype or its images are shown anywhere, watermark those images: they are AI-generated. Some are also labelled as HiRISE photos, which they are not.
+- [ ] If the teammate's early prototype or its images are shown anywhere, watermark those images: they are AI-generated. Some are also labelled as HiRISE photos, which they are not.
 - [ ] Keep NASA logos and mission patches out of the video and the slides.

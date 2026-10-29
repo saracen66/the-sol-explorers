@@ -160,6 +160,6 @@ Open (see PROJECT_LOG for the full list):
 - Phase 2 ideas: CRISM minerals, live MEDA weather, more sites, dust-storm alerts, offline mode.
 
 Rejected ideas and why:
-- Sayma's images: AI-generated, some mislabelled as HiRISE.
+- Images from a teammate's early prototype: AI-generated, some mislabelled as HiRISE.
 - A Gemini dependency: the demo must run offline with no API key.
 - A CAPCOM voice from `speechSynthesis`: voice quality varies too much between devices for a judged video.

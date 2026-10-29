@@ -30,7 +30,7 @@ The guide flags a clash for Video 2 (a "1 November" date vs the 13 Nov 18:30 run
 
 ## Rules that disqualify or cost marks
 
-- [ ] **Under-18 rule:** no recognisable name, voice or face of anyone under 18 in any video or in the submission. The repo names one teammate (Sayma) in the README, the code comments, AGENTS.md, PROJECT_LOG.md and AI_DISCLOSURE.md. If she is under 18, those names must come out before submission.
+- [ ] **Under-18 rule:** no recognisable name, voice or face of anyone under 18 in any video or in the submission.
 - [ ] Under-18 members are registered by a parent or guardian, who stays with them at the event.
 - [ ] Videos name **every team member** (Video 2 and Video 3).
 - [ ] Video 3 is **30 seconds or less**, has **English subtitles**, and is public (test the link in a private window). It cannot be uploaded to the NASA site directly.
