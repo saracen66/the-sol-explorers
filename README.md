@@ -33,6 +33,7 @@ This is the **phase-1 prototype** made for the 240-second local-judging video. J
 - [Limitations and roadmap](#limitations-and-roadmap)
 - [AI use disclosure](#ai-use-disclosure)
 - [Credits](#credits)
+- [Licence](#licence)
 
 ---
 
@@ -368,3 +369,9 @@ The code, data-processing scripts and documentation of Sol Atlas were written wi
 NASA imagery is not copyrighted. No NASA logos are used.
 
 **Built with:** [three.js](https://threejs.org), [Vite](https://vitejs.dev) and Python ([rasterio](https://rasterio.readthedocs.io), NumPy, Pillow, SciPy). Fonts: Rajdhani, Orbitron, JetBrains Mono.
+
+---
+
+## Licence
+
+The code in this repository is open source under the [Apache License 2.0](LICENSE), as NASA Space Apps requires for work built for the challenge. The NASA data in `public/data/` is not copyrighted and is credited above. The fonts are under the SIL Open Font Licence; three.js and Vite are under the MIT licence.
