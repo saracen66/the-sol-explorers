@@ -4,7 +4,7 @@ The project submission form has two data fields: **NASA Data**, and **Space Agen
 
 All NASA map files were read directly from the USGS Astrogeology Science Center's public cloud archive (`asc-pds-services`, on AWS). USGS processes and archives NASA's planetary maps. Every link below was checked and answered on 28 Sep 2026.
 
-> **When the full challenge statement comes out (28 October 2026)**, compare this list with the datasets NASA names for the challenge, and reuse NASA's exact dataset names in the form and the video.
+> **The full challenge statement came out on 28 October 2026.** Compare this list with the datasets NASA names for the challenge, and reuse NASA's exact dataset names in the form and the video. The other project-page fields, deadlines and rules are in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md).
 
 ---
 
@@ -38,8 +38,8 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 ## Paste into "Space Agency Partner & Other Data"
 
 ```
-- No data from other space agencies is used yet.
-- USGS Astrogeology Science Center: hosting and processing of the NASA maps above (public "asc-pds-services" archive on AWS).
+- U.S. Geological Survey (USGS) Astrogeology Science Center: processed, controlled and archived the NASA maps above (CTX and HiRISE mosaics and elevation models, the THEMIS controlled mosaic), served from its public "asc-pds-services" archive on AWS.
+- No data from non-US space agencies is used yet.
 - stiles/mars-perseverance-waypoints (GitHub): a daily archive of NASA/JPL's Perseverance waypoint feed, used because the NASA site could not be reached from our build machine. The positions are NASA's, unchanged.
   https://github.com/stiles/mars-perseverance-waypoints
 - Scientific references: Pandolf, Givoni & Goldman (1977), load-carriage metabolic equation, used for the EVA oxygen model; Tobler's hiking function (walking speed vs slope); Mangold et al. (2021), Science, Jezero delta geology.
