@@ -17,7 +17,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 
 - **Live:** https://sol-atlas.netlify.app (Netlify project `sol-atlas`, team `saracen66`)
 - **Repo:** https://github.com/saracen66/the-sol-explorers
-- **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 rules check (licence, AI prompts, submission checklist) is on `claude/hopeful-babbage-m9v81r` and needs merging into it. `main` has not been set up as the production branch yet (see open items).
+- **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 work (licence, AI prompts, submission checklist, HRSC relief, team list) was merged into it from `claude/hopeful-babbage-m9v81r` in https://github.com/saracen66/the-sol-explorers/pull/1. `main` has not been set up as the production branch yet (see open items).
 - The deliverable it supports is a **240-second pitch video**. The built-in autopilot (`C`) and recorder (`R`) exist for that.
 
 ## 2. How the team wants work done

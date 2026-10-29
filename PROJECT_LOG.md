@@ -436,7 +436,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [x] Team member names in README → Credits (29 Oct 2026, from the team's NASA page).
 - [ ] Add each member's role in README → Credits and on the NASA page.
 - [x] Licence for the code: Apache 2.0 (29 Oct 2026).
-- [ ] Merge `claude/hopeful-babbage-m9v81r` (rules check, 29 Oct) into `claude/busy-heisenberg-8gasem`, the default and production branch.
+- [x] Merged `claude/hopeful-babbage-m9v81r` (29 Oct work) into `claude/busy-heisenberg-8gasem`, the default and production branch: https://github.com/saracen66/the-sol-explorers/pull/1 (merge `03bd012`).
 - [ ] Phase 2: CRISM mineral layer, live MEDA weather, more sites (SWIM ice maps), dust-storm alerts, offline mode.
 
 ---
