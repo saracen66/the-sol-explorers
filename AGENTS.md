@@ -17,14 +17,14 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 
 - **Live:** https://sol-atlas.netlify.app (Netlify project `sol-atlas`, team `saracen66`)
 - **Repo:** https://github.com/saracen66/the-sol-explorers
-- **Working branch:** `claude/busy-heisenberg-8gasem`. Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. `main` has not been set up as the production branch yet (see open items).
+- **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 rules check (licence, AI prompts, submission checklist) is on `claude/hopeful-babbage-m9v81r` and needs merging into it. `main` has not been set up as the production branch yet (see open items).
 - The deliverable it supports is a **240-second pitch video**. The built-in autopilot (`C`) and recorder (`R`) exist for that.
 
 ## 2. How the team wants work done
 
 > **Feature switches** live in `src/config.js`: `helmetView` (first-person view) and `craterPanel` (the CRATER panel in the crater view). Both are **on**. They were switched off for the first-round submission (Sep–Oct 2026) and switched back on on 24 Oct 2026. If a feature needs hiding again, flip its switch rather than deleting code.
 
-- **Real data only.** Every layer is real mission data, credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
+- **Real data only.** Every layer is real mission data (NASA, plus ESA Mars Express HRSC in the regional relief), credited in DATA SOURCES and the README. Anything not real is labelled: "proposed" (LZ-A), "approx. position", "typical · not live", "phase 2", "fiction" (Ares III). Don't add AI-generated imagery or invented numbers.
 - **One problem, one commit, one push.** The owner asked for a push after each feature or fix, not one big batch.
 - **Keep the record.** After each piece of work, add to PROJECT_LOG.md (timeline entry and commit table) and keep this file current.
 - **Phones matter.** The judges and team open the link on phones. Test phone layouts (iPhone 14 emulation, portrait and landscape) as well as desktop.
@@ -33,7 +33,10 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
   - Every outside resource is listed in [docs/SUBMISSION_DATA.md](docs/SUBMISSION_DATA.md), ready for the form's two data fields. When you add a dataset, add it there too.
   - AI use is disclosed in [AI_DISCLOSURE.md](AI_DISCLOSURE.md), the README, the `ai-disclosure` meta tag, `package.json` and the DATA SOURCES window. Keep them in step.
   - No NASA logos. Any AI-generated image or video needs a visible watermark.
-- **2026 timeline:** challenge summaries were released 17 Sep. Full statements with NASA's official datasets come out 28 Oct. The hackathon is 14–15 Nov. The first-round submission is a short video plus this repo.
+  - The code stays open source: Apache 2.0, in [LICENSE](LICENSE).
+  - No recognisable name, voice or face of anyone under 18 in any video or in the submission (repo included).
+  - What goes on the NASA project page, the videos and the deadlines: [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
+- **2026 timeline:** challenge summaries were released 17 Sep; full statements with NASA's official datasets on 28 Oct. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
 
 ## 3. Run it
 
@@ -58,7 +61,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | Mode | Class | Scene units | Data |
 |---|---|---|---|
-| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes |
+| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
 | `crater` | `TerrainView` id `crater` | **km** (89 × 101 km tile) | CTX 5 m image, 20 m DEM |
 | `site` | `TerrainView` id `site` | **km** (5 × 5 km tile) | HiRISE 25 cm image, 1 m DTM |
 
@@ -152,10 +155,11 @@ Open (see PROJECT_LOG for the full list):
 - Test on the team's real phones and GPUs, especially the helmet view.
 - Open a PR into `main` and switch Netlify production to `main`.
 - Record the pitch video (REC + autopilot).
-- Team names and a licence in the README.
+- Roles for each team member (names are in README → Credits).
+- Compare our datasets with the full challenge statement (spaceappschallenge.org is blocked from the build machine).
 - Phase 2 ideas: CRISM minerals, live MEDA weather, more sites, dust-storm alerts, offline mode.
 
 Rejected ideas and why:
-- Sayma's images: AI-generated, some mislabelled as HiRISE.
+- Images from a teammate's early prototype: AI-generated, some mislabelled as HiRISE.
 - A Gemini dependency: the demo must run offline with no API key.
 - A CAPCOM voice from `speechSynthesis`: voice quality varies too much between devices for a judged video.

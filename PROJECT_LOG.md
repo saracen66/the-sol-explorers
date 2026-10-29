@@ -149,6 +149,13 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `994e693` | 2026-09-29 | (mistake) Switch off the panel hide/show tabs |
 | `400c0d8` | 2026-09-29 | Undo: bring back the panel hide/show tabs |
 | `fd539dc` | 2026-09-29 | Hide the CRATER panel in the crater view for the first round |
+| `8c928ea` | 2026-10-24 | Switch every hidden feature back on |
+| `21d54eb` | 2026-10-29 | Add the Apache 2.0 licence |
+| `5356b2e` | 2026-10-29 | AI disclosure: why we used AI, the prompts, and our own work |
+| `49fe383` | 2026-10-29 | Submission checklist for the NASA project page and the Bangladesh deadlines |
+| `44bd8b0` | 2026-10-29 | Add ESA Mars Express HRSC relief around Jezero |
+| `eaf08f3` | 2026-10-29 | Remove a teammate's name from the credits for her prototype |
+| `7abccd4` | 2026-10-29 | List the team members in the README |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -213,7 +220,7 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 ### 2026-09-25: polish build: O₂ death point, route anywhere, helmet view, real traverse
 
 **Asked for by the team**
-- Review Sayma's prototype (https://github.com/sayma-the-celestia-web/The-SOL-Explorers) and take anything good.
+- Review a teammate's prototype and take anything good.
 - Add more real data and useful features.
 - When the O₂ runs out in the EVA simulation, EV1 should stop and turn red where it happens, instead of reaching the end anyway.
 - Pick any point on the map and route there, like Google Maps.
@@ -221,10 +228,10 @@ Real-phone and real-GPU frame rates still need checking on the team's devices.
 - Something other teams can't easily match.
 - Push each feature as soon as it's done.
 
-**Review of Sayma's build** (React + Tailwind + Gemini)
+**Review of the teammate's prototype** (React + Tailwind + Gemini)
 - Taken, as ideas: synthesised Web Audio sound design and in-app recording (`services/soundManager.ts`, `services/recorder.ts`). Both were rebuilt from scratch for Sol Atlas.
 - Not taken:
-  - her images, which are AI-generated (some are captioned as HiRISE);
+  - its images, which are AI-generated (some are captioned as HiRISE);
   - several approximate coordinates;
   - the Gemini dependency, since the demo must work offline, with no API key, during judging.
 - Worth a look for the pitch: the human-vs-rover "guidance" idea and the MOXIE oxygen-production angle.
@@ -351,6 +358,43 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - Phone: the CRATER button is back, no sideways scroll.
 - README renders 11 tables, no broken rows, no leftover comments.
 
+### 2026-10-29: rules check against the Participants Guide and the challenge
+
+**Asked by the owner:** go through the Bangladesh Participants Guide and the build guide's page for challenge 11 (*Martian Map*), check the project against them, say whether we need the data sources the guide lists, and do what's needed.
+
+**What we found**
+- **Following the rules already:** a 2026 challenge, named; a public repo whose default branch holds the current code (checked through the GitHub API); NASA open data at the core; AI use disclosed; no NASA logos; the app needs no API key and runs offline once loaded.
+- **Missing:**
+  - no licence, although work built for Space Apps must stay open source (Apache 2.0 by default);
+  - the AI disclosure named the tool but didn't explain the prompts or show the team's own work, which the guide's FAQ asks for;
+  - no team member names or roles in the repo (they must be on the NASA page too).
+- **Under-18 rule:** recognisable names, voices or faces of anyone under 18 must not appear in any video or submission. The repo named one teammate in several places; the owner confirmed she is an adult and asked for the name to be removed anyway (done the same day).
+- **Data sources:** the build guide's page for challenge 11 lists NASA Mars Trek, the PDS Mars archive and SpiceyPy. The build guide is a third-party companion, not NASA's statement. The rule is only that NASA open data must be used, and Sol Atlas already uses full-resolution NASA products for Jezero (the Mars 2020 CTX and HiRISE maps, via USGS), the same kind of data Trek shows as tiles. No switch to Mars Trek is needed. The NASA data usage score gives 5/5 for NASA data plus another agency's or third-party data; USGS processing and the waypoint archive count, and a non-US agency layer (e.g. ESA HRSC) would strengthen it further.
+- **Dates:** Bangladesh runs a day early (13–14 Nov). AGENTS.md had 14–15 Nov.
+- **Not checked:** the official full statement (released 28 Oct). spaceappschallenge.org is blocked from the build machine and web search didn't return its text.
+
+**Shipped, one commit each**
+
+| Commit | Change |
+|---|---|
+| `21d54eb` | `LICENSE` (Apache 2.0), `"license"` in package.json, Licence section in the README |
+| `5356b2e` | AI_DISCLOSURE.md: why we used AI, the main prompts by date, where our own work went |
+| `49fe383` | `docs/SUBMISSION_CHECKLIST.md`: Bangladesh deadlines, eligibility and single-point items, video rules, a draft for every NASA project-page field, and what to compare against the full statement. SUBMISSION_DATA.md credits USGS as the other agency behind the processed maps |
+
+**Checked:** `npm run build` passes. No app code changed, so the Playwright smoke test wasn't re-run. The README renders the new Licence section and contents link.
+
+### 2026-10-29: ESA HRSC relief, a teammate's name removed, team list
+
+**Asked by the owner:** add a Space Agency Partner dataset (ESA Mars Express HRSC); remove a teammate's name from the prototype credits (she is an adult; it was there only to say where the sound and REC ideas came from); add the team list from the NASA page; open spaceappschallenge.org through Playwright.
+
+| Commit | Change | Checked |
+|---|---|---|
+| `44bd8b0` | The globe's regional relief and elevation colours around Jezero and Isidis (12° × 12°) now come from the USGS **HRSC and MOLA blended DEM v2** (200 m; ESA Mars Express HRSC stereo blended with MOLA) instead of MOLA alone (463 m). `build_data.py` reads only the window it needs from the 11 GB untiled file (about 90 s). Credited in the layer panel, the legend, DATA SOURCES, the README and SUBMISSION_DATA.md; the Jezero card now says 6 missions. | Side-by-side crops show sharper craters and channels near Jezero. Smoke test passes on desktop and iPhone 14 with no console errors; phone layers sheet has no sideways scroll; the longer layer credit fits on both. Only `r_normal`/`r_topo` (and their lite copies) changed; the other rebuilt files were restored |
+| `eaf08f3` | The teammate's name and GitHub link removed from the README, code comments, AGENTS.md, AI_DISCLOSURE.md, this log and the checklist. The ideas are still credited, to "a teammate's prototype". | `grep` finds no remaining mention outside git history |
+| `7abccd4` | README → Credits lists the four members from the team's NASA page. Roles are still open | — |
+
+**Not done:** spaceappschallenge.org through Playwright. The browser in the build container goes through the same network proxy, which refuses the site (HTTP 403), and no computer of the team's is connected to the session, so a browser on the owner's machine can't be driven from here.
+
 ---
 
 ## Decisions and assumptions
@@ -370,7 +414,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 | Helmet skyline computed from the CTX DEM, not an image | It is true for the exact spot, and it's something a painted backdrop can't claim |
 | Helmet walking uses real walking speeds × a displayed time warp | Keeps the O₂ numbers honest while staying watchable |
 | Demo "death" plan uses a 0.20 kg suit | 0.25 kg still gets home on the default loop; 0.20 kg runs dry at 5.83 km |
-| Only ideas taken from Sayma's prototype, not assets | Her images are AI-generated and some positions are approximate; everything shown in Sol Atlas must be real data |
+| Only ideas taken from a teammate's early prototype, not assets | Its images are AI-generated and some positions are approximate; everything shown in Sol Atlas must be real data |
 
 ---
 
@@ -381,7 +425,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
-- [ ] On 28 Oct, when the full challenge statement is out, match our datasets to NASA's listed names in `docs/SUBMISSION_DATA.md`, the form and the video.
+- [ ] Match our datasets to NASA's listed names in the full challenge statement (out 28 Oct; spaceappschallenge.org is blocked from the build machine, so a teammate must open it). See `docs/SUBMISSION_CHECKLIST.md`.
 - [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
 - [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
@@ -389,8 +433,10 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] Try the helmet view on a real phone: frame rate, joystick feel, and the Android landscape lock.
 - [ ] Pitch script: add a beat for "Earth can't help in time" (the mayday light-time when O₂ runs out) and one for the helmet view.
 - [ ] Pitch script: change the CRISM voiceover line to future tense, e.g. "CRISM minerals are next".
-- [ ] Add team member names and roles to README → Credits.
-- [ ] Choose a licence for the code (none chosen yet).
+- [x] Team member names in README → Credits (29 Oct 2026, from the team's NASA page).
+- [ ] Add each member's role in README → Credits and on the NASA page.
+- [x] Licence for the code: Apache 2.0 (29 Oct 2026).
+- [ ] Merge `claude/hopeful-babbage-m9v81r` (rules check, 29 Oct) into `claude/busy-heisenberg-8gasem`, the default and production branch.
 - [ ] Phase 2: CRISM mineral layer, live MEDA weather, more sites (SWIM ice maps), dust-storm alerts, offline mode.
 
 ---

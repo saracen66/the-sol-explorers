@@ -8,7 +8,7 @@ The SOL Explorers · NASA Space Apps Challenge 2026 · challenge: *Interplanetar
 
 ![Sol Atlas: Mars from orbit with landing sites and data layers](docs/screenshots/01-orbit.jpg)
 
-In *The Martian*, Mark Watney survives by doing the maths himself: oxygen, distance, daylight, terrain. Sol Atlas does that maths for the first crews. It stacks data from five NASA missions on one 3D map, finds the safest route for a walk on foot to any point you pick, and checks whether the astronaut gets home with oxygen to spare. If the plan comes up short, the EVA simulation shows exactly where the suit runs dry. Then you can put on the helmet and walk the real terrain at eye height.
+In *The Martian*, Mark Watney survives by doing the maths himself: oxygen, distance, daylight, terrain. Sol Atlas does that maths for the first crews. It stacks data from five NASA missions and ESA's Mars Express on one 3D map, finds the safest route for a walk on foot to any point you pick, and checks whether the astronaut gets home with oxygen to spare. If the plan comes up short, the EVA simulation shows exactly where the suit runs dry. Then you can put on the helmet and walk the real terrain at eye height.
 
 ![Helmet view: the delta-front scarp in Jezero at true scale, from the HiRISE 1 m elevation model](docs/screenshots/08-helmet-view.jpg)
 
@@ -33,6 +33,7 @@ This is the **phase-1 prototype** made for the 240-second local-judging video. J
 - [Limitations and roadmap](#limitations-and-roadmap)
 - [AI use disclosure](#ai-use-disclosure)
 - [Credits](#credits)
+- [Licence](#licence)
 
 ---
 
@@ -107,7 +108,7 @@ Press **`F`**, **◉ HELMET VIEW**, or **STAND HERE** on a pin to stand on the t
 | **Synthesised sound** (♪ / `M`) | Wind, lock-on, alarms, suit breathing. All generated in the browser, no audio files |
 | **● REC** (`R`) | Records the tab (HUD and sound included) to a video file for the pitch |
 
-Sound and REC came from ideas in teammate Sayma's prototype. Her images and several coordinates weren't reusable (AI-generated pictures, approximate positions), so only the ideas were carried over.
+Sound and REC came from ideas in a teammate's early prototype. Its images and several coordinates weren't reusable (AI-generated pictures, approximate positions), so only the ideas were carried over.
 
 ---
 
@@ -120,6 +121,7 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Orbit | Visible colour | Viking Orbiters | MDIM 2.1 global mosaic, NASA Ames colour (232 m/px) |
 | Orbit | Topography, relief | Mars Global Surveyor · MOLA | MOLA 128/64 ppd merged DEM (463 m/px) |
 | Orbit | Night thermal IR | Mars Odyssey · THEMIS | USGS controlled night-IR mosaic (100 m/px) |
+| Orbit, zoomed in on Jezero and Isidis | Relief, elevation colours | **ESA Mars Express · HRSC**, with MGS MOLA | HRSC and MOLA blended DEM v2, 200 m/px (USGS; HRSC data ESA/DLR/FU Berlin) |
 | Crater | Visible | MRO · CTX | Mars 2020 Science Investigation CTX orthomosaic, 5 m/px (JPL) |
 | Crater | Elevation, slope, contours | MRO · CTX stereo | Mars 2020 Science Investigation CTX DEM, 20 m/px (JPL) |
 | Crater + zone | Ground firmness | Mars Odyssey · THEMIS | Night-IR mosaic as a thermal-inertia proxy, 100 m/px |
@@ -351,7 +353,14 @@ The code, data-processing scripts and documentation of Sol Atlas were written wi
 
 ## Credits
 
-**Team:** The SOL Explorers, NASA Space Apps Challenge 2026.
+**Team:** The SOL Explorers, NASA Space Apps Challenge 2026, Bangladesh.
+
+| Member | Role |
+|---|---|
+| S.M. Riasijtur Rahman | Team owner |
+| MD. Yemtias Jani Mishad | Team member |
+| Md Rifat Hasan | Team member |
+| Sayma Ferdousi Fariha | Team member |
 
 **Data:**
 - NASA / JPL-Caltech / University of Arizona (HiRISE)
@@ -359,12 +368,19 @@ The code, data-processing scripts and documentation of Sol Atlas were written wi
 - NASA / JPL-Caltech / Arizona State University (THEMIS)
 - NASA / GSFC (MOLA)
 - NASA / USGS (Viking MDIM 2.1, NASA Ames colour)
+- ESA / DLR / FU Berlin (Mars Express HRSC), in the USGS HRSC and MOLA blended DEM (Fergason, Hare & Laura 2018)
 - USGS Astrogeology Science Center (mosaics and DTMs)
 - Mars 2020 science maps: Mangold et al. (2021), *Science*
 - Perseverance waypoints: NASA/JPL-Caltech MMGIS, archived daily in [stiles/mars-perseverance-waypoints](https://github.com/stiles/mars-perseverance-waypoints)
 
-**Ideas:** synthesised sound design and in-app recording were inspired by Sayma's prototype for the team.
+**Ideas:** synthesised sound design and in-app recording were inspired by a teammate's early prototype.
 
 NASA imagery is not copyrighted. No NASA logos are used.
 
 **Built with:** [three.js](https://threejs.org), [Vite](https://vitejs.dev) and Python ([rasterio](https://rasterio.readthedocs.io), NumPy, Pillow, SciPy). Fonts: Rajdhani, Orbitron, JetBrains Mono.
+
+---
+
+## Licence
+
+The code in this repository is open source under the [Apache License 2.0](LICENSE), as NASA Space Apps requires for work built for the challenge. The NASA data in `public/data/` is not copyrighted and is credited above. The fonts are under the SIL Open Font Licence; three.js and Vite are under the MIT licence.

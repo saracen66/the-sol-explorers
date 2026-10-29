@@ -12,7 +12,7 @@ const MAX_ALT = 7.0;
 
 export const ORBIT_LAYERS = [
   { id: 'visible', key: '1', name: 'Visible colour', src: 'Viking Orbiter · MDIM 2.1 (NASA Ames)' },
-  { id: 'topo', key: '2', name: 'Topography', src: 'Mars Global Surveyor · MOLA' },
+  { id: 'topo', key: '2', name: 'Topography', src: 'MGS · MOLA + ESA Mars Express · HRSC' },
   { id: 'thermal', key: '3', name: 'Night thermal IR', src: 'Mars Odyssey · THEMIS' },
 ];
 
