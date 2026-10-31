@@ -28,7 +28,7 @@ Nothing here is hand-painted: every pixel comes from a NASA mission dataset.
 Usage:
     pip install rasterio numpy pillow scipy
     python3 scripts/build_data.py            # everything
-    python3 scripts/build_data.py crater     # one stage (global|region|crater|site|lite|traverse)
+    python3 scripts/build_data.py crater     # one stage (global|region|crater|site|lite|traverse|photos)
 """
 
 import datetime
@@ -584,12 +584,32 @@ def stage_traverse(m):
     log("wrote m20_traverse.json", len(pts), "points, sol", out["lastSol"], out["totalKm"], "km")
 
 
+RAW = "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/"
+# Perseverance raw images taken where each Marswalk stop is ("what you'll see when you get there").
+# Captions and credits are in src/data/places.js.
+PHOTOS = {
+    "oeb": "00016/ids/edr/browse/ncam/NLF_0016_0668374018_309ECM_N0030578NCAM00500_01_295J01_1200.jpg",
+    "depot": "00690/ids/edr/browse/zcam/ZL0_0690_0728198326_069EBY_N0321184ZCAM08692_0340LMJ01_1200.jpg",
+    "seitah": "00249/ids/edr/browse/ncam/NLG_0249_0689039446_372ECM_N0080000NCAM00500_00_2I4J01_1200.jpg",
+    "front": "00502/ids/edr/browse/ncam/NLG_0502_0711519571_149ECM_N0261222NCAM00500_00_2I4J01_1200.jpg",
+}
+
+
+def stage_photos(m):
+    os.makedirs(os.path.join(OUT, "photos"), exist_ok=True)
+    for poi, path in PHOTOS.items():
+        img = Image.open(urllib.request.urlopen(RAW + path, timeout=120)).convert("RGB")
+        dst = os.path.join(OUT, "photos", poi + ".jpg")
+        img.save(dst, quality=86, optimize=True, progressive=True)
+        log("wrote photos/" + poi + ".jpg", img.size, f"{os.path.getsize(dst) / 1e3:.0f} kB")
+
+
 STAGES = dict(global_=stage_global, region=stage_region, crater=stage_crater, site=stage_site, lite=stage_lite,
-              traverse=stage_traverse)
+              traverse=stage_traverse, photos=stage_photos)
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    want = sys.argv[1:] or ["global", "region", "crater", "site", "lite", "traverse"]
+    want = sys.argv[1:] or ["global", "region", "crater", "site", "lite", "traverse", "photos"]
     man = read_manifest()
     man.update(localCrs=dict(latTs=LAT_TS, R=R_MARS, kx=KX, ky=KY))
     for s in want:

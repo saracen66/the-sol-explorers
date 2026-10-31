@@ -407,7 +407,7 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 | `c44a640` | Perseverance traverse straight from NASA's MMGIS feed: 555 end-of-drive fixes, sol 0–2022 (Oct 2026), 45.25 km. New `traverse` stage in `build_data.py`; the third-party archive (stopped at sol 1524) is no longer used | Path runs to the western rim in the crater view; legend and DATA SOURCES read the numbers from the data |
 | `89a1e68` | Planner: science-kit slider (0–30 kg, Pandolf load), EVA radiation dose (Curiosity RAD, 0.64 mSv/day), storm-shelter time (longest walk back to the airlock) | Default numbers unchanged at the time; 20 kg kit costs 26 % more O₂ |
 | `a50f665` | Mission-goal picker: Grand tour, Bring the samples home, Date the crater floor, Look for signs of ancient life | All four goals solve; the autopilot narrates the tour and restores the user's goal |
-| this commit | **Three Forks fixed.** See below | See below |
+| `b4f7163` | **Three Forks fixed.** See below | See below |
 
 **The Three Forks error.** While matching rover photos to our stops, NASA's waypoint feed showed Perseverance at about 18.4527°N 77.4082°E while it laid the tubes (sols 653–693), not at our 18.4391°N 77.4494°E. NASA's PDS archive for the depot (`mars2020_sample_depot_three_forks`, file `sample_tube_locations.csv`) confirms it: the rover's position at each of the 10 drops is 18.4525–18.4534°N, 77.4078–77.4086°E, elevation −2,545 m. Our old position, described as "from published witness-tube coordinates", was 2.4 km off, on the crater floor instead of at the foot of the delta. Its elevation had looked right only because the floor there is at a similar height.
 
@@ -419,6 +419,8 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 - README screenshots 04, 05, 06, 07, 11 and 12 retaken on the new zone.
 
 **Checked:** smoke test passes on desktop and iPhone 14; the full autopilot runs to the end with no errors (captions now say 9.8 km loop); all four goals solve; no sideways scroll.
+
+**Stop photos** (next commit). Each science stop now carries a real Perseverance raw image taken at that spot: landing site (Navcam, sol 16), Three Forks (Mastcam-Z, sol 690, the day the last tube went down), Séítah (Navcam, sol 249), delta front (Navcam, sol 502). They come from NASA's raw-image API (`mars.nasa.gov/rss/api/?feed=raw_images`), are saved by a new `photos` stage in `build_data.py` (224 kB in all), show in the stop's hover card on desktop, and open full size from a PHOTO button in the plan (phones too). Credited in DATA SOURCES, the README and SUBMISSION_DATA. Checked on desktop and iPhone 14: images load, no 404s, no console errors, no sideways scroll; smoke test passes. (A request with a browser-like user agent to reach a panorama file was blocked by the session's safety check; the raw-image API needed no workaround.)
 
 ---
 

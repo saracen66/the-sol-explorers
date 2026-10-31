@@ -62,6 +62,7 @@ The gold line is **Perseverance's real drive path**: 555 end-of-drive positions 
 A 6 × 6 km zone around Perseverance's landing site, Séítah, the delta front and the Three Forks sample depot, built from a 25 cm per pixel HiRISE mosaic and a 1 m elevation model. This is where you plan the walk:
 
 - **Start from a science goal.** Pick a mission goal and the plan follows from it: *Bring the samples home* (the Three Forks tubes), *Date the crater floor* (Séítah's olivine bedrock), *Look for signs of ancient life* (the delta front's lake sediments), or the *Grand tour*. Each goal says why this spot answers it, with its source.
+- **See it before you go.** Each science stop carries a real Perseverance photo taken at that spot (Navcam or Mastcam-Z raw images), so the crew knows what the place looks like before they arrive. Hover a stop, or press PHOTO in the plan.
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
 - **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, daylight left, the EVA's radiation dose and the storm-shelter time (how long the walk back takes from the farthest point if a solar storm is forecast), ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
@@ -129,6 +130,7 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Marswalk zone | Visible | MRO · HiRISE | Mars 2020 Terrain-Relative-Navigation orthomosaic, 25 cm/px (USGS) |
 | Marswalk zone | Elevation, slope, route | MRO · HiRISE stereo | Mars 2020 TRN DTM, 1 m/px (USGS) |
 | Crater + zone | Perseverance traverse | Mars 2020 · rover localisation | NASA/JPL MMGIS "Where is Perseverance?" end-of-drive waypoints, sol 0–2022, from the [MMGIS feed](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json) |
+| Marswalk zone | Stop photos | Mars 2020 · Navcam, Mastcam-Z | Raw images from the stops: landing site (sol 16), Three Forks (sol 690), Séítah (sol 249), delta front (sol 502) |
 | Helmet view | Skyline | MRO · CTX stereo | Computed from the 20 m crater DEM: highest angle per bearing, Mars curvature included |
 | Phase 2 | Minerals | MRO · CRISM | not yet: shown as locked |
 | Phase 2 | Live weather | Perseverance · MEDA | not yet: the conditions panel shows typical values, labelled "not live" |

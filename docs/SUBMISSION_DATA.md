@@ -28,6 +28,8 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 - Mars 2020 Perseverance: rover end-of-drive positions from NASA/JPL's "Where is Perseverance?" map (MMGIS waypoint feed), sol 0 to 2022 (October 2026). Perseverance traverse layer.
   https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json
 - Mars 2020 Perseverance: landing site (Octavia E. Butler Landing, 18 Feb 2021), and the rover's positions at Séítah (sols 248–278) and the delta front (sols 477–502), from the waypoint feed above. Science stops in the Marswalk zone.
+- Mars 2020 Perseverance raw images (Navcam and Mastcam-Z), one per science stop, taken at that spot: landing site sol 16, Three Forks sol 690, Séítah sol 249, delta front sol 502. Shown as "what you'll see" photos. Credit NASA/JPL-Caltech (Mastcam-Z: NASA/JPL-Caltech/ASU).
+  https://mars.nasa.gov/mars2020/multimedia/raw-images/
 - Mars 2020 Three Forks Depot bundle (NASA PDS Geosciences Node): rover latitude, longitude and elevation at each of the 10 sample-tube drops, and the sample IDs. Three Forks stop position, and the elevation check (−2,545 m).
   https://pds-geosciences.wustl.edu/m2020/urn-nasa-pds-mars2020_sample_depot_three_forks/
 - NASA GISS Mars24 sunclock algorithm (Allison & McEwen 2000): Mars time, sols, local solar time, Sun position.

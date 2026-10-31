@@ -408,7 +408,7 @@ export class Hud {
     const r = pl.result;
     const wps = pl.waypoints.map((w, i) => `
       <div class="wp"><div class="n"><span>${i + 1}</span></div>
-        <div style="min-width:0"><div class="nm">${w.name}</div><div class="ds" title="${w.poi?.reason || ''}">${w.poi?.reason || w.note || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}</div></div>
+        <div style="min-width:0"><div class="nm">${w.name}${w.poi?.photo ? ` <button class="ph-btn" data-photo="${i}" title="Perseverance's photo from this spot">PHOTO</button>` : ''}</div><div class="ds" title="${w.poi?.reason || ''}">${w.poi?.reason || w.note || (i === 0 ? 'EVA start / airlock' : 'custom science stop')}</div></div>
         ${i > 0 ? `<button class="x" data-rm="${i}" title="Remove stop">✕</button>` : '<span></span>'}
       </div>`).join('');
     let body = '';
@@ -480,6 +480,7 @@ export class Hud {
         <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit${pl.params.kitKg ? ` + ${pl.params.kitKg} kg science kit` : ''}. 1 L O₂ ≈ 20.1 kJ. Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
       </div>`;
     this.left.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => pl.remove(+b.dataset.rm); });
+    this.left.querySelectorAll('[data-photo]').forEach((b) => { b.onclick = () => this.showPhoto(pl.waypoints[+b.dataset.photo].poi); });
     $('b-add').onclick = () => { pl.addMode = !pl.addMode; this.renderPlanner(pl); if (pl.addMode) this.closeSheet(); };
     $('b-sim').onclick = () => { this.closeSheet(); pl.sim ? pl.stopSim() : pl.startSim(); };
     $('b-plan').onclick = () => this.app.resetPlan();
@@ -552,6 +553,15 @@ export class Hud {
   }
 
   // ------------------------------------------------------------------ sources
+  showPhoto(p) {
+    const ph = p.photo;
+    $('modal-body').innerHTML = `
+      <h2>${p.name.toUpperCase()} · WHAT YOU'LL SEE</h2>
+      <img class="photo" src="${import.meta.env.BASE_URL}data/${ph.file}" alt="Perseverance ${ph.camera} view at ${p.name}">
+      <p>Perseverance ${ph.camera}, sol ${ph.sol} (${ph.date})${ph.note ? `, ${ph.note}` : ''}. Taken where this stop is, so it shows what the crew will see when they get there. Raw, unprocessed image: the colours are as the camera recorded them. Credit: ${ph.credit}.</p>`;
+    $('modal').hidden = false;
+  }
+
   showSources() {
     $('modal-body').innerHTML = `
       <h2>DATA SOURCES & CREDITS</h2>
@@ -573,6 +583,12 @@ export class Hud {
         <tr><td>Elevation, slope, route</td><td>MRO · HiRISE stereo</td><td>Mars 2020 TRN DTM, 1 m (USGS)</td></tr>
         <tr><td>Thermal</td><td>Mars Odyssey · THEMIS</td><td>Night-IR controlled mosaic, 100 m</td></tr>
         ${this.app.fpv ? '<tr><td>Helmet-view skyline</td><td>MRO · CTX stereo</td><td>Computed from the 20 m crater DEM: highest angle per bearing, with Mars curvature</td></tr>' : ''}</table>
+      <h3>STOP PHOTOS</h3>
+      <table><tr><th>STOP</th><th>CAMERA</th><th>IMAGE</th></tr>
+        <tr><td>Octavia E. Butler Landing</td><td>Perseverance Navcam</td><td>Sol 16 raw image, NASA/JPL-Caltech</td></tr>
+        <tr><td>Three Forks depot</td><td>Perseverance Mastcam-Z</td><td>Sol 690 raw image, NASA/JPL-Caltech/ASU</td></tr>
+        <tr><td>Séítah</td><td>Perseverance Navcam</td><td>Sol 249 raw image, NASA/JPL-Caltech</td></tr>
+        <tr><td>Delta front</td><td>Perseverance Navcam</td><td>Sol 502 raw image, NASA/JPL-Caltech</td></tr></table>
       <h3>PERSEVERANCE TRAVERSE</h3>
       <table><tr><th>LAYER</th><th>SOURCE</th><th>PRODUCT</th></tr>
         <tr><td>Drive path, sol labels</td><td>NASA/JPL-Caltech · MMGIS "Where is Perseverance?"</td><td>End-of-drive localisations (M20_waypoints), sol 0–${this.app.assets?.traverse?.lastSol ?? '?'}, from mars.nasa.gov</td></tr></table>

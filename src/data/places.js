@@ -32,12 +32,14 @@ export const CRATER_POIS = [
     reason: 'Check 5+ years of dust on Perseverance\u2019s landing site',
     text: 'Perseverance touched down here on 18 Feb 2021. The descent imagery, sky-crane and heat-shield debris were all mapped from orbit by HiRISE.',
     source: 'NASA/JPL-Caltech',
+    photo: { file: 'photos/oeb.jpg', camera: 'Navcam', sol: 16, date: '7 Mar 2021', credit: 'NASA/JPL-Caltech' },
   },
   {
     id: 'depot', name: 'Three Forks Sample Depot', kind: 'science', lat: 18.45283, lon: 77.40821,
     reason: 'Collect sealed sample tubes for the trip home',
     text: '10 sealed sample tubes laid at the foot of the delta, sols 653–690 (Dec 2022 – Jan 2023), spaced 5–15 m apart in a zig-zag. The backup cache for Mars Sample Return.',
     source: 'NASA PDS Geosciences Node, Mars 2020 Three Forks Depot bundle (rover position at each tube drop)',
+    photo: { file: 'photos/depot.jpg', camera: 'Mastcam-Z', sol: 690, date: '28 Jan 2023', credit: 'NASA/JPL-Caltech/ASU', note: 'the day the last tube went down, looking at the delta' },
   },
   {
     id: 'delta', name: 'Western Fan (delta)', kind: 'geology', lat: 18.505, lon: 77.37, approx: true,
@@ -79,12 +81,14 @@ export const SITE_POIS = [
   {
     id: 'seitah', name: 'Séítah', kind: 'geology', lat: 18.43394, lon: 77.44302,
     reason: 'Sample olivine-rich igneous bedrock',
+    photo: { file: 'photos/seitah.jpg', camera: 'Navcam', sol: 249, date: '1 Nov 2021', credit: 'NASA/JPL-Caltech' },
     text: 'Ridges of olivine-rich igneous rock broken up by sand ripples. Perseverance parked here on Séítah\u2019s edge for sols 248–278 and cored Coulettes on sol 271, now one of the ten tubes at Three Forks. Tough walking, high science value.',
     source: 'NASA/JPL-Caltech MMGIS waypoints (rover position); PDS Three Forks Depot bundle (sample IDs)',
   },
   {
     id: 'front', name: 'Delta front', kind: 'geology', lat: 18.45887, lon: 77.40613,
     reason: 'Log layered lake sediments for biosignatures',
+    photo: { file: 'photos/front.jpg', camera: 'Navcam', sol: 502, date: '19 Jul 2022', credit: 'NASA/JPL-Caltech', note: 'layered rock on the delta front' },
     text: 'The front of the delta: layered sandstone and mudstone laid down in the old lake. Perseverance parked here for sols 477–502 and cored Skyland on sol 495, now one of the ten tubes at Three Forks. The slope layer shows the steep edge to go around.',
     source: 'NASA/JPL-Caltech MMGIS waypoints (rover position); PDS Three Forks Depot bundle (sample IDs)',
   },
