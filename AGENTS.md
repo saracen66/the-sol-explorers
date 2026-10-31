@@ -36,6 +36,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
   - The code stays open source: Apache 2.0, in [LICENSE](LICENSE).
   - No recognisable name, voice or face of anyone under 18 in any video or in the submission (repo included).
   - What goes on the NASA project page, the videos and the deadlines: [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
+  - How the app answers each objective and consideration in the official challenge statement, and the ranked ideas for what to add: [docs/CHALLENGE_FIT.md](docs/CHALLENGE_FIT.md).
 - **2026 timeline:** challenge summaries were released 17 Sep; full statements on 28 Oct; the challenge's Resources tab (NASA's datasets) only on 13 Nov. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
 
 ## 3. Run it

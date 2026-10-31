@@ -422,7 +422,8 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 
 - [x] First Netlify deploy (repo linked, production deploy `6ab56524` from `97b6bd4`, 2026-09-24 18:00 UTC).
 - [x] Live site checked in a browser (31 Oct 2026, after the owner allowed `*.netlify.app`): headless Chromium on desktop and iPhone 14 loads https://sol-atlas.netlify.app (HTTP 200) with no console errors, and DATA SOURCES shows the HRSC credit. Still worth a click-through on a real phone and GPU.
-- [ ] The challenge page is on `www.spaceappschallenge.org`; only `spaceappschallenge.org` is allowed so far, so the Details tab (objectives, considerations) hasn't been read from here.
+- [x] Challenge statement (Details tab) read from the owner's screenshots on 31 Oct 2026 and compared with the app in `docs/CHALLENGE_FIT.md`.
+- [ ] Decide which of the ideas in `docs/CHALLENGE_FIT.md` to build before 13 Nov.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
