@@ -13,7 +13,7 @@ export const TERRAIN_LAYERS = [
   { id: 'thermal', key: '4', name: 'Ground firmness', srcCrater: 'Mars Odyssey THEMIS · night IR', srcSite: 'Mars Odyssey THEMIS · night IR' },
   { id: 'contour', key: '5', name: 'Contours', srcCrater: 'from DEM', srcSite: 'from DTM' },
   { id: 'holo', key: '6', name: 'Holo mode', srcCrater: 'display style', srcSite: 'display style' },
-  { id: 'traverse', key: '7', name: 'Perseverance traverse', srcCrater: 'NASA/JPL MMGIS · sols 0–1524', srcSite: 'NASA/JPL MMGIS · sols 0–1524' },
+  { id: 'traverse', key: '7', name: 'Perseverance traverse', srcCrater: 'NASA/JPL MMGIS · end-of-drive fixes', srcSite: 'NASA/JPL MMGIS · end-of-drive fixes' },
   { id: 'minerals', key: '', name: 'Minerals', srcCrater: 'MRO CRISM · phase 2', srcSite: 'MRO CRISM · phase 2', locked: true },
   { id: 'weather', key: '', name: 'Live weather', srcCrater: 'Perseverance MEDA · phase 2', srcSite: 'Perseverance MEDA · phase 2', locked: true },
 ];
@@ -375,7 +375,7 @@ export class TerrainView {
     this.travItems = marks.map((p, i) => {
       const first = i === 0, end = p === last;
       const txt = first ? `PERSEVERANCE LANDED · SOL 0<small>18 Feb 2021</small>`
-        : end && p.sol === endAll ? `SOL ${p.sol} · LAST FIX<small>Jun 2025 · ${tr.totalKm} km driven</small>`
+        : end && p.sol === endAll ? `SOL ${p.sol} · LAST FIX<small>${tr.lastDate || ''} · ${tr.totalKm} km driven</small>`
         : end ? `SOL ${p.sol}<small>drove out of this zone</small>` : `SOL ${p.sol}`;
       const it = this.app.labels.add(this.id, {
         className: `trav${first || end ? ' big' : ''}`, html: `<div class="dot"></div><div class="lb">${txt}</div>`,

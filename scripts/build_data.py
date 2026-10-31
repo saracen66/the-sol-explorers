@@ -28,9 +28,10 @@ Nothing here is hand-painted: every pixel comes from a NASA mission dataset.
 Usage:
     pip install rasterio numpy pillow scipy
     python3 scripts/build_data.py            # everything
-    python3 scripts/build_data.py crater     # one stage (global|region|crater|site|lite)
+    python3 scripts/build_data.py crater     # one stage (global|region|crater|site|lite|traverse)
 """
 
+import datetime
 import json
 import math
 import os
@@ -553,11 +554,41 @@ def stage_lite(m):
     m["lite"] = dict(dir="lite", note="half-resolution textures for phones and weak GPUs")
 
 
-STAGES = dict(global_=stage_global, region=stage_region, crater=stage_crater, site=stage_site, lite=stage_lite)
+WAYPOINTS = "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json"
+LANDING = datetime.date(2021, 2, 18)  # sol 0
+SOL_DAYS = 88775.244 / 86400
+
+
+def stage_traverse(m):
+    """Perseverance end-of-drive positions from NASA/JPL's MMGIS feed ("Where is Perseverance?"),
+    one fix per sol (the last of that sol)."""
+    log("TRAVERSE", WAYPOINTS)
+    feats = json.load(urllib.request.urlopen(WAYPOINTS, timeout=120))["features"]
+    fixes = {}
+    for f in feats:
+        p = f["properties"]
+        if p["final"] == "y":
+            fixes[p["sol"]] = p
+    sols = sorted(fixes)
+    last = fixes[sols[-1]]
+    pts = [[0, 77.4508, 18.4447]] + [[s, round(fixes[s]["lon"], 6), round(fixes[s]["lat"], 6)] for s in sols if s > 0]
+    out = dict(
+        source="NASA/JPL-Caltech MMGIS M20 waypoints (mars.nasa.gov, M20_waypoints.json)",
+        note="end-of-drive localizations [sol, lon, lat], last fix of each sol",
+        lastSol=last["sol"], lastDate=(LANDING + datetime.timedelta(days=last["sol"] * SOL_DAYS)).strftime("%b %Y"),
+        totalKm=round(last["dist_total_m"] / 1000, 2), points=pts,
+    )
+    with open(os.path.join(OUT, "m20_traverse.json"), "w") as f:
+        json.dump(out, f, separators=(",", ":"))
+    log("wrote m20_traverse.json", len(pts), "points, sol", out["lastSol"], out["totalKm"], "km")
+
+
+STAGES = dict(global_=stage_global, region=stage_region, crater=stage_crater, site=stage_site, lite=stage_lite,
+              traverse=stage_traverse)
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    want = sys.argv[1:] or ["global", "region", "crater", "site", "lite"]
+    want = sys.argv[1:] or ["global", "region", "crater", "site", "lite", "traverse"]
     man = read_manifest()
     man.update(localCrs=dict(latTs=LAT_TS, R=R_MARS, kx=KX, ky=KY))
     for s in want:

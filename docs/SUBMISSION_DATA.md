@@ -25,8 +25,8 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
   https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_007_orthoMosaic_25cm_Ortho_blend120.tif
 - Mars Reconnaissance Orbiter, HiRISE stereo: Mars 2020 Terrain-Relative-Navigation elevation model, 1 m. Marswalk zone 3D terrain, slope, route finding, elevation profile.
   https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif
-- Mars 2020 Perseverance: rover end-of-drive positions from NASA/JPL's "Where is Perseverance?" map (MMGIS waypoint feed), sol 0 to 1524. Perseverance traverse layer.
-  https://mars.nasa.gov/maps/location/?mission=M20
+- Mars 2020 Perseverance: rover end-of-drive positions from NASA/JPL's "Where is Perseverance?" map (MMGIS waypoint feed), sol 0 to 2022 (October 2026). Perseverance traverse layer.
+  https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json
 - Mars 2020 Perseverance: landing site (Octavia E. Butler Landing, 18 Feb 2021) and Three Forks sample depot positions (NASA/JPL-Caltech).
 - NASA GISS Mars24 sunclock algorithm (Allison & McEwen 2000): Mars time, sols, local solar time, Sun position.
   https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
@@ -41,8 +41,6 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 - ESA Mars Express, HRSC (High Resolution Stereo Camera; ESA/DLR/FU Berlin): elevation models of the Jezero and Isidis region, used through the USGS "Mars HRSC MOLA Blended DEM Global 200m v2" (Fergason, Hare & Laura 2018), which merges HRSC stereo DTMs with NASA's MOLA. Relief and elevation colours on the globe when zoomed in on Jezero (200 m instead of MOLA's 463 m).
   https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif
 - U.S. Geological Survey (USGS) Astrogeology Science Center: processed, controlled and archived the NASA maps above (CTX and HiRISE mosaics and elevation models, the THEMIS controlled mosaic), served from its public "asc-pds-services" archive on AWS.
-- stiles/mars-perseverance-waypoints (GitHub): a daily archive of NASA/JPL's Perseverance waypoint feed, used because the NASA site could not be reached from our build machine. The positions are NASA's, unchanged.
-  https://github.com/stiles/mars-perseverance-waypoints
 - Scientific references: Pandolf, Givoni & Goldman (1977), load-carriage metabolic equation, used for the EVA oxygen model; Tobler's hiking function (walking speed vs slope); Mangold et al. (2021), Science, Jezero delta geology.
 - Software: three.js (MIT licence), Vite (MIT). Python: rasterio, NumPy, Pillow, SciPy. Fonts: Rajdhani, Orbitron, JetBrains Mono (SIL Open Font Licence, via Fontsource).
 - AI tools: Claude Code (Anthropic) wrote the code and documentation under the team's direction. See AI_DISCLOSURE.md.
@@ -63,10 +61,9 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 | Crater terrain, slope, contours | MRO CTX 20 m DEM (JPL) | 1024 × 1164 height grid; slope from the full 20 m DEM |
 | Marswalk zone imagery | MRO HiRISE 25 cm TRN orthomosaic | 5 × 5 km cut, 4096² px (~1.2 m/px), seams flattened, tinted |
 | Marswalk zone terrain, slope, routes, profile | MRO HiRISE 1 m TRN DTM | 1024² height grid; slope at 2.4 m; A* route grid 512² |
-| Perseverance traverse | Mars 2020 end-of-drive waypoints (NASA/JPL MMGIS) | 400 points, sol 0–1524, stored in `public/data/m20_traverse.json` |
+| Perseverance traverse | Mars 2020 end-of-drive waypoints (NASA/JPL MMGIS) | 555 points (last fix of each sol), sol 0–2022, stored in `public/data/m20_traverse.json` by the `traverse` stage |
 
 ## Newer data we know about (not used yet)
 
-- **Perseverance positions after sol 1524:** NASA's live feed has them. Our archive copy stopped in June 2025. Refresh from `https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints_current.json` when the build machine can reach mars.nasa.gov.
 - **Minerals:** the MRO CRISM archive (NASA PDS) would fill the locked "Minerals" layer.
 - **Weather:** Perseverance MEDA data is published on NASA's PDS Atmospheres Node, months after collection. There is no live public feed, so the app shows typical values labelled "not live".

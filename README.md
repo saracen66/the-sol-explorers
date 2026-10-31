@@ -53,7 +53,7 @@ The whole crater (89 × 101 km) as a 3D block, built from the orbital imagery an
 |---|---|
 | ![Jezero crater in 3D](docs/screenshots/02-crater.jpg) | ![Elevation layer with contours](docs/screenshots/03-crater-elevation.jpg) |
 
-The gold line is **Perseverance's real drive path**: 400 end-of-drive positions from NASA/JPL's mission waypoint feed, sol 0 to 1524 (34.96 km). It runs from the landing site, around Séítah, across the delta and up the crater rim. Layer `7` toggles it.
+The gold line is **Perseverance's real drive path**: 555 end-of-drive positions from NASA/JPL's mission waypoint feed, sol 0 to 2022 (October 2026, 45.25 km). It runs from the landing site, around Séítah, across the delta and up the crater rim. Layer `7` toggles it.
 
 ![Perseverance's real traverse across Jezero, with sol markers](docs/screenshots/13-perseverance-traverse.jpg)
 
@@ -104,7 +104,7 @@ Press **`F`**, **◉ HELMET VIEW**, or **STAND HERE** on a pin to stand on the t
 | **Mayday light-time** at the moment O₂ runs out | Shows why Mars crews must plan for themselves: Earth hears the call ~14 min later |
 | **Drop a pin, route anywhere** | Plan to any point in the zone, not only named places |
 | **Helmet view** with the real skyline | The only first-person view we know of that's built on the actual DTM and horizon |
-| **Perseverance's real traverse** | More real mission data: 400 drive fixes over 1,524 sols |
+| **Perseverance's real traverse** | More real mission data: 555 drive fixes over 2,022 sols |
 | **Synthesised sound** (♪ / `M`) | Wind, lock-on, alarms, suit breathing. All generated in the browser, no audio files |
 | **● REC** (`R`) | Records the tab (HUD and sound included) to a video file for the pitch |
 
@@ -127,7 +127,7 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Crater + zone | Ground firmness | Mars Odyssey · THEMIS | Night-IR mosaic as a thermal-inertia proxy, 100 m/px |
 | Marswalk zone | Visible | MRO · HiRISE | Mars 2020 Terrain-Relative-Navigation orthomosaic, 25 cm/px (USGS) |
 | Marswalk zone | Elevation, slope, route | MRO · HiRISE stereo | Mars 2020 TRN DTM, 1 m/px (USGS) |
-| Crater + zone | Perseverance traverse | Mars 2020 · rover localisation | NASA/JPL MMGIS "Where is Perseverance?" end-of-drive waypoints, sol 0–1524, archived by [stiles/mars-perseverance-waypoints](https://github.com/stiles/mars-perseverance-waypoints) |
+| Crater + zone | Perseverance traverse | Mars 2020 · rover localisation | NASA/JPL MMGIS "Where is Perseverance?" end-of-drive waypoints, sol 0–2022, from the [MMGIS feed](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json) |
 | Helmet view | Skyline | MRO · CTX stereo | Computed from the 20 m crater DEM: highest angle per bearing, Mars curvature included |
 | Phase 2 | Minerals | MRO · CRISM | not yet: shown as locked |
 | Phase 2 | Live weather | Perseverance · MEDA | not yet: the conditions panel shows typical values, labelled "not live" |
@@ -317,7 +317,7 @@ src/
   data/places.js        landing sites, points of interest, default Marswalk plan
 scripts/build_data.py   NASA/USGS → web data pipeline
 public/data/            processed textures + heightmaps + manifest.json (lite/ = phone versions),
-                        m20_traverse.json (Perseverance end-of-drive waypoints, sol 0–1524)
+                        m20_traverse.json (Perseverance end-of-drive waypoints, sol 0–2022)
 docs/screenshots/       images used in this README
 PROJECT_LOG.md          full record of how the project was built
 AGENTS.md / CLAUDE.md   handoff: architecture, conventions, testing, deploy, open items
@@ -334,7 +334,7 @@ scripts/smoke.cjs       Playwright smoke test (desktop or DEVICE="iPhone 14")
 - Some place positions are approximate (see [Places](#places-on-the-map)).
 - The EVA model is a planning estimate, not flight-certified. Its assumptions are listed in the planner.
 - The helmet view's close-up pebbles and grain are procedural. HiRISE resolves 25 cm, so anything smaller is decoration, and the terrain mesh is sampled every ~5 m.
-- The traverse data ends at sol 1524 (June 2025), when the public archive stopped updating.
+- The traverse is a snapshot of NASA's feed (sol 2022, October 2026). `python3 scripts/build_data.py traverse` refreshes it.
 
 **Next**
 - More sites, including ice-rich plains from NASA's SWIM ice-mapping project.
@@ -371,7 +371,7 @@ The code, data-processing scripts and documentation of Sol Atlas were written wi
 - ESA / DLR / FU Berlin (Mars Express HRSC), in the USGS HRSC and MOLA blended DEM (Fergason, Hare & Laura 2018)
 - USGS Astrogeology Science Center (mosaics and DTMs)
 - Mars 2020 science maps: Mangold et al. (2021), *Science*
-- Perseverance waypoints: NASA/JPL-Caltech MMGIS, archived daily in [stiles/mars-perseverance-waypoints](https://github.com/stiles/mars-perseverance-waypoints)
+- Perseverance waypoints: NASA/JPL-Caltech MMGIS ("Where is Perseverance?")
 
 **Ideas:** synthesised sound design and in-app recording were inspired by a teammate's early prototype.
 
