@@ -1,10 +1,11 @@
 import { marsTime, localTime, perseveranceSol, earthMarsLightTime, formatHM, season, dayLength, JEZERO } from '../lib/marstime.js';
 import { fmtDist, fmtDur, fmtNum, fmtLat, fmtLon } from '../lib/geo.js';
-import { LANDING_SITES, MISSION_GOALS } from '../data/places.js';
+import { LANDING_SITES, MISSION_GOALS, SITE_POIS } from '../data/places.js';
 import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
 import { evaDoseMSv, RAD_MSV_PER_DAY } from '../terrain/eva.js';
+import { url as dataUrl } from '../core/assets.js';
 import { Recorder } from './recorder.js';
 import { FEATURES } from '../config.js';
 
@@ -47,6 +48,8 @@ export class Hud {
       };
     }
     $('modal-x').onclick = () => ($('modal').hidden = true);
+    // a photo in a stop's hover card opens the gallery instead of adding the stop
+    document.addEventListener('click', (e) => { const im = e.target.closest('[data-photo-poi]'); if (im) { e.stopPropagation(); this.openPhoto(im.dataset.photoPoi); } }, true);
     $('modal').onclick = (e) => { if (e.target.id === 'modal') $('modal').hidden = true; };
     this.tickTelemetry();
     setInterval(() => this.tickTelemetry(), 1000);
@@ -484,7 +487,7 @@ export class Hud {
         <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit${pl.params.kitKg ? ` + ${pl.params.kitKg} kg science kit` : ''}. 1 L O₂ ≈ 20.1 kJ.${pl.params.rover ? ` Rover: ${(pl.params.roverMs * 3.6).toFixed(0)} km/h, ${pl.params.rideW} W seated; walkback at walking pace with a 25 % detour allowance.` : ''} Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
       </div>`;
     this.left.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => pl.remove(+b.dataset.rm); });
-    this.left.querySelectorAll('[data-photo]').forEach((b) => { b.onclick = () => this.showPhoto(pl.waypoints[+b.dataset.photo].poi); });
+    this.left.querySelectorAll('[data-photo]').forEach((b) => { b.onclick = () => this.openPhoto(pl.waypoints[+b.dataset.photo].poi.id); });
     $('b-add').onclick = () => { pl.addMode = !pl.addMode; this.renderPlanner(pl); if (pl.addMode) this.closeSheet(); };
     $('b-sim').onclick = () => { this.closeSheet(); pl.sim ? pl.stopSim() : pl.startSim(); };
     $('b-plan').onclick = () => this.app.resetPlan();
@@ -559,13 +562,27 @@ export class Hud {
   }
 
   // ------------------------------------------------------------------ sources
-  showPhoto(p) {
-    const ph = p.photo;
-    $('modal-body').innerHTML = `
-      <h2>${p.name.toUpperCase()} · WHAT YOU'LL SEE</h2>
-      <img class="photo" src="${import.meta.env.BASE_URL}data/${ph.file}" alt="Perseverance ${ph.camera} view at ${p.name}">
-      <p>Perseverance ${ph.camera}, sol ${ph.sol} (${ph.date})${ph.note ? `, ${ph.note}` : ''}. Taken where this stop is, so it shows what the crew will see when they get there. Raw, unprocessed image: the colours are as the camera recorded them. Credit: ${ph.credit}.</p>`;
-    $('modal').hidden = false;
+  // ------------------------------------------------------------------ photo gallery
+  /** Full-screen viewer for the stop photos; ‹ › (or arrow keys) step through all of them. */
+  openPhoto(poiId) {
+    const list = SITE_POIS.filter((p) => p.photo);
+    let i = Math.max(0, list.findIndex((p) => p.id === poiId));
+    const box = $('lbx');
+    const show = () => {
+      const p = list[i], ph = p.photo;
+      $('lbx-img').src = dataUrl(ph.file);
+      $('lbx-img').alt = `Perseverance ${ph.camera} view at ${p.name}`;
+      $('lbx-cap').innerHTML = `<b>${p.name}</b> · Perseverance ${ph.camera}, sol ${ph.sol} (${ph.date})${ph.note ? `, ${ph.note}` : ''}. Taken at this stop: what the crew will see when they get there. Raw image, ${ph.credit}. <span class="n">${i + 1} / ${list.length}</span>`;
+    };
+    this.photoStep = (d) => { i = (i + d + list.length) % list.length; show(); };
+    this.closePhoto = () => { box.hidden = true; };
+    $('lbx-prev').onclick = () => this.photoStep(-1);
+    $('lbx-next').onclick = () => this.photoStep(1);
+    $('lbx-x').onclick = this.closePhoto;
+    box.onclick = (e) => { if (e.target === box) this.closePhoto(); };
+    show();
+    box.hidden = false;
+    $('lbx-x').focus();
   }
 
   showSources() {

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 const BASE = import.meta.env.BASE_URL;
-const url = (f) => `${BASE}data/${f}`;
+export const url = (f) => `${BASE}data/${f}?v=${__DATA_V__}`;
 
 // [key, file, colourSpace, label for the loading log]
 // The globe colour file comes from the quality tier (2k / 4k / 8k).

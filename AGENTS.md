@@ -73,7 +73,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/core/quality.js` | Picks the high / medium / low tier, plus `Governor` (adaptive pixel ratio) |
 | `src/core/assets.js` | Loads textures (ImageBitmap, flipped on decode), RG-packed height PNGs and `m20_traverse.json` |
 | `src/core/Crossfade.js` | Dissolve between scenes; the speed-streak canvas |
-| `src/core/Director.js` | Autopilot script. `stop()` restores everything it changed (`snapshot`/`restore`). Every app transition is awaited through `step()` so a stop takes effect at once |
+| `src/core/Director.js` | Autopilot script (no helmet ride-along since 31 Oct; the owner found it odd in the demo). `stop()` restores everything it changed (`snapshot`/`restore`). Every app transition is awaited through `step()` so a stop takes effect at once |
 | `src/terrain/TerrainView.js` | Heightfield mesh (vertex shader displaces with `uExag`), layers, baked shadows, POI labels, route lines (`Line2`), the Perseverance traverse, `pick()` ray-march, `markerLift`/`routeLift` (these differ in the helmet view) |
 | `src/terrain/shaders.js` | Terrain, wall, floor, shadow-bake, sky and horizon-ring shaders. The helmet haze and ground grain sit behind `uFpv` |
 | `src/terrain/Planner.js` | Stops, A* routes (`pathfinding.js`), EVA budget (`eva.js`), point of no return (= the walkback limit when `params.rover`), storm-shelter time, **O₂-out point** (`buildEvents`/`findO2`), EVA simulation (`startSim`/`update`/`die`). `goal` holds the mission goal |
@@ -106,6 +106,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
   - `fpv`: helmet view.
   - `sheet-open`: the phone bottom sheet is open.
   - `hide-left` / `hide-right`: desktop panels tucked away.
+- **Data URLs carry `?v=<hash of public/data>`** (`url()` in `src/core/assets.js`, hash from `vite.config.js`). `/data/*` is cached for a day, and the file names never change, so without it a returning browser mixed yesterday's map with today's code (the owner saw Three Forks off the edge of the old zone). Use `url()` for anything under `data/`.
 - **Textures decoded with ImageBitmap are already flipped** (`userData.flippedBitmap`); `loadSlopeData` accounts for it.
 - **Heights** are 16-bit values packed in PNG red and green (`R*256+G`), mapped to `[meta.min, meta.max]` metres.
 - **Helmet view units:** eye height is `0.0018` km; the camera near plane is `0.0004` km. The route line is lifted 0.6 m there, versus `sizeX*0.0012` on the map.

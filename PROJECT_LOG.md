@@ -427,6 +427,16 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 
 **Rover + walkback** (`85d1ce7`). A new ON FOOT / ROVER + WALKBACK switch in the planner. By rover, legs are driven at 5 km/h with the crew seated (150 W), and the point-of-no-return test runs along the whole drive, home leg included: the Apollo 15–17 walkback rule. The marker, the verdict, the profile label, the wrist display (DRIVING, PAST WALKBACK) and the storm-shelter line all switch wording. The autopilot always narrates on foot and puts the rover setting back when stopped. Default loop with a 0.30 kg suit: NO-GO on foot, READY by rover; with 0.20 kg the walkback limit sits at 3.90 km. Checked on desktop and iPhone 14 (no sideways scroll, no errors), in the helmet view riding along, and with the smoke test.
 
+### 2026-10-31: stale map in the browser, no helmet in the autopilot, photo gallery
+
+**Reported by the owner:** marker 3 (Three Forks) sat off the edge of the map; the autopilot's first-person walk looked odd; stop photos should open bigger, like a gallery, with a close button.
+
+| Change | Why / how | Checked |
+|---|---|---|
+| Data URLs carry `?v=<hash of public/data>` | The owner's screenshot showed the **old** 5 km map with the **new** stop positions. `/data/*` is served with a one-day cache and the file names never change, so the browser kept yesterday's map and bounds while the (hash-named) code was new. The new map does contain Three Forks. Now every data file is requested as `name?v=<hash>`; the hash is computed from `public/data` in `vite.config.js`, so it only changes when the data does | All data requests carry `?v=`; no 404s |
+| Autopilot without the helmet ride-along | Owner's request. The helmet view is still available by hand | Full autopilot run, 103 s, no errors |
+| Photo gallery | Clicking a stop photo (hover card) or PHOTO in the plan opens it full screen, with ✕, ‹ › and arrow keys / Esc. Clicking the photo in a hover card no longer adds the stop | Desktop and iPhone 14: opens, steps, closes; stop count unchanged; no sideways scroll; smoke test passes |
+
 ---
 
 ## Decisions and assumptions

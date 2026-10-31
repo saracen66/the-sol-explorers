@@ -383,7 +383,7 @@ class App {
     document.addEventListener('gesturestart', (e) => e.preventDefault());
     document.addEventListener('gesturechange', (e) => e.preventDefault());
     window.addEventListener('wheel', (e) => {
-      if (e.target.closest('.panel, .modal')) return;
+      if (e.target.closest('.panel, .modal, .lbx')) return;
       e.preventDefault();
       this.director.interrupt();
       if (!this.busy && !this.fade) this.active?.onWheel(e);
@@ -393,6 +393,13 @@ class App {
       // the data-sources window is open: Esc closes it, nothing else reaches the map
       const modal = document.getElementById('modal');
       if (!modal.hidden) { if (e.key === 'Escape') modal.hidden = true; return; }
+      // the photo viewer is open: Esc closes it, arrows step through the photos
+      if (!document.getElementById('lbx').hidden) {
+        if (e.key === 'Escape') this.hud.closePhoto();
+        else if (e.key === 'ArrowLeft') this.hud.photoStep(-1);
+        else if (e.key === 'ArrowRight') this.hud.photoStep(1);
+        return;
+      }
       this.keys.add(e.key.toLowerCase());
       this.onKey(e);
     });

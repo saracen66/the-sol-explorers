@@ -62,7 +62,7 @@ The gold line is **Perseverance's real drive path**: 555 end-of-drive positions 
 A 6 × 6 km zone around Perseverance's landing site, Séítah, the delta front and the Three Forks sample depot, built from a 25 cm per pixel HiRISE mosaic and a 1 m elevation model. This is where you plan the walk:
 
 - **Start from a science goal.** Pick a mission goal and the plan follows from it: *Bring the samples home* (the Three Forks tubes), *Date the crater floor* (Séítah's olivine bedrock), *Look for signs of ancient life* (the delta front's lake sediments), or the *Grand tour*. Each goal says why this spot answers it, with its source.
-- **See it before you go.** Each science stop carries a real Perseverance photo taken at that spot (Navcam or Mastcam-Z raw images), so the crew knows what the place looks like before they arrive. Hover a stop, or press PHOTO in the plan.
+- **See it before you go.** Each science stop carries a real Perseverance photo taken at that spot (Navcam or Mastcam-Z raw images), so the crew knows what the place looks like before they arrive. Hover a stop and click its photo, or press PHOTO in the plan: it opens full screen, and ‹ › or the arrow keys step through all the stop photos.
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
 - **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, daylight left, the EVA's radiation dose and the storm-shelter time (how long the walk back takes from the farthest point if a solar storm is forecast), ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
@@ -234,7 +234,7 @@ Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about two min
 4. Marswalk zone: the safest route.
 5. Perseverance's real drive path across the crater.
 6. "What if the suit carried only 0.20 kg of O₂?" The point of no return appears and the call is NO-GO. "And if they walk anyway?" EV1 stops in red where the O₂ runs out, and the mayday light-time appears.
-7. EVA flyover with the wrist display, then a few seconds riding along in the helmet view.
+7. EVA flyover with the wrist display.
 8. Pick Three Forks: the route draws and **MARSWALK READY** shows.
 9. Holo-mode end card.
 
