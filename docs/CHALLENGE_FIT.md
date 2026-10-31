@@ -4,7 +4,7 @@ Challenge: **Interplanetary Survival Guide: Martian Map** (Intermediate · Human
 
 **The ask, in NASA's words:** "create a layered, integrated view of a location or route on the Martian surface that pulls together data from multiple NASA science missions and could help a human explorer plan and carry out a successful Marswalk while conducting new and exciting science along the way." The background adds that tools like JPL's Mars Trek "are built for regional and global views rather than the hyperlocalized areas astronauts will target on individual spacewalks."
 
-That last line is our pitch: Sol Atlas goes from the whole planet down to a 5 × 5 km walk zone at 25 cm per pixel, which is exactly the "hyperlocalized" view NASA says is missing.
+That last line is our pitch: Sol Atlas goes from the whole planet down to a 6 × 6 km walk zone built from 25 cm per pixel HiRISE images, which is exactly the "hyperlocalized" view NASA says is missing.
 
 ## Objectives
 

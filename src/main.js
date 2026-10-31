@@ -110,7 +110,7 @@ class App {
       id: 'site', meta: manifest.site, heights: heights.site,
       tex: { visible: tex.s_visible, normal: tex.s_normal, slope: tex.s_slope, thermal: tex.s_thermal },
       pois: SITE_POIS, exag: 1.6, contour: [5, 25], gridKm: 0.5, dist: [0.12, 13], strata: 14,
-      overview: { dist: 7.4, el: 0.86, az: 0.2 },
+      overview: { dist: 8.9, el: 0.86, az: 0.2 },
       lat0: 18.445, lon0: 77.462, slopeLim: [10, 20, 30], ltst: 9.25,
       meshStep: tier.meshStep, shadowSteps: tier.shadowSteps,
     });

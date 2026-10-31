@@ -34,10 +34,10 @@ export const CRATER_POIS = [
     source: 'NASA/JPL-Caltech',
   },
   {
-    id: 'depot', name: 'Three Forks Sample Depot', kind: 'science', lat: 18.4391, lon: 77.4494, approx: true,
+    id: 'depot', name: 'Three Forks Sample Depot', kind: 'science', lat: 18.45283, lon: 77.40821,
     reason: 'Collect sealed sample tubes for the trip home',
-    text: '10 sealed sample tubes laid on the crater floor, 21 Dec 2022 – 28 Jan 2023, spaced 5–15 m apart in a zig-zag. The backup cache for Mars Sample Return.',
-    source: 'NASA/JPL-Caltech (depot); position from witness-tube coordinates',
+    text: '10 sealed sample tubes laid at the foot of the delta, sols 653–690 (Dec 2022 – Jan 2023), spaced 5–15 m apart in a zig-zag. The backup cache for Mars Sample Return.',
+    source: 'NASA PDS Geosciences Node, Mars 2020 Three Forks Depot bundle (rover position at each tube drop)',
   },
   {
     id: 'delta', name: 'Western Fan (delta)', kind: 'geology', lat: 18.505, lon: 77.37, approx: true,
@@ -66,27 +66,27 @@ export const CRATER_POIS = [
   },
 ];
 
-// Site (Marswalk zone, 5 × 5 km)
+// Site (Marswalk zone, 6 × 6 km)
 export const SITE_POIS = [
   {
     id: 'lz', name: 'LZ-A · Crew Landing Zone', kind: 'lz', lat: 18.4500, lon: 77.4850, proposed: true,
     reason: 'Airlock: EVA starts and ends here',
-    text: 'Our proposed crew landing zone. It sits on flat Máaz lava floor, with a median slope under 3° in the HiRISE DTM, and keeps >2 km of stand-off so engine plume ejecta cannot hit the sample depot.',
+    text: 'Our proposed crew landing zone. It sits on flat Máaz lava floor, with a median slope under 3° in the HiRISE DTM, and keeps over 4 km of stand-off so engine plume ejecta cannot reach the sample depot.',
     source: 'Sol Atlas design (HiRISE DTM analysis)',
   },
   CRATER_POIS[0],
   CRATER_POIS[1],
   {
-    id: 'seitah', name: 'Séítah', kind: 'geology', lat: 18.428, lon: 77.432, approx: true,
+    id: 'seitah', name: 'Séítah', kind: 'geology', lat: 18.43394, lon: 77.44302,
     reason: 'Sample olivine-rich igneous bedrock',
-    text: 'Ridges of olivine-rich igneous rock broken up by sand ripples. Perseverance cored some of its first samples here. Tough walking, high science value.',
-    source: 'Mars 2020 science team; HiRISE',
+    text: 'Ridges of olivine-rich igneous rock broken up by sand ripples. Perseverance parked here on Séítah\u2019s edge for sols 248–278 and cored Coulettes on sol 271, now one of the ten tubes at Three Forks. Tough walking, high science value.',
+    source: 'NASA/JPL-Caltech MMGIS waypoints (rover position); PDS Three Forks Depot bundle (sample IDs)',
   },
   {
-    id: 'front', name: 'Delta front scarp', kind: 'geology', lat: 18.481, lon: 77.437, approx: true,
+    id: 'front', name: 'Delta front', kind: 'geology', lat: 18.45887, lon: 77.40613,
     reason: 'Log layered lake sediments for biosignatures',
-    text: 'The steep edge of the delta, with layered sandstone and mudstone exposed. The slope layer shows why an astronaut should go around this cliff, not over it.',
-    source: 'HiRISE ortho + 1 m DTM',
+    text: 'The front of the delta: layered sandstone and mudstone laid down in the old lake. Perseverance parked here for sols 477–502 and cored Skyland on sol 495, now one of the ten tubes at Three Forks. The slope layer shows the steep edge to go around.',
+    source: 'NASA/JPL-Caltech MMGIS waypoints (rover position); PDS Three Forks Depot bundle (sample IDs)',
   },
 ];
 

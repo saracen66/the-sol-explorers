@@ -59,7 +59,7 @@ The gold line is **Perseverance's real drive path**: 555 end-of-drive positions 
 
 ### 3. Marswalk zone
 
-A 5 × 5 km zone around Perseverance's landing site and the Three Forks sample depot, at 25 cm per pixel on a 1 m elevation model. This is where you plan the walk:
+A 6 × 6 km zone around Perseverance's landing site, Séítah, the delta front and the Three Forks sample depot, built from a 25 cm per pixel HiRISE mosaic and a 1 m elevation model. This is where you plan the walk:
 
 - **Start from a science goal.** Pick a mission goal and the plan follows from it: *Bring the samples home* (the Three Forks tubes), *Date the crater floor* (Séítah's olivine bedrock), *Look for signs of ancient life* (the delta front's lake sediments), or the *Grand tour*. Each goal says why this spot answers it, with its source.
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
@@ -146,24 +146,24 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Sun and shadows | Solar declination and hour angle for Jezero; shadows ray-marched through the elevation model on the GPU | Sunrise and sunset shown in the HUD |
 | Safest route | A* search on a 512 × 512 grid from the HiRISE DTM. Step cost is **metabolic energy**, so the route minimises oxygen; cells steeper than the walking limit are avoided | Default loop solves in under 40 ms |
 | Walking cost | **Pandolf et al. (1977)** load-carriage equation, scaled to Mars gravity (0.38 g) with a pressure-suit penalty; Tobler-style speed vs. grade; 1 L O₂ ≈ 20.1 kJ | Flat walking at 0.9 m/s ≈ 293 W ≈ 0.075 kg O₂ per hour, the same rate our 0.60 kg / 8 h suit assumption is sized on |
-| Point of no return | First point on the way out where O₂ used so far + O₂ to walk straight back (plus a 25 % detour allowance) would eat into the reserve | 0.30 kg suit → PNR at Séítah; 0.25 kg → mid-route at 2.98 km |
-| O₂ runs out | The EVA's walk/stop timeline carries cumulative O₂; the first moment it reaches the tank size gives the time and place | 0.20 kg suit on the default loop: O₂ out at 5.83 km, 2 h 50 min in, 1.21 km from the airlock |
-| Radiation dose | EVA time × the surface dose rate Curiosity's RAD measured, 0.64 mSv per day (Hassler et al. 2014). A suit adds little shielding against cosmic rays | Default loop: ≈ 0.09 mSv, against NASA's 600 mSv career limit |
-| Storm shelter | Longest straight walk back to the airlock from any point on the route, at flat walking speed with the PNR's 25 % detour allowance: how long the crew is exposed if a solar-storm warning comes in | Default loop: ≤ 1 h 15 min, worst at 3.63 km (Séítah) |
+| Point of no return | First point on the way out where O₂ used so far + O₂ to walk straight back (plus a 25 % detour allowance) would eat into the reserve | Default loop: 0.30 kg suit → PNR at 3.92 km, 0.25 kg → 3.23 km (both on the leg to Three Forks) |
+| O₂ runs out | The EVA's walk/stop timeline carries cumulative O₂; the first moment it reaches the tank size gives the time and place | 0.20 kg suit on the default loop: O₂ out at 6.38 km, 2 h 41 min in, 2.86 km from the airlock |
+| Radiation dose | EVA time × the surface dose rate Curiosity's RAD measured, 0.64 mSv per day (Hassler et al. 2014). A suit adds little shielding against cosmic rays | Default loop: ≈ 0.11 mSv, against NASA's 600 mSv career limit |
+| Storm shelter | Longest straight walk back to the airlock from any point on the route, at flat walking speed with the PNR's 25 % detour allowance: how long the crew is exposed if a solar-storm warning comes in | Default loop: ≤ 1 h 40 min, worst at Three Forks (4.61 km) |
 | Mayday delay | One-way and round-trip light time from the same Earth–Mars model as the header clock | ~14 min one way on 25 Sep 2026 |
 | Helmet skyline | For each of 360 bearings, march the CTX DEM from 2.6 to 46 km and keep the highest elevation angle, after subtracting the curvature drop d²/2R | Highest skyline 4.5° toward bearing 263° (the western rim and delta) |
-| Elevations | Heights decoded from the DEMs | Three Forks: −2,570 m vs published −2,568 m |
+| Elevations | Heights decoded from the DEMs | Three Forks: −2,545 m in the HiRISE DTM vs −2,545.3 m rover elevation at the tube drops in NASA's PDS depot archive |
 
-Default EVA assumptions, all editable in the planner: 75 kg astronaut, 58 kg suit and backpack, no extra science kit (0–30 kg slider, added to the load in the walking model: 20 kg raises the default loop from 0.23 to 0.29 kg of O₂), 0.60 kg usable O₂ (about 8 h), 25 % reserve, 20° walking-slope limit, 20 min per science stop.
+Default EVA assumptions, all editable in the planner: 75 kg astronaut, 58 kg suit and backpack, no extra science kit (0–30 kg slider, added to the load in the walking model: 20 kg raises the default loop from 0.30 to 0.38 kg of O₂), 0.60 kg usable O₂ (about 8 h), 25 % reserve, 20° walking-slope limit, 20 min per science stop.
 
-The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séítah → LZ-A) comes out at **7.1 km, 3 h 13 min, 0.23 kg of O₂, 62 % margin: MARSWALK READY**.
+The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séítah → LZ-A) comes out at **9.75 km, 4 h 02 min, 0.30 kg of O₂, 50 % margin: MARSWALK READY**.
 
 | Mission goal | Stops (from and back to LZ-A) | Route | O₂ | Call |
 |---|---|---|---|---|
-| Grand tour | Landing site, Three Forks, Séítah | 7.11 km | 0.23 kg | READY |
-| Bring the samples home | Three Forks | 4.49 km | 0.13 kg | READY |
-| Date the crater floor | Séítah | 6.96 km | 0.20 kg | READY |
-| Look for signs of ancient life | Delta front scarp | 7.97 km | 0.24 kg | CAUTION (steep sections near the scarp) |
+| Grand tour | Landing site, Three Forks, Séítah | 9.75 km | 0.30 kg | READY |
+| Bring the samples home | Three Forks | 8.74 km | 0.24 kg | READY |
+| Date the crater floor | Séítah | 5.46 km | 0.16 kg | READY |
+| Look for signs of ancient life | Delta front | 9.30 km | 0.26 kg | CAUTION (steep sections up to 17° on the delta) |
 
 ---
 
@@ -172,9 +172,11 @@ The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séíta
 | Place | Position | Notes |
 |---|---|---|
 | Octavia E. Butler Landing | 18.4447°N 77.4508°E | Perseverance touchdown, 18 Feb 2021 |
-| Three Forks Sample Depot | ≈ 18.4391°N 77.4494°E | 10 sample tubes laid Dec 2022 – Jan 2023. Position from published witness-tube coordinates |
-| LZ-A, crew landing zone | 18.4500°N 77.4850°E | **Our proposal**, not a NASA site: flat lava floor, ≥ 2 km from the depot so engine blast can't reach it |
-| Séítah, delta front, Belva crater, Neretva Vallis, Pliva Vallis, crater rim | approx. | Placed by eye on the CTX and HiRISE mosaics |
+| Three Forks Sample Depot | 18.4528°N 77.4082°E | 10 sample tubes laid sols 653–690 (Dec 2022 – Jan 2023) at the foot of the delta. Mean of the rover positions at each tube drop, from NASA's PDS Three Forks Depot archive |
+| Séítah | 18.4339°N 77.4430°E | Where Perseverance parked on Séítah's edge, sols 248–278, and cored Coulettes (sol 271). NASA/JPL MMGIS waypoints |
+| Delta front | 18.4589°N 77.4061°E | Where Perseverance parked on the delta front, sols 477–502, and cored Skyland (sol 495). NASA/JPL MMGIS waypoints |
+| LZ-A, crew landing zone | 18.4500°N 77.4850°E | **Our proposal**, not a NASA site: flat lava floor, over 4 km from the depot so engine blast can't reach it |
+| Western Fan (delta), Belva crater, Neretva Vallis, Pliva Vallis, crater rim | approx. | Crater-view labels, placed by eye on the CTX mosaic |
 | Acidalia Planitia "Ares III" | 31.2°N 28.5°W | Fiction: Mark Watney's base in *The Martian* (Andy Weir) |
 
 ---

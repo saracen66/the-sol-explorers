@@ -27,7 +27,9 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
   https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif
 - Mars 2020 Perseverance: rover end-of-drive positions from NASA/JPL's "Where is Perseverance?" map (MMGIS waypoint feed), sol 0 to 2022 (October 2026). Perseverance traverse layer.
   https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json
-- Mars 2020 Perseverance: landing site (Octavia E. Butler Landing, 18 Feb 2021) and Three Forks sample depot positions (NASA/JPL-Caltech).
+- Mars 2020 Perseverance: landing site (Octavia E. Butler Landing, 18 Feb 2021), and the rover's positions at Séítah (sols 248–278) and the delta front (sols 477–502), from the waypoint feed above. Science stops in the Marswalk zone.
+- Mars 2020 Three Forks Depot bundle (NASA PDS Geosciences Node): rover latitude, longitude and elevation at each of the 10 sample-tube drops, and the sample IDs. Three Forks stop position, and the elevation check (−2,545 m).
+  https://pds-geosciences.wustl.edu/m2020/urn-nasa-pds-mars2020_sample_depot_three_forks/
 - NASA GISS Mars24 sunclock algorithm (Allison & McEwen 2000): Mars time, sols, local solar time, Sun position.
   https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
 - NASA JPL Solar System Dynamics, "Approximate Positions of the Planets" (Standish): Earth–Mars distance and signal delay.
@@ -59,8 +61,8 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 | Night thermal / ground firmness | Mars Odyssey THEMIS night IR 100 m | Clipped to ±54° (streaky edges), gentle contrast curve, orange ramp |
 | Crater imagery | MRO CTX 5 m orthomosaic (JPL) | 4096 × 4658 px (~22 m/px), tinted with the Viking colour of the same ground |
 | Crater terrain, slope, contours | MRO CTX 20 m DEM (JPL) | 1024 × 1164 height grid; slope from the full 20 m DEM |
-| Marswalk zone imagery | MRO HiRISE 25 cm TRN orthomosaic | 5 × 5 km cut, 4096² px (~1.2 m/px), seams flattened, tinted |
-| Marswalk zone terrain, slope, routes, profile | MRO HiRISE 1 m TRN DTM | 1024² height grid; slope at 2.4 m; A* route grid 512² |
+| Marswalk zone imagery | MRO HiRISE 25 cm TRN orthomosaic | 6 × 6 km cut, 4096² px (~1.5 m/px), seams flattened, tinted |
+| Marswalk zone terrain, slope, routes, profile | MRO HiRISE 1 m TRN DTM | 1024² height grid; slope at 2.9 m; A* route grid 512² |
 | Perseverance traverse | Mars 2020 end-of-drive waypoints (NASA/JPL MMGIS) | 555 points (last fix of each sol), sol 0–2022, stored in `public/data/m20_traverse.json` by the `traverse` stage |
 
 ## Newer data we know about (not used yet)

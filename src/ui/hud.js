@@ -389,7 +389,7 @@ export class Hud {
       </div>
       <div class="sec">
         <div class="sec-h">Marswalk zone <span class="tag">HiRISE 25 cm</span></div>
-        <div class="sub" style="margin-top:0">5 × 5 km around Perseverance's landing site and the Three Forks sample depot, with 1 m elevation data. Plan an EVA on foot here.</div>
+        <div class="sub" style="margin-top:0">6 × 6 km around Perseverance's landing site, Séítah, the delta front and the Three Forks sample depot, with 1 m elevation data. Plan an EVA on foot here.</div>
         <div class="btn-row"><button class="btn primary" id="btn-zone">▼ Enter Marswalk zone</button></div>
       </div>
       <div class="sec">
@@ -583,7 +583,7 @@ export class Hud {
         <tr><td>Mars time</td><td>Mars24 algorithm, Allison & McEwen (2000), NASA GISS. Sol count from Perseverance landing, 18 Feb 2021.</td></tr>
         <tr><td>Signal delay</td><td>JPL approximate planetary positions (Standish), Keplerian elements 1800–2050.</td></tr>
         <tr><td>EVA metabolic cost</td><td>Pandolf, Givoni & Goldman (1977) load-carriage equation, scaled to Mars gravity with a pressure-suit penalty.</td></tr>
-        <tr><td>Three Forks depot</td><td>NASA/JPL-Caltech. Position from published witness-tube coordinates (18.439°N, 77.449°E, −2,568 m).</td></tr>
+        <tr><td>Three Forks depot</td><td>NASA PDS Geosciences Node, Mars 2020 Three Forks Depot bundle: rover position at each of the 10 tube drops (18.453°N, 77.408°E, −2,545 m).</td></tr>
         <tr><td>Colour tint</td><td>CTX / HiRISE greyscale tinted with the Viking colour of the same ground (low-frequency chroma only).</td></tr>
       </table>
       <p class="muted" style="margin-top:16px">Positions marked "approx." were placed by eye on the mosaics. LZ-A is our proposed crew landing zone, not a NASA site. Acidalia / Ares III refers to the novel <i>The Martian</i> (Andy Weir) and is fiction. NASA imagery is not copyrighted; NASA logos are not used.</p>`;

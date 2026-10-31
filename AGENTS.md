@@ -11,7 +11,7 @@ Read this first. It explains what Sol Atlas is, how the code fits together, how 
 A browser app (three.js + Vite, no framework) where you:
 1. spin a real-data Mars;
 2. dive into Jezero Crater;
-3. plan a walk on foot (a "Marswalk") in a 5 × 5 km zone of HiRISE data.
+3. plan a walk on foot (a "Marswalk") in a 6 × 6 km zone of HiRISE data.
 
 The planner finds the least-oxygen route and checks the suit's O₂ budget: point of no return, and where the O₂ runs out. It simulates the EVA. You can also walk the terrain in first person (the "helmet view"). The skyline there is computed from the elevation model, not painted.
 
@@ -64,7 +64,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 |---|---|---|---|
 | `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
 | `crater` | `TerrainView` id `crater` | **km** (89 × 101 km tile) | CTX 5 m image, 20 m DEM |
-| `site` | `TerrainView` id `site` | **km** (5 × 5 km tile) | HiRISE 25 cm image, 1 m DTM |
+| `site` | `TerrainView` id `site` | **km** (6 × 6 km tile) | HiRISE 25 cm image, 1 m DTM |
 
 `src/main.js` holds the `App`: the renderer, quality tier, resize and compact layout, transitions (`descendToJezero`, `enterSite`, `exitUp`, `goTo`), input (mouse, touch, pinch, keys) and the frame loop. Per frame it updates the active view and the planner, then projects the DOM labels.
 

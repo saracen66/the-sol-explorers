@@ -156,6 +156,9 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `44bd8b0` | 2026-10-29 | Add ESA Mars Express HRSC relief around Jezero |
 | `eaf08f3` | 2026-10-29 | Remove a teammate's name from the credits for her prototype |
 | `7abccd4` | 2026-10-29 | List the team members in the README |
+| `c44a640` | 2026-10-31 | Perseverance traverse from NASA's live feed: sol 0 to 2022 |
+| `89a1e68` | 2026-10-31 | Planner: science-kit mass, EVA radiation dose and storm-shelter time |
+| `a50f665` | 2026-10-31 | Mission-goal picker: start the plan from a science goal |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -395,6 +398,28 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 
 **Not done:** spaceappschallenge.org through Playwright. The browser in the build container goes through the same network proxy, which refuses the site (HTTP 403), and no computer of the team's is connected to the session, so a browser on the owner's machine can't be driven from here.
 
+### 2026-10-31: three new features, and Three Forks moved to its real position
+
+With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner asked to start on the ideas in `docs/CHALLENGE_FIT.md`.
+
+| Commit | Change | Checked |
+|---|---|---|
+| `c44a640` | Perseverance traverse straight from NASA's MMGIS feed: 555 end-of-drive fixes, sol 0–2022 (Oct 2026), 45.25 km. New `traverse` stage in `build_data.py`; the third-party archive (stopped at sol 1524) is no longer used | Path runs to the western rim in the crater view; legend and DATA SOURCES read the numbers from the data |
+| `89a1e68` | Planner: science-kit slider (0–30 kg, Pandolf load), EVA radiation dose (Curiosity RAD, 0.64 mSv/day), storm-shelter time (longest walk back to the airlock) | Default numbers unchanged at the time; 20 kg kit costs 26 % more O₂ |
+| `a50f665` | Mission-goal picker: Grand tour, Bring the samples home, Date the crater floor, Look for signs of ancient life | All four goals solve; the autopilot narrates the tour and restores the user's goal |
+| this commit | **Three Forks fixed.** See below | See below |
+
+**The Three Forks error.** While matching rover photos to our stops, NASA's waypoint feed showed Perseverance at about 18.4527°N 77.4082°E while it laid the tubes (sols 653–693), not at our 18.4391°N 77.4494°E. NASA's PDS archive for the depot (`mars2020_sample_depot_three_forks`, file `sample_tube_locations.csv`) confirms it: the rover's position at each of the 10 drops is 18.4525–18.4534°N, 77.4078–77.4086°E, elevation −2,545 m. Our old position, described as "from published witness-tube coordinates", was 2.4 km off, on the crater floor instead of at the foot of the delta. Its elevation had looked right only because the floor there is at a similar height.
+
+**Fix**
+- The Marswalk zone moved 1.6 km west and grew from 5 × 5 to 6 × 6 km (centre 18.4440°N 77.4433°E), so it holds the landing site, the real depot, Séítah, the delta front and LZ-A. Rebuilt with `build_data.py site` (HiRISE ortho and DTM) and `lite`.
+- Three Forks: mean of the 10 drop positions, 18.4528°N 77.4082°E. The HiRISE DTM there reads −2,545 m, the same as the PDS rover elevation (−2,545.3 m): an independent check that the position and the map line up.
+- Séítah and the delta front were "placed by eye". They are now at Perseverance's real positions: Séítah where it parked for sols 248–278 and cored Coulettes (sol 271); the delta front where it parked for sols 477–502 and cored Skyland (sol 495). Both samples are now tubes at Three Forks (PDS sample IDs).
+- New numbers: default loop 9.75 km, 4 h 02 min, 0.30 kg O₂, 50 % margin, READY. 0.30 kg suit: PNR at 3.92 km; 0.25 kg: 3.23 km; 0.20 kg: O₂ out at 6.38 km, 2 h 41 min in. Goals: samples 8.74 km, crater floor 5.46 km, signs of life 9.30 km (CAUTION, 17° on the delta). README, DATA SOURCES, SUBMISSION_DATA and AGENTS updated.
+- README screenshots 04, 05, 06, 07, 11 and 12 retaken on the new zone.
+
+**Checked:** smoke test passes on desktop and iPhone 14; the full autopilot runs to the end with no errors (captions now say 9.8 km loop); all four goals solve; no sideways scroll.
+
 ---
 
 ## Decisions and assumptions
@@ -429,7 +454,7 @@ The owner asked to unhide everything that was hidden for the first-round submiss
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
 - [ ] **13 Nov morning:** match our datasets to NASA's names in the challenge's Resources tab, which only goes live on 13 Nov (the page said so on 29 Oct). See `docs/SUBMISSION_CHECKLIST.md`.
 - [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
-- [ ] Refresh the Perseverance traverse past sol 1524. Allow `mars.nasa.gov` in the environment's network settings, or drop `M20_waypoints_current.json` into the repo.
+- [x] Perseverance traverse refreshed to sol 2022 from NASA's feed (31 Oct 2026); `build_data.py traverse` repeats it.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).
 - [ ] Record the pitch video with the autopilot (`C`, `K`, `H`). The built-in **● REC** button can do it: choose "this tab" and allow audio.
 - [ ] Try the helmet view on a real phone: frame rate, joystick feel, and the Android landscape lock.

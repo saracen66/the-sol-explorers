@@ -86,9 +86,10 @@ KY = R_MARS * math.pi / 180.0  # metres per degree lat
 
 # Jezero crater tile = extent of the JPL CTX DEM
 CRATER_BOUNDS = (4328999.999999998, 1042080.0000000028, 4418119.999999998, 1143420.0000000028)
-# Marswalk site tile: 5 x 5 km box around Octavia E. Butler Landing + Three Forks depot
-SITE_CENTER = (18.4450, 77.4620)  # lat, lon
-SITE_SIZE = 5000.0
+# Marswalk site tile: 6 x 6 km box that holds Octavia E. Butler Landing, the Three Forks depot,
+# Perseverance's Séítah stop, the delta front at Hawksbill Gap and our proposed LZ-A
+SITE_CENTER = (18.4440, 77.4433)  # lat, lon
+SITE_SIZE = 6000.0
 
 REGION = dict(lon0=71.5, lon1=83.5, lat0=12.4, lat1=24.4)
 
