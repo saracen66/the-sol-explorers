@@ -13,7 +13,7 @@ import { FEATURES } from './config.js';
 import { Labels } from './ui/labels.js';
 import { Hud } from './ui/hud.js';
 import { Sound } from './ui/sound.js';
-import { CRATER_VIEW_POIS, SITE_POIS, DEFAULT_PLAN } from './data/places.js';
+import { CRATER_VIEW_POIS, SITE_POIS, DEFAULT_PLAN, MISSION_GOALS } from './data/places.js';
 import { fmtNum } from './lib/geo.js';
 
 const TOP = Math.PI / 2 - 0.0015;
@@ -317,9 +317,11 @@ class App {
     view.flyTo({ target: new THREE.Vector3(x, view.yAt(x, z), z), dist: view === this.site ? 1.1 : 13, el: 0.72 }, 1.8);
   }
 
-  resetPlan() {
+  resetPlan(goalId = this.planner.goal) {
+    const g = MISSION_GOALS.find((x) => x.id === goalId) || MISSION_GOALS[0];
+    this.planner.goal = g.id;
     this.planner.returnToStart = true;
-    this.planner.setPlan(DEFAULT_PLAN);
+    this.planner.setPlan(g.plan);
   }
 
   // ------------------------------------------------------------------ input

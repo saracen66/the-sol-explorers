@@ -95,3 +95,23 @@ export const CRATER_VIEW_POIS = [SITE_POIS[0], ...CRATER_POIS.filter((p) => p.id
 
 // Default Marswalk plan (waypoint ids from SITE_POIS)
 export const DEFAULT_PLAN = ['lz', 'oeb', 'depot', 'seitah'];
+
+// Mission goals: start from a science question, and the plan follows from it.
+export const MISSION_GOALS = [
+  {
+    id: 'tour', name: 'Grand tour', plan: DEFAULT_PLAN,
+    why: 'The three things only this spot has: Perseverance\u2019s landing site, its sample depot and Séítah\u2019s olivine bedrock, in one loop.',
+  },
+  {
+    id: 'samples', name: 'Bring the samples home', plan: ['lz', 'depot'],
+    why: 'Three Forks holds 10 sealed tubes Perseverance left as the backup cache for Mars Sample Return (Dec 2022 – Jan 2023). A crew on foot could collect them: the shortest, safest science walk here. Source: NASA/JPL-Caltech.',
+  },
+  {
+    id: 'igneous', name: 'Date the crater floor', plan: ['lz', 'seitah'],
+    why: 'Séítah is olivine-rich igneous rock that settled out of a thick body of melt. Samples from it can date the crater floor, and so the lake that came after it (Liu et al. 2022, Science).',
+  },
+  {
+    id: 'life', name: 'Look for signs of ancient life', plan: ['lz', 'front'],
+    why: 'The delta front exposes layered lake sediments, the rocks most likely to have preserved signs of past life (Mangold et al. 2021, Science). The scarp is steep, so the route has to find a way around it.',
+  },
+];

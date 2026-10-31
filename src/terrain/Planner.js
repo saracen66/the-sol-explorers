@@ -16,6 +16,7 @@ export class Planner {
     this.returnToStart = true;
     this.addMode = false;
     this.result = null;
+    this.goal = 'tour';
     this.sim = null;
     this.follow = true;
   }

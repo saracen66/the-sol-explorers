@@ -88,7 +88,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/ui/recorder.js` | Tab capture → webm download |
 | `src/ui/Joystick.js` | Touch thumb-stick |
 | `src/lib/marstime.js` | Mars24 clock, sun position, Earth–Mars light time |
-| `src/data/places.js` | Landing sites, POIs, the default plan `['lz','oeb','depot','seitah']` |
+| `src/data/places.js` | Landing sites, POIs, the default plan `['lz','oeb','depot','seitah']`, and `MISSION_GOALS` (goal → plan + why). `app.resetPlan(goalId)` loads a goal; the autopilot always narrates `tour` and restores the user's goal when stopped |
 | `scripts/build_data.py` | NASA/USGS rasters → `public/data/` |
 | `scripts/smoke.cjs` | Playwright smoke test (see §6) |
 

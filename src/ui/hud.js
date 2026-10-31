@@ -1,6 +1,6 @@
 import { marsTime, localTime, perseveranceSol, earthMarsLightTime, formatHM, season, dayLength, JEZERO } from '../lib/marstime.js';
 import { fmtDist, fmtDur, fmtNum, fmtLat, fmtLon } from '../lib/geo.js';
-import { LANDING_SITES } from '../data/places.js';
+import { LANDING_SITES, MISSION_GOALS } from '../data/places.js';
 import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
@@ -442,7 +442,7 @@ export class Hud {
         </div>
         <div class="kv">
           <span class="k">Radiation this EVA</span><span class="v">≈ ${evaDoseMSv(b.totalT).toFixed(2)} mSv</span>
-          <span class="k">Storm shelter</span><span class="v">≤ ${fmtDur(r.shelter.t)} to the airlock</span>
+          <span class="k">Storm shelter, walk back</span><span class="v">≤ ${fmtDur(r.shelter.t)}</span>
         </div>
         <div class="assump">Dose at the rate Curiosity's RAD measured on the surface (${RAD_MSV_PER_DAY} mSv/day); NASA's career limit is 600 mSv. Shelter time is the longest walk back to the airlock if a solar-storm warning comes in, worst at ${(r.shelter.d / 1000).toFixed(2)} km along the route.</div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
@@ -455,6 +455,8 @@ export class Hud {
     this.left.innerHTML = `
       <div class="sec">
         <div class="sec-h">Marswalk planner <span class="tag">EV1 · ON FOOT</span></div>
+        <div class="ctl goal"><label for="p-goal">Mission goal</label><select id="p-goal">${MISSION_GOALS.map((g) => `<option value="${g.id}" ${g.id === pl.goal ? 'selected' : ''}>${g.name}</option>`).join('')}</select></div>
+        <div class="assump">${(MISSION_GOALS.find((g) => g.id === pl.goal) || MISSION_GOALS[0]).why}</div>
         <div id="wps">${wps}</div>
         <div class="btn-row">
           <button class="btn small ${pl.addMode ? 'primary' : ''}" id="b-add">${pl.addMode ? 'CLICK MAP…' : '+ ADD STOP'}</button>
@@ -481,6 +483,7 @@ export class Hud {
     $('b-add').onclick = () => { pl.addMode = !pl.addMode; this.renderPlanner(pl); if (pl.addMode) this.closeSheet(); };
     $('b-sim').onclick = () => { this.closeSheet(); pl.sim ? pl.stopSim() : pl.startSim(); };
     $('b-plan').onclick = () => this.app.resetPlan();
+    $('p-goal').onchange = (e) => { pl.userEdit = true; this.app.resetPlan(e.target.value); };
     $('b-ret').onclick = () => { pl.returnToStart = !pl.returnToStart; pl.compute(); };
     if ($('b-fpv')) $('b-fpv').onclick = () => { this.closeSheet(); this.app.fpv.active ? this.app.fpv.exit() : this.app.fpv.enter(); };
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };

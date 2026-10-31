@@ -61,6 +61,7 @@ The gold line is **Perseverance's real drive path**: 555 end-of-drive positions 
 
 A 5 × 5 km zone around Perseverance's landing site and the Three Forks sample depot, at 25 cm per pixel on a 1 m elevation model. This is where you plan the walk:
 
+- **Start from a science goal.** Pick a mission goal and the plan follows from it: *Bring the samples home* (the Three Forks tubes), *Date the crater floor* (Séítah's olivine bedrock), *Look for signs of ancient life* (the delta front's lake sediments), or the *Grand tour*. Each goal says why this spot answers it, with its source.
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
 - **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, daylight left, the EVA's radiation dose and the storm-shelter time (how long the walk back takes from the farthest point if a solar storm is forecast), ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
@@ -156,6 +157,13 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 Default EVA assumptions, all editable in the planner: 75 kg astronaut, 58 kg suit and backpack, no extra science kit (0–30 kg slider, added to the load in the walking model: 20 kg raises the default loop from 0.23 to 0.29 kg of O₂), 0.60 kg usable O₂ (about 8 h), 25 % reserve, 20° walking-slope limit, 20 min per science stop.
 
 The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séítah → LZ-A) comes out at **7.1 km, 3 h 13 min, 0.23 kg of O₂, 62 % margin: MARSWALK READY**.
+
+| Mission goal | Stops (from and back to LZ-A) | Route | O₂ | Call |
+|---|---|---|---|---|
+| Grand tour | Landing site, Three Forks, Séítah | 7.11 km | 0.23 kg | READY |
+| Bring the samples home | Three Forks | 4.49 km | 0.13 kg | READY |
+| Date the crater floor | Séítah | 6.96 km | 0.20 kg | READY |
+| Look for signs of ancient life | Delta front scarp | 7.97 km | 0.24 kg | CAUTION (steep sections near the scarp) |
 
 ---
 
