@@ -159,6 +159,9 @@ This is the team's running record of everything done on Sol Atlas: what was buil
 | `c44a640` | 2026-10-31 | Perseverance traverse from NASA's live feed: sol 0 to 2022 |
 | `89a1e68` | 2026-10-31 | Planner: science-kit mass, EVA radiation dose and storm-shelter time |
 | `a50f665` | 2026-10-31 | Mission-goal picker: start the plan from a science goal |
+| `b4f7163` | 2026-10-31 | Move Three Forks to its real position, and the zone with it |
+| `7653016` | 2026-10-31 | Real Perseverance photos at each science stop |
+| `85d1ce7` | 2026-10-31 | Rover mode with the Apollo walkback limit |
 
 **8. Hosting**
 - A Claude artifact preview was published (private link above).
@@ -422,7 +425,7 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 
 **Stop photos** (`7653016`). Each science stop now carries a real Perseverance raw image taken at that spot: landing site (Navcam, sol 16), Three Forks (Mastcam-Z, sol 690, the day the last tube went down), Séítah (Navcam, sol 249), delta front (Navcam, sol 502). They come from NASA's raw-image API (`mars.nasa.gov/rss/api/?feed=raw_images`), are saved by a new `photos` stage in `build_data.py` (224 kB in all), show in the stop's hover card on desktop, and open full size from a PHOTO button in the plan (phones too). Credited in DATA SOURCES, the README and SUBMISSION_DATA. Checked on desktop and iPhone 14: images load, no 404s, no console errors, no sideways scroll; smoke test passes. (A request with a browser-like user agent to reach a panorama file was blocked by the session's safety check; the raw-image API needed no workaround.)
 
-**Rover + walkback** (next commit). A new ON FOOT / ROVER + WALKBACK switch in the planner. By rover, legs are driven at 5 km/h with the crew seated (150 W), and the point-of-no-return test runs along the whole drive, home leg included: the Apollo 15–17 walkback rule. The marker, the verdict, the profile label, the wrist display (DRIVING, PAST WALKBACK) and the storm-shelter line all switch wording. The autopilot always narrates on foot and puts the rover setting back when stopped. Default loop with a 0.30 kg suit: NO-GO on foot, READY by rover; with 0.20 kg the walkback limit sits at 3.90 km. Checked on desktop and iPhone 14 (no sideways scroll, no errors), in the helmet view riding along, and with the smoke test.
+**Rover + walkback** (`85d1ce7`). A new ON FOOT / ROVER + WALKBACK switch in the planner. By rover, legs are driven at 5 km/h with the crew seated (150 W), and the point-of-no-return test runs along the whole drive, home leg included: the Apollo 15–17 walkback rule. The marker, the verdict, the profile label, the wrist display (DRIVING, PAST WALKBACK) and the storm-shelter line all switch wording. The autopilot always narrates on foot and puts the rover setting back when stopped. Default loop with a 0.30 kg suit: NO-GO on foot, READY by rover; with 0.20 kg the walkback limit sits at 3.90 km. Checked on desktop and iPhone 14 (no sideways scroll, no errors), in the helmet view riding along, and with the smoke test.
 
 ---
 
@@ -452,7 +455,9 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 - [x] First Netlify deploy (repo linked, production deploy `6ab56524` from `97b6bd4`, 2026-09-24 18:00 UTC).
 - [x] Live site checked in a browser (31 Oct 2026, after the owner allowed `*.netlify.app`): headless Chromium on desktop and iPhone 14 loads https://sol-atlas.netlify.app (HTTP 200) with no console errors, and DATA SOURCES shows the HRSC credit. Still worth a click-through on a real phone and GPU.
 - [x] Challenge statement (Details tab) read from the owner's screenshots on 31 Oct 2026 and compared with the app in `docs/CHALLENGE_FIT.md`.
-- [ ] Decide which of the ideas in `docs/CHALLENGE_FIT.md` to build before 13 Nov.
+- [x] Built from `docs/CHALLENGE_FIT.md` (31 Oct): mission goals, safety numbers, stop photos, rover + walkback.
+- [ ] Still open from `docs/CHALLENGE_FIT.md`: CRISM mineral layer, rock hazard from the 1 m DTM, two-person EVA.
+- [ ] Re-record any pitch footage that shows the old Marswalk zone or the old Three Forks position.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
