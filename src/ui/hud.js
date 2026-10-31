@@ -442,19 +442,22 @@ export class Hud {
         </div>
         <div class="kv">
           <span class="k">Radiation this EVA</span><span class="v">≈ ${evaDoseMSv(b.totalT).toFixed(2)} mSv</span>
-          <span class="k">Storm shelter, walk back</span><span class="v">≤ ${fmtDur(r.shelter.t)}</span>
+          <span class="k">Storm shelter, ${pl.params.rover ? 'drive' : 'walk'} back</span><span class="v">≤ ${fmtDur(r.shelter.t)}</span>
         </div>
-        <div class="assump">Dose at the rate Curiosity's RAD measured on the surface (${RAD_MSV_PER_DAY} mSv/day); NASA's career limit is 600 mSv. Shelter time is the longest walk back to the airlock if a solar-storm warning comes in, worst at ${(r.shelter.d / 1000).toFixed(2)} km along the route.</div>
+        <div class="assump">Dose at the rate Curiosity's RAD measured on the surface (${RAD_MSV_PER_DAY} mSv/day); NASA's career limit is 600 mSv. Shelter time is the longest ${pl.params.rover ? 'drive' : 'walk'} back to the airlock if a solar-storm warning comes in, worst at ${(r.shelter.d / 1000).toFixed(2)} km along the route.</div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
-        ${r.o2Out ? `<div class="assump dead-note"><b>✖ O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km</b> (${formatHM(r.sun.start + r.o2Out.t / 3698.9)} LTST, ${fmtDur(r.o2Out.t)} into the EVA) while ${r.o2Out.kind === 'stop' ? 'working at a stop' : 'walking'}. The red dashes are the part of the route EV1 never reaches. Press SIMULATE to see it.</div>` : ''}
-        <div class="assump">${r.pnr ? `<b style="color:#ff7b7b">Point of no return</b> at ${(r.pnr.d / 1000).toFixed(2)} km (red marker). Past it, walking straight back needs ${r.pnr.need.toFixed(2)} kg of O₂ but only ${r.pnr.limit.toFixed(2)} kg is available above the reserve.` : 'No point of no return: from any point on the way out, EV1 can walk straight back to the airlock and keep the O₂ reserve.'}</div>
+        ${r.o2Out ? `<div class="assump dead-note"><b>✖ O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km</b> (${formatHM(r.sun.start + r.o2Out.t / 3698.9)} LTST, ${fmtDur(r.o2Out.t)} into the EVA) while ${r.o2Out.kind === 'stop' ? 'working at a stop' : pl.params.rover ? 'driving' : 'walking'}. The red dashes are the part of the route EV1 never reaches. Press SIMULATE to see it.</div>` : ''}
+        <div class="assump">${pl.params.rover
+          ? (r.pnr ? `<b style="color:#ff7b7b">Walkback limit</b> at ${(r.pnr.d / 1000).toFixed(2)} km (red marker). If the rover breaks down past it, walking home needs ${r.pnr.need.toFixed(2)} kg of O₂ but only ${r.pnr.limit.toFixed(2)} kg is available above the reserve. Apollo 15–17 drove under the same rule.`
+            : `<b>Walkback rule met</b> (as on Apollo 15–17): if the rover breaks down anywhere on this drive, the crew can walk home and keep the O₂ reserve. Closest call: ${r.abortWorst ? `${r.abortWorst.need.toFixed(2)} of ${r.abortWorst.limit.toFixed(2)} kg at ${(r.abortWorst.d / 1000).toFixed(2)} km` : '—'}.`)
+          : (r.pnr ? `<b style="color:#ff7b7b">Point of no return</b> at ${(r.pnr.d / 1000).toFixed(2)} km (red marker). Past it, walking straight back needs ${r.pnr.need.toFixed(2)} kg of O₂ but only ${r.pnr.limit.toFixed(2)} kg is available above the reserve.` : 'No point of no return: from any point on the way out, EV1 can walk straight back to the airlock and keep the O₂ reserve.')}</div>
         <div class="sec-h" style="margin:14px 0 2px">Elevation profile <span class="tag">HiRISE 1 m DTM</span></div>
         <div class="profile" id="profile"></div>
         <div class="assump" style="margin-top:6px">Straight-line path: ${(r.direct.distance / 1000).toFixed(2)} km, crossing slopes up to <b>${r.direct.maxFine.toFixed(0)}°</b> (red dashes). The planned route stays under <b>${r.budget.fineMax.toFixed(0)}°</b>.</div>`;
     }
     this.left.innerHTML = `
       <div class="sec">
-        <div class="sec-h">Marswalk planner <span class="tag">EV1 · ON FOOT</span></div>
+        <div class="sec-h">Marswalk planner <span class="tag">EV1 · ${pl.params.rover ? 'ROVER' : 'ON FOOT'}</span></div>
         <div class="ctl goal"><label for="p-goal">Mission goal</label><select id="p-goal">${MISSION_GOALS.map((g) => `<option value="${g.id}" ${g.id === pl.goal ? 'selected' : ''}>${g.name}</option>`).join('')}</select></div>
         <div class="assump">${(MISSION_GOALS.find((g) => g.id === pl.goal) || MISSION_GOALS[0]).why}</div>
         <div id="wps">${wps}</div>
@@ -463,7 +466,8 @@ export class Hud {
           <button class="btn small ${pl.sim ? 'primary' : ''}" id="b-sim" ${r && !r.failed ? '' : 'disabled'}>${pl.sim ? '■ STOP EVA' : '▶ SIMULATE EVA'}</button>
           <button class="btn small" id="b-plan">RESET</button>
         </div>
-        <div class="seg" style="margin-top:8px"><button id="b-ret" class="${pl.returnToStart ? 'on' : ''}">RETURN TO LZ</button><button id="b-follow" class="${pl.follow ? 'on' : ''}">FOLLOW CAM</button></div>
+        <div class="seg" style="margin-top:8px"><button id="b-foot" class="${pl.params.rover ? '' : 'on'}" title="Walk every leg">ON FOOT</button><button id="b-rover" class="${pl.params.rover ? 'on' : ''}" title="Drive between stops on an unpressurised rover, within walking distance of home">ROVER + WALKBACK</button></div>
+        <div class="seg"><button id="b-ret" class="${pl.returnToStart ? 'on' : ''}">RETURN TO LZ</button><button id="b-follow" class="${pl.follow ? 'on' : ''}">FOLLOW CAM</button></div>
         ${this.app.fpv ? `<button class="btn fpv-btn ${this.app.fpv.active ? 'on' : ''}" id="b-fpv" title="Stand on the terrain at eye height (F)">${this.app.fpv.active ? '✕ EXIT HELMET VIEW' : '◉ HELMET VIEW · WALK IT'}</button>` : ''}
       </div>
       <div class="sec">
@@ -477,7 +481,7 @@ export class Hud {
         <div class="ctl"><label>Max walking slope</label><output>${pl.params.maxSlope}°</output><input type="range" id="p-slope" min="8" max="30" step="1" value="${pl.params.maxSlope}"></div>
         <div class="ctl"><label>Science kit carried</label><output>${pl.params.kitKg} kg</output><input type="range" id="p-kit" min="0" max="30" step="1" value="${pl.params.kitKg}"></div>
         <div class="ctl"><label>Time per stop</label><output>${pl.params.stopMin} min</output><input type="range" id="p-stop" min="5" max="60" step="5" value="${pl.params.stopMin}"></div>
-        <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit${pl.params.kitKg ? ` + ${pl.params.kitKg} kg science kit` : ''}. 1 L O₂ ≈ 20.1 kJ. Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
+        <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit${pl.params.kitKg ? ` + ${pl.params.kitKg} kg science kit` : ''}. 1 L O₂ ≈ 20.1 kJ.${pl.params.rover ? ` Rover: ${(pl.params.roverMs * 3.6).toFixed(0)} km/h, ${pl.params.rideW} W seated; walkback at walking pace with a 25 % detour allowance.` : ''} Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
       </div>`;
     this.left.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => pl.remove(+b.dataset.rm); });
     this.left.querySelectorAll('[data-photo]').forEach((b) => { b.onclick = () => this.showPhoto(pl.waypoints[+b.dataset.photo].poi); });
@@ -486,6 +490,8 @@ export class Hud {
     $('b-plan').onclick = () => this.app.resetPlan();
     $('p-goal').onchange = (e) => { pl.userEdit = true; this.app.resetPlan(e.target.value); };
     $('b-ret').onclick = () => { pl.returnToStart = !pl.returnToStart; pl.compute(); };
+    $('b-foot').onclick = () => { pl.params.rover = false; pl.userEdit = true; pl.compute(); };
+    $('b-rover').onclick = () => { pl.params.rover = true; pl.userEdit = true; pl.compute(); };
     if ($('b-fpv')) $('b-fpv').onclick = () => { this.closeSheet(); this.app.fpv.active ? this.app.fpv.exit() : this.app.fpv.enter(); };
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };
     const bindP = (id, key, parse = Number) => { $(id).onchange = (e) => { pl.params[key] = parse(e.target.value); pl.compute(); }; $(id).oninput = (e) => { e.target.previousElementSibling.textContent = id === 'p-o2' ? `${(+e.target.value).toFixed(2)} kg` : id === 'p-slope' ? `${e.target.value}°` : id === 'p-kit' ? `${e.target.value} kg` : `${e.target.value} min`; }; };
@@ -495,7 +501,7 @@ export class Hud {
       requestAnimationFrame(() => {
         if (pl.result !== r || !$('profile')) return;
         this.profileApi = renderProfile($('profile'), r, {
-          slopeAt: (x, z) => pl.view.slopeAt(x, z), limits: pl.view.cfg.slopeLim, onHover: (d) => pl.showHover(d), pnr: r.pnr, o2Out: r.o2Out,
+          slopeAt: (x, z) => pl.view.slopeAt(x, z), limits: pl.view.cfg.slopeLim, onHover: (d) => pl.showHover(d), pnr: r.pnr, pnrLabel: pl.params.rover ? 'WALKBACK' : 'PNR', o2Out: r.o2Out,
         });
       });
     }
@@ -537,8 +543,8 @@ export class Hud {
     const nextName = idx >= 0 ? pl.waypoints[idx + 1]?.name : pl.returnToStart ? pl.waypoints[0].name : pl.waypoints.at(-1).name;
     const nextD = (idx >= 0 ? stops[idx] : b.distance) - st.d;
     const leftH = left / (b.o2 / (b.totalT / 3600));
-    const status = st.kind === 'stop' ? 'WORKING' : 'WALKING';
-    const tag = lvl === 'crit' ? '▲ O₂ RESERVE' : lvl === 'warn' ? '▲ PAST PNR' : status;
+    const status = st.kind === 'stop' ? 'WORKING' : pl.params.rover ? 'DRIVING' : 'WALKING';
+    const tag = lvl === 'crit' ? '▲ O₂ RESERVE' : lvl === 'warn' ? (pl.params.rover ? '▲ PAST WALKBACK' : '▲ PAST PNR') : status;
     wrist.innerHTML = `<div class="wh">EV1 · WRIST <b>${formatHM(clock)}</b></div>
       <div class="wn"><span>NEXT ▸ ${nextName}</span><b>${fmtDist(Math.max(0, nextD))}</b></div>
       <div class="wg"><span>O₂ <b>${left.toFixed(2)} kg</b><small>≈ ${leftH.toFixed(1)} h</small></span><span>DUST <b>τ 0.5</b><small>typical</small></span><span class="st">${tag}</span></div>`;

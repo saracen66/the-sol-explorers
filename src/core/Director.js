@@ -49,6 +49,7 @@ export class Director {
       returnToStart: pl.returnToStart,
       waypoints: pl.waypoints.slice(),
       goal: pl.goal,
+      rover: pl.params.rover,
       layers: { crater: { ...a.crater.layers }, site: { ...a.site.layers } },
       orbitLayer: a.orbit.layer,
     };
@@ -71,6 +72,7 @@ export class Director {
     pl.returnToStart = sv.returnToStart;
     pl.waypoints = sv.waypoints;
     pl.goal = sv.goal;
+    pl.params.rover = sv.rover;
     pl.userEdit = false;
     pl.compute();
   }
@@ -95,7 +97,8 @@ export class Director {
     if (this.running || a.mode === 'boot') return;
     this.running = true;
     this.snapshot();
-    if (a.planner.goal !== 'tour') a.resetPlan('tour'); // the script narrates the default loop
+    a.planner.params.rover = false; // the script narrates the default loop on foot
+    a.resetPlan('tour');
     a.hud.closeSheet();
     a.pin?.close();
     document.getElementById('btn-cine').innerHTML = '■ STOP<span class="full"> AUTOPILOT</span>';

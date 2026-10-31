@@ -186,7 +186,9 @@ export class Planner {
       vd.lvl = 'nogo';
     }
     if (r.pnr) {
-      vd.issues.unshift({ lvl: 'nogo', msg: `Point of no return at ${(r.pnr.d / 1000).toFixed(2)} km: past it, an abort can't reach the airlock with the O₂ reserve` });
+      vd.issues.unshift({ lvl: 'nogo', msg: this.params.rover
+        ? `Walkback limit at ${(r.pnr.d / 1000).toFixed(2)} km: if the rover breaks down past here, the crew can't walk home with the O₂ reserve`
+        : `Point of no return at ${(r.pnr.d / 1000).toFixed(2)} km: past it, an abort can't reach the airlock with the O₂ reserve` });
       vd.lvl = 'nogo';
     }
     return vd;
@@ -195,7 +197,9 @@ export class Planner {
   /**
    * Point of no return: the first point on the route where the O2 already used
    * plus the O2 to walk straight back to the airlock would eat into the reserve.
-   * Only the outbound part counts (on the last leg you are already heading home).
+   * On foot only the outbound part counts (on the last leg you are already heading home).
+   * With the rover this is the Apollo walkback limit: if the rover breaks down anywhere,
+   * including on the drive home, the crew must still be able to walk back.
    */
   pointOfNoReturn(r) {
     const p = this.params, b = r.budget;
@@ -203,7 +207,8 @@ export class Planner {
     const vFlat = walkSpeed(0, p);
     const o2PerM = o2KgPerSec(metabolicW(vFlat, 0, p)) / vFlat * 1.25; // detour + terrain allowance
     const stopKg = o2KgPerSec(p.stopW) * p.stopMin * 60;
-    const lastOut = this.returnToStart ? (r.stopAtD.at(-1) ?? 0) : b.distance;
+    const lastOut = this.returnToStart && !p.rover ? (r.stopAtD.at(-1) ?? 0) : b.distance;
+    let worst = null;
     const limit = p.o2CapKg - b.reserveKg;
     for (let i = 0; i < r.samples.length; i++) {
       const s = r.samples[i];
@@ -211,8 +216,11 @@ export class Planner {
       const walked = interp(b.timeline, 'd', s.d, 'o2');
       const stops = r.stopAtD.filter((d) => d <= s.d + 0.5).length * stopKg;
       const back = Math.hypot(s.x - home.x, s.z - home.z) * 1000 * o2PerM;
-      if (walked + stops + back > limit) return { d: s.d, x: s.x, z: s.z, need: walked + stops + back, limit };
+      const need = walked + stops + back;
+      if (need > limit) return { d: s.d, x: s.x, z: s.z, need, limit };
+      if (!worst || need > worst.need) worst = { d: s.d, need, limit };
     }
+    r.abortWorst = worst; // closest call when there is no limit on the route
     return null;
   }
 
@@ -222,7 +230,7 @@ export class Planner {
    */
   shelterTime(r) {
     const home = this.waypoints[0];
-    const v = walkSpeed(0, this.params);
+    const v = this.params.rover ? this.params.roverMs : walkSpeed(0, this.params);
     let worst = { t: 0, d: 0 };
     for (const s of r.samples) {
       const t = Math.hypot(s.x - home.x, s.z - home.z) * 1000 * 1.25 / v;
@@ -263,7 +271,7 @@ export class Planner {
     const pnr = this.result && this.result.pnr;
     if (pnr) {
       const it = labels.add('wp', {
-        className: 'pnr', html: '<div class="dot"></div><div class="lb">POINT OF NO RETURN<small>abort limit with O₂ reserve</small></div>',
+        className: 'pnr', html: this.params.rover ? '<div class="dot"></div><div class="lb">WALKBACK LIMIT<small>rover fails here: no walk home</small></div>' : '<div class="dot"></div><div class="lb">POINT OF NO RETURN<small>abort limit with O₂ reserve</small></div>',
         world: new THREE.Vector3(pnr.x, 0, pnr.z), priority: 9,
       });
       it.xz = { x: pnr.x, z: pnr.z };
@@ -400,7 +408,7 @@ export class Planner {
     // milestones along the way
     if (r.pnr && !s.pastPnr && st.d >= r.pnr.d) {
       s.pastPnr = true;
-      hud.toast('▲ PAST THE POINT OF NO RETURN', 3400);
+      hud.toast(this.params.rover ? '▲ PAST THE WALKBACK LIMIT' : '▲ PAST THE POINT OF NO RETURN', 3400);
       snd?.alarm(1);
     }
     if (r.reserveAt && !s.inReserve && s.t >= r.reserveAt.t && !dies) {

@@ -76,7 +76,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/core/Director.js` | Autopilot script. `stop()` restores everything it changed (`snapshot`/`restore`). Every app transition is awaited through `step()` so a stop takes effect at once |
 | `src/terrain/TerrainView.js` | Heightfield mesh (vertex shader displaces with `uExag`), layers, baked shadows, POI labels, route lines (`Line2`), the Perseverance traverse, `pick()` ray-march, `markerLift`/`routeLift` (these differ in the helmet view) |
 | `src/terrain/shaders.js` | Terrain, wall, floor, shadow-bake, sky and horizon-ring shaders. The helmet haze and ground grain sit behind `uFpv` |
-| `src/terrain/Planner.js` | Stops, A* routes (`pathfinding.js`), EVA budget (`eva.js`), point of no return, **O₂-out point** (`buildEvents`/`findO2`), EVA simulation (`startSim`/`update`/`die`) |
+| `src/terrain/Planner.js` | Stops, A* routes (`pathfinding.js`), EVA budget (`eva.js`), point of no return (= the walkback limit when `params.rover`), storm-shelter time, **O₂-out point** (`buildEvents`/`findO2`), EVA simulation (`startSim`/`update`/`die`). `goal` holds the mission goal |
 | `src/terrain/eva.js` | Pandolf metabolic model → O₂; walking speed vs grade; the verdict |
 | `src/terrain/Pin.js` | Drop-a-pin card: ROUTE HERE / ADD STOP / STAND HERE |
 | `src/config.js` | Feature switches: `helmetView`, `craterPanel` (both on) |

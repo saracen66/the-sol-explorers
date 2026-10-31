@@ -21,6 +21,9 @@ export const EVA_DEFAULTS = {
   stopMin: 20,         // minutes spent at each science stop
   stopW: 190,          // metabolic rate while working at a stop (W)
   evaMaxH: 8,          // suit consumables / crew-fatigue rating
+  rover: false,        // drive between stops on an unpressurised rover (Apollo LRV style)
+  roverMs: 1.4,        // m/s driving over rough ground (5 km/h; the Apollo LRV averaged a little more)
+  rideW: 150,          // metabolic rate seated on the rover in a suit (W): between rest and light work
 };
 
 const DEG = Math.PI / 180;
@@ -70,10 +73,10 @@ export function budget(samples, stopAt, p = EVA_DEFAULTS) {
     if (dd <= 0) continue;
     const dh = b.e - a.e;
     const g = Math.atan2(dh, dd);
-    const v = walkSpeed(g, p);
+    const v = p.rover ? p.roverMs : walkSpeed(g, p);
     const dt = dd / v;
     t += dt;
-    o2 += o2KgPerSec(metabolicW(v, (dh / dd) * 100, p)) * dt;
+    o2 += o2KgPerSec(p.rover ? p.rideW : metabolicW(v, (dh / dd) * 100, p)) * dt;
     if (dh > 0) gain += dh; else loss -= dh;
     maxSlope = Math.max(maxSlope, Math.abs(g) / DEG);
     timeline.push({ d: b.d, t, o2 });

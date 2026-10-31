@@ -27,7 +27,7 @@ That last line is our pitch: Sol Atlas goes from the whole planet down to a 6 ×
 | Inspiration from maps made for other worlds | Not mentioned | In the pitch: Apollo 14–17 traverse maps and the Apollo **walkback constraint** |
 | Past, predicted or no specific time frame | Live Mars clock, real Sun and shadows with a time slider; Perseverance's past drive path | None |
 | Point-of-view images from Mars surface missions, so the astronaut knows what to expect | **Done 31 Oct:** a real Perseverance photo taken at each science stop (Navcam / Mastcam-Z raw images), in the stop's card and behind a PHOTO button in the plan; plus the helmet view | — |
-| Rovers carrying crew and tools, or astronauts working in pairs | One astronaut on foot (EV1) | **Rover legs with a walkback limit**: the rover can only drive as far as the crew could walk home if it broke down, as on Apollo 15–17. **Two-person EVA**: EV1 and EV2, where the plan must work for both suits |
+| Rovers carrying crew and tools, or astronauts working in pairs | **Rover done 31 Oct:** ROVER + WALKBACK mode drives the legs and checks the Apollo walkback rule along the whole route | **Two-person EVA** (EV1 and EV2) is still open |
 
 ## What would make us stand out
 
