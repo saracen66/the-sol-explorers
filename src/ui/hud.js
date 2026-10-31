@@ -123,11 +123,17 @@ export class Hud {
 
   caption(kicker, text, ms = 4200) {
     const c = $('caption');
-    if (!text) { c.classList.remove('show'); return; }
-    c.innerHTML = `<small>${kicker}</small>${text}`;
-    c.classList.add('show');
+    // --cap-top: distance from the bottom of the screen to the caption's top edge, so the wrist
+    // display and the altitude prompt can sit above the caption instead of under it
+    const show = (on) => {
+      c.classList.toggle('show', on);
+      document.body.style.setProperty('--cap-top', on ? `${Math.ceil(innerHeight - c.getBoundingClientRect().top)}px` : '0px');
+    };
     clearTimeout(this._ct);
-    if (ms) this._ct = setTimeout(() => c.classList.remove('show'), ms);
+    if (!text) { show(false); return; }
+    c.innerHTML = `<small>${kicker}</small>${text}`;
+    show(true);
+    if (ms) this._ct = setTimeout(() => show(false), ms);
   }
 
   reticle(on) { $('reticle').classList.toggle('show', !!on); }

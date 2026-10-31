@@ -437,6 +437,15 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 | Autopilot without the helmet ride-along | Owner's request. The helmet view is still available by hand | Full autopilot run, 103 s, no errors |
 | Photo gallery | Clicking a stop photo (hover card) or PHOTO in the plan opens it full screen, with ✕, ‹ › and arrow keys / Esc. Clicking the photo in a hover card no longer adds the stop | Desktop and iPhone 14: opens, steps, closes; stop count unchanged; no sideways scroll; smoke test passes |
 
+### 2026-10-31: captions readable, and never on top of the wrist display
+
+**Reported by the owner:** in the autopilot, captions sometimes sat on top of the wrist display or the "ALT … KM" prompt, and the yellow caption lines were hard to read over bright ground.
+
+- Captions and the altitude prompt now sit on a dark panel (86 % / 72 % opaque), so the yellow and white text reads over any terrain.
+- `hud.caption()` sets `--cap-top` (distance from the screen bottom to the caption's top edge); the wrist display and the prompt use `bottom: max(<their usual spot>, var(--cap-top) + 12px)`, so they slide up above a caption and drop back when it goes. Same on phones.
+
+**Checked:** a script polled the caption, wrist and prompt boxes every 0.4 s through a full autopilot run: 212 checks on desktop (1280 × 720) and 208 on iPhone 14, **0 overlaps**. Screenshots of the descent and the EVA segments on both. Smoke test passes on both.
+
 ---
 
 ## Decisions and assumptions

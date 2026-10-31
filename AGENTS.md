@@ -106,6 +106,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
   - `fpv`: helmet view.
   - `sheet-open`: the phone bottom sheet is open.
   - `hide-left` / `hide-right`: desktop panels tucked away.
+- **Captions push the wrist display and prompt up** through `--cap-top` (set in `hud.caption()`). Anything new that sits at the bottom centre should use the same `max(..., var(--cap-top) + 12px)` pattern.
 - **Data URLs carry `?v=<hash of public/data>`** (`url()` in `src/core/assets.js`, hash from `vite.config.js`). `/data/*` is cached for a day, and the file names never change, so without it a returning browser mixed yesterday's map with today's code (the owner saw Three Forks off the edge of the old zone). Use `url()` for anything under `data/`.
 - **Textures decoded with ImageBitmap are already flipped** (`userData.flippedBitmap`); `loadSlopeData` accounts for it.
 - **Heights** are 16-bit values packed in PNG red and green (`R*256+G`), mapped to `[meta.min, meta.max]` metres.
