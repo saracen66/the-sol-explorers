@@ -4,6 +4,7 @@ import { LANDING_SITES } from '../data/places.js';
 import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
+import { evaDoseMSv, RAD_MSV_PER_DAY } from '../terrain/eva.js';
 import { Recorder } from './recorder.js';
 import { FEATURES } from '../config.js';
 
@@ -439,6 +440,11 @@ export class Hud {
           <div class="track"><div class="fill" style="left:${(r.sun.start / 24) * 100}%;width:${Math.max(1, ((r.sun.end - r.sun.start) / 24) * 100)}%;background:var(--data)"></div>
           <div class="mark" style="left:${(r.sun.sunset / 24) * 100}%"></div></div>
         </div>
+        <div class="kv">
+          <span class="k">Radiation this EVA</span><span class="v">≈ ${evaDoseMSv(b.totalT).toFixed(2)} mSv</span>
+          <span class="k">Storm shelter</span><span class="v">≤ ${fmtDur(r.shelter.t)} to the airlock</span>
+        </div>
+        <div class="assump">Dose at the rate Curiosity's RAD measured on the surface (${RAD_MSV_PER_DAY} mSv/day); NASA's career limit is 600 mSv. Shelter time is the longest walk back to the airlock if a solar-storm warning comes in, worst at ${(r.shelter.d / 1000).toFixed(2)} km along the route.</div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
         ${r.o2Out ? `<div class="assump dead-note"><b>✖ O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km</b> (${formatHM(r.sun.start + r.o2Out.t / 3698.9)} LTST, ${fmtDur(r.o2Out.t)} into the EVA) while ${r.o2Out.kind === 'stop' ? 'working at a stop' : 'walking'}. The red dashes are the part of the route EV1 never reaches. Press SIMULATE to see it.</div>` : ''}
         <div class="assump">${r.pnr ? `<b style="color:#ff7b7b">Point of no return</b> at ${(r.pnr.d / 1000).toFixed(2)} km (red marker). Past it, walking straight back needs ${r.pnr.need.toFixed(2)} kg of O₂ but only ${r.pnr.limit.toFixed(2)} kg is available above the reserve.` : 'No point of no return: from any point on the way out, EV1 can walk straight back to the airlock and keep the O₂ reserve.'}</div>
@@ -467,8 +473,9 @@ export class Hud {
         <div class="sec-h">Assumptions <span class="tag">EDITABLE</span></div>
         <div class="ctl"><label>Usable suit O₂</label><output>${pl.params.o2CapKg.toFixed(2)} kg</output><input type="range" id="p-o2" min="0.2" max="1.2" step="0.05" value="${pl.params.o2CapKg}"></div>
         <div class="ctl"><label>Max walking slope</label><output>${pl.params.maxSlope}°</output><input type="range" id="p-slope" min="8" max="30" step="1" value="${pl.params.maxSlope}"></div>
+        <div class="ctl"><label>Science kit carried</label><output>${pl.params.kitKg} kg</output><input type="range" id="p-kit" min="0" max="30" step="1" value="${pl.params.kitKg}"></div>
         <div class="ctl"><label>Time per stop</label><output>${pl.params.stopMin} min</output><input type="range" id="p-stop" min="5" max="60" step="5" value="${pl.params.stopMin}"></div>
-        <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit. 1 L O₂ ≈ 20.1 kJ. Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
+        <div class="assump">Metabolic model: <b>Pandolf et al. 1977</b> scaled to 0.38 g, with a ${pl.params.suitPenalty}× suit penalty. ${pl.params.crewKg} kg crew + ${pl.params.suitKg} kg suit${pl.params.kitKg ? ` + ${pl.params.kitKg} kg science kit` : ''}. 1 L O₂ ≈ 20.1 kJ. Route = A* least-energy path on the HiRISE DTM${r && r.budget ? `, solved in ${pl.computeMs.toFixed(0)} ms` : ''}.</div>
       </div>`;
     this.left.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => pl.remove(+b.dataset.rm); });
     $('b-add').onclick = () => { pl.addMode = !pl.addMode; this.renderPlanner(pl); if (pl.addMode) this.closeSheet(); };
@@ -477,8 +484,8 @@ export class Hud {
     $('b-ret').onclick = () => { pl.returnToStart = !pl.returnToStart; pl.compute(); };
     if ($('b-fpv')) $('b-fpv').onclick = () => { this.closeSheet(); this.app.fpv.active ? this.app.fpv.exit() : this.app.fpv.enter(); };
     $('b-follow').onclick = () => { pl.follow = !pl.follow; $('b-follow').classList.toggle('on', pl.follow); };
-    const bindP = (id, key, parse = Number) => { $(id).onchange = (e) => { pl.params[key] = parse(e.target.value); pl.compute(); }; $(id).oninput = (e) => { e.target.previousElementSibling.textContent = id === 'p-o2' ? `${(+e.target.value).toFixed(2)} kg` : id === 'p-slope' ? `${e.target.value}°` : `${e.target.value} min`; }; };
-    bindP('p-o2', 'o2CapKg'); bindP('p-slope', 'maxSlope'); bindP('p-stop', 'stopMin');
+    const bindP = (id, key, parse = Number) => { $(id).onchange = (e) => { pl.params[key] = parse(e.target.value); pl.compute(); }; $(id).oninput = (e) => { e.target.previousElementSibling.textContent = id === 'p-o2' ? `${(+e.target.value).toFixed(2)} kg` : id === 'p-slope' ? `${e.target.value}°` : id === 'p-kit' ? `${e.target.value} kg` : `${e.target.value} min`; }; };
+    bindP('p-o2', 'o2CapKg'); bindP('p-slope', 'maxSlope'); bindP('p-stop', 'stopMin'); bindP('p-kit', 'kitKg');
     this.profileApi = null;
     if (r && !r.failed) {
       requestAnimationFrame(() => {

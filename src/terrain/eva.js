@@ -10,6 +10,7 @@
 export const EVA_DEFAULTS = {
   crewKg: 75,          // astronaut body mass
   suitKg: 58,          // suit + life-support backpack + tools
+  kitKg: 0,            // science kit carried on top (drill, sample bags, cameras)
   terrain: 1.2,        // Pandolf terrain factor (1.0 road … 1.2 loose regolith … 1.5+ sand)
   suitPenalty: 1.35,   // pressurised-suit locomotion penalty
   gRatio: 3.71 / 9.81, // Mars surface gravity / Earth
@@ -30,7 +31,7 @@ export function walkSpeed(gradeRad, p = EVA_DEFAULTS) {
 }
 
 export function metabolicW(v, gradePct, p = EVA_DEFAULTS) {
-  const W = p.crewKg, L = p.suitKg, eta = p.terrain;
+  const W = p.crewKg, L = p.suitKg + (p.kitKg || 0), eta = p.terrain;
   const rest = 1.5 * W;
   const load = 2.0 * (W + L) * (L / W) ** 2;
   const up = Math.max(gradePct, 0);
@@ -38,6 +39,12 @@ export function metabolicW(v, gradePct, p = EVA_DEFAULTS) {
   const loco = eta * (W + L) * (1.5 * v * v + 0.35 * v * (up + brake));
   return rest + (load + loco) * p.gRatio * p.suitPenalty;
 }
+
+// Surface radiation dose equivalent measured by Curiosity's RAD in Gale crater:
+// 0.64 ± 0.12 mSv per (Earth) day (Hassler et al. 2014, Science). A suit adds little
+// shielding against galactic cosmic rays, so the EVA dose is this rate × EVA time.
+export const RAD_MSV_PER_DAY = 0.64;
+export const evaDoseMSv = (seconds) => (seconds / 86400) * RAD_MSV_PER_DAY;
 
 export const o2KgPerSec = (watts) => (watts / 20100) * 1.429e-3; // J/s ÷ J/L × kg/L
 

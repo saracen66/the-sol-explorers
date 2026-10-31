@@ -159,6 +159,7 @@ export class Planner {
       direct: { distance: dSamples.at(-1).d, maxFine: directMaxFine },
     };
     this.result.pnr = this.pointOfNoReturn(this.result);
+    this.result.shelter = this.shelterTime(this.result);
     this.buildEvents(this.result);
     // where the suit runs dry (null when the plan fits in the tank) and where the reserve starts
     this.result.o2Out = this.findO2(this.result, this.params.o2CapKg);
@@ -212,6 +213,21 @@ export class Planner {
       if (walked + stops + back > limit) return { d: s.d, x: s.x, z: s.z, need: walked + stops + back, limit };
     }
     return null;
+  }
+
+  /**
+   * Storm shelter: if a solar-storm warning comes in, the longest straight walk back to the
+   * airlock from anywhere on the route (flat walking speed + the same 25 % detour allowance as the PNR).
+   */
+  shelterTime(r) {
+    const home = this.waypoints[0];
+    const v = walkSpeed(0, this.params);
+    let worst = { t: 0, d: 0 };
+    for (const s of r.samples) {
+      const t = Math.hypot(s.x - home.x, s.z - home.z) * 1000 * 1.25 / v;
+      if (t > worst.t) worst = { t, d: s.d };
+    }
+    return worst;
   }
 
   sunWindow(b) {

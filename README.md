@@ -63,7 +63,7 @@ A 5 × 5 km zone around Perseverance's landing site and the Three Forks sample d
 
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
-- **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, and daylight left, ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
+- **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, daylight left, the EVA's radiation dose and the storm-shelter time (how long the walk back takes from the farthest point if a solar storm is forecast), ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
 - **Point of no return.** If the suit can't carry enough oxygen, a red marker shows the last point where turning back still keeps the reserve.
 - **EVA flyover.** Simulate the walk with a chase camera and a wrist display (next stop, oxygen left, dust). The wrist turns amber past the point of no return and red when the reserve is reached. The profile chart follows EV1 as it walks.
 - **Where the oxygen runs out.** If the plan needs more O₂ than the suit holds, the planner marks the exact spot and time the tank runs dry, and draws the unreachable rest of the route as red dashes. In the simulation, EV1 stops there and its marker turns red. The wrist display then shows how long a mayday takes to reach Earth (about 14 minutes now) and when the earliest reply could arrive. Nobody on Earth can help in time, so the plan has to be right before the airlock opens.
@@ -147,11 +147,13 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Walking cost | **Pandolf et al. (1977)** load-carriage equation, scaled to Mars gravity (0.38 g) with a pressure-suit penalty; Tobler-style speed vs. grade; 1 L O₂ ≈ 20.1 kJ | Flat walking at 0.9 m/s ≈ 293 W ≈ 0.075 kg O₂ per hour, the same rate our 0.60 kg / 8 h suit assumption is sized on |
 | Point of no return | First point on the way out where O₂ used so far + O₂ to walk straight back (plus a 25 % detour allowance) would eat into the reserve | 0.30 kg suit → PNR at Séítah; 0.25 kg → mid-route at 2.98 km |
 | O₂ runs out | The EVA's walk/stop timeline carries cumulative O₂; the first moment it reaches the tank size gives the time and place | 0.20 kg suit on the default loop: O₂ out at 5.83 km, 2 h 50 min in, 1.21 km from the airlock |
+| Radiation dose | EVA time × the surface dose rate Curiosity's RAD measured, 0.64 mSv per day (Hassler et al. 2014). A suit adds little shielding against cosmic rays | Default loop: ≈ 0.09 mSv, against NASA's 600 mSv career limit |
+| Storm shelter | Longest straight walk back to the airlock from any point on the route, at flat walking speed with the PNR's 25 % detour allowance: how long the crew is exposed if a solar-storm warning comes in | Default loop: ≤ 1 h 15 min, worst at 3.63 km (Séítah) |
 | Mayday delay | One-way and round-trip light time from the same Earth–Mars model as the header clock | ~14 min one way on 25 Sep 2026 |
 | Helmet skyline | For each of 360 bearings, march the CTX DEM from 2.6 to 46 km and keep the highest elevation angle, after subtracting the curvature drop d²/2R | Highest skyline 4.5° toward bearing 263° (the western rim and delta) |
 | Elevations | Heights decoded from the DEMs | Three Forks: −2,570 m vs published −2,568 m |
 
-Default EVA assumptions, all editable in the planner: 75 kg astronaut, 58 kg suit and backpack, 0.60 kg usable O₂ (about 8 h), 25 % reserve, 20° walking-slope limit, 20 min per science stop.
+Default EVA assumptions, all editable in the planner: 75 kg astronaut, 58 kg suit and backpack, no extra science kit (0–30 kg slider, added to the load in the walking model: 20 kg raises the default loop from 0.23 to 0.29 kg of O₂), 0.60 kg usable O₂ (about 8 h), 25 % reserve, 20° walking-slope limit, 20 min per science stop.
 
 The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séítah → LZ-A) comes out at **7.1 km, 3 h 13 min, 0.23 kg of O₂, 62 % margin: MARSWALK READY**.
 
