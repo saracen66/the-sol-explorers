@@ -26,6 +26,10 @@ uniform float uGrid, uTime;
 uniform vec3 uTargetObj;
 uniform float uTarget;
 uniform float uNormalStrength;
+// NASA's proposed human Exploration Zones (2015 workshop): unit vectors of the zone centres
+uniform vec3 uEZ[EZ_N];
+uniform vec3 uEZHome;
+uniform float uEZOn, uEZRad;
 varying vec2 vUv;
 varying vec3 vObjN;
 varying vec3 vWorldPos;
@@ -93,6 +97,27 @@ void main() {
   vec2 gd = abs(fract(g - 0.5) - 0.5) / max(fwidth(g), 1e-4);
   float line = 1.0 - min(min(gd.x, gd.y), 1.0);
   col = mix(col, vec3(1.0, 0.62, 0.26), line * uGrid * 0.32);
+
+  // Exploration Zones: 100 km radius rings (chord length ~ angle at this size)
+  if (uEZOn > 0.001) {
+    float px = max(length(fwidth(N)), 1e-6);
+    float ring = 0.0, fill = 0.0;
+    for (int i = 0; i < EZ_N; i++) {
+      float a = distance(N, uEZ[i]);
+      if (a < uEZRad * 1.5) {
+        ring = max(ring, 1.0 - smoothstep(0.0, 1.6 * px, abs(a - uEZRad)));
+        fill = max(fill, 1.0 - step(uEZRad, a));
+      }
+    }
+    float ah = distance(N, uEZHome);
+    float home = 1.0 - smoothstep(0.0, 2.6 * px, abs(ah - uEZRad));
+    float homeFill = 1.0 - step(uEZRad, ah);
+    vec3 ez = vec3(0.37, 0.83, 1.0);
+    col = mix(col, ez * 0.9, fill * 0.16 * uEZOn);
+    col = mix(col, ez * 1.4, ring * 0.85 * uEZOn);
+    col = mix(col, vec3(0.75, 0.95, 1.0) * 1.5, home * uEZOn);
+    col += ez * homeFill * 0.06 * uEZOn;
+  }
 
   // target lock rings around Jezero
   if (uTarget > 0.001) {

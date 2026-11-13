@@ -291,6 +291,15 @@ class App {
     this.hud.toast(`${site.name.toUpperCase()} · ${site.status === 'fiction' ? 'FICTIONAL SITE' : 'LOCKED IN PHASE 1'}`);
   }
 
+  /** NASA's proposed human Exploration Zones on the globe (orbit view). */
+  toggleZones() {
+    const o = this.orbit;
+    o.zones = !o.zones;
+    this.sound.click();
+    if (this.mode === 'orbit') this.hud.renderOrbit(o);
+    this.hud.toast(o.zones ? 'HUMAN EXPLORATION ZONES · NASA 2015 WORKSHOP' : 'EXPLORATION ZONES OFF');
+  }
+
   setOrbitLayer(id) {
     this.orbit.setLayer(id);
     this.sound.click();
@@ -443,6 +452,7 @@ class App {
     if (this.mode === 'orbit') {
       if (['1', '2', '3', '4'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal', 'geology'][+k - 1]);
       if (k === 'g') { this.orbit.grid = this.orbit.grid > 0 ? 0 : 0.35; this.hud.renderOrbit(this.orbit); }
+      if (k === 'z') this.toggleZones();
       if (k === ' ') { this.orbit.autoSpin = !this.orbit.autoSpin; this.hud.renderOrbit(this.orbit); }
       if (k === 'enter') this.descendToJezero();
     } else {

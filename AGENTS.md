@@ -62,7 +62,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | Mode | Class | Scene units | Data |
 |---|---|---|---|
-| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS and USGS SIM 3292 geology globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
+| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS and USGS SIM 3292 geology globes; HRSC + MOLA blended relief in the 12° patch around Jezero; NASA's 2015 human Exploration Zones as shader rings (`uEZ[EZ_N]`, `orbit.zones`, `app.toggleZones()`) |
 | `crater` | `TerrainView` id `crater` | **km** (89 × 101 km tile) | CTX 5 m image, 20 m DEM |
 | `site` | `TerrainView` id `site` | **km** (6 × 6 km tile) | HiRISE 25 cm image, 1 m DTM |
 
@@ -118,7 +118,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | | |
 |---|---|
-| Orbit | drag spins · scroll zooms and locks onto Jezero · `1-4` layers (4 = geologic map) · `G` grid · `Space` spin · `Enter` descend |
+| Orbit | drag spins · scroll zooms and locks onto Jezero · `1-4` layers (4 = geologic map) · `Z` NASA's human Exploration Zones · `G` grid · `Space` spin · `Enter` descend |
 | Crater / zone | drag orbits · right-drag or Shift pans · scroll zooms · `1-7` layers (7 = Perseverance traverse) · `Esc` goes up |
 | Zone | click drops a pin · `Space` runs the EVA sim · `F` helmet view |
 | Helmet (when switched on) | drag or right stick looks · `WASD` or left stick walks · `Shift` runs · click or tap walks there · `[` `]` time warp · `Esc` / `F` exits |

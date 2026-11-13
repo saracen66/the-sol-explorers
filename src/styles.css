@@ -335,6 +335,10 @@ body.compact .rec-btn, body.touch .rec-btn { display: none; }
 .mk.eva .dot { border-color: #fff; background: #fff; box-shadow: 0 0 14px var(--data), 0 0 4px #fff; }
 .mk.eva .lb { color: var(--data); }
 .mk.zone .lb { color: var(--hud-hi); }
+.mk.ez .dot { width: 6px; height: 6px; left: -3px; top: -3px; border-color: var(--data); border-radius: 50%; transform: none; }
+.mk.ez .lb { font-size: 10.5px; letter-spacing: .1em; color: #a9e6ff; left: 9px; top: -7px; }
+.mk.ez.ez-home .dot { width: 9px; height: 9px; left: -4.5px; top: -4.5px; background: var(--data); box-shadow: 0 0 10px var(--data); }
+.mk.ez.ez-home .lb { font-size: 11.5px; color: #d8f4ff; }
 .mk.wpn .lb.wr { left: 14px; top: -8px; font-size: 11px; letter-spacing: .06em; text-transform: none; font-weight: 600; color: var(--data); }
 .mk.pnr .dot { border-color: var(--critical); background: var(--critical); box-shadow: 0 0 12px var(--critical); width: 14px; height: 14px; left: -7px; top: -7px; }
 .mk.pnr .lb { color: #ffb0b0; }
@@ -653,3 +657,4 @@ body.fpv.compact:not(.landscape) .helmet .h-exit { top: calc(66px + env(safe-are
 body.fpv.compact:not(.landscape) .toast { top: calc(110px + env(safe-area-inset-top, 0px)); }
 /* touch screens in the helmet: the bottom bar would sit under the joysticks */
 body.touch.fpv .bottombar { display: none; }
+#lnk-ez { color: var(--data); text-decoration: none; border-bottom: 1px dotted var(--data); }

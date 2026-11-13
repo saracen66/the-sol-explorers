@@ -213,6 +213,7 @@ export class Hud {
           <span class="k">Diameter</span><span class="v">≈ 45 km</span>
           <span class="k">Region</span><span class="v">Isidis Planitia rim</span>
           <span class="k">Datasets</span><span class="v">8 layers · 6 missions</span>
+          <span class="k">Human EZ</span><span class="v"><a href="#" id="lnk-ez">Jezero-Isidis-Syrtis</a></span>
         </div>
         <div class="btn-row"><button class="btn primary" id="btn-descend">▼ Descend to Jezero</button></div>
       </div>
@@ -221,6 +222,7 @@ export class Hud {
         <div class="rows">${sites}</div>
       </div>`;
     $('btn-descend').onclick = () => { this.closeSheet(); this.app.descendToJezero(); };
+    $('lnk-ez').onclick = (e) => { e.preventDefault(); this.closeSheet(); if (!orbit.zones) this.app.toggleZones(); };
     this.left.querySelectorAll('[data-site]').forEach((b) => {
       b.onclick = () => {
         const s = LANDING_SITES.find((x) => x.id === b.dataset.site);
@@ -243,6 +245,7 @@ export class Hud {
       <div class="sec">
         <div class="sec-h">Display</div>
         <div class="layer ${orbit.grid > 0 ? 'on' : ''}" id="tg-grid"><span class="box"></span><span class="nm">Lat / lon grid</span><span class="key">G</span></div>
+        <div class="layer ${orbit.zones ? 'on' : ''}" id="tg-ez"><span class="box"></span><span><div class="nm">Human Exploration Zones</div><div class="src">NASA landing-site workshop, 2015 · 100 km radius</div></span><span class="key">Z</span></div>
         <div class="layer ${orbit.autoSpin ? 'on' : ''}" id="tg-spin"><span class="box"></span><span class="nm">Planet rotation</span><span class="key">SPACE</span></div>
       </div>
       <div class="sec">
@@ -252,9 +255,10 @@ export class Hud {
     this.right.querySelectorAll('[data-layer]').forEach((d) => { d.onclick = () => this.app.setOrbitLayer(d.dataset.layer); });
     $('tg-grid').onclick = () => { orbit.grid = orbit.grid > 0 ? 0 : 0.35; this.renderOrbit(orbit); };
     $('tg-spin').onclick = () => { orbit.autoSpin = !orbit.autoSpin; this.renderOrbit(orbit); };
+    $('tg-ez').onclick = () => this.app.toggleZones();
     this.orbitLegend(orbit.layer);
     this.orbitClock();
-    this.hints('<kbd>DRAG</kbd> rotate <kbd>SCROLL</kbd> zoom <kbd>1-4</kbd> layers <kbd>ENTER</kbd> descend <kbd>C</kbd> autopilot');
+    this.hints('<kbd>DRAG</kbd> rotate <kbd>SCROLL</kbd> zoom <kbd>1-4</kbd> layers <kbd>Z</kbd> zones <kbd>ENTER</kbd> descend <kbd>C</kbd> autopilot');
   }
 
   orbitClock() {
@@ -610,6 +614,7 @@ export class Hud {
         <tr><td>Topography / relief</td><td>Mars Global Surveyor · MOLA</td><td>MOLA 128/64 ppd merged DEM (463 m)</td></tr>
         <tr><td>Relief around Jezero and Isidis (zoomed in)</td><td>ESA Mars Express · HRSC, with MGS MOLA</td><td>HRSC and MOLA blended DEM v2, 200 m (USGS; HRSC data ESA/DLR/FU Berlin)</td></tr>
         <tr><td>Night thermal IR</td><td>Mars Odyssey · THEMIS</td><td>USGS controlled night-IR mosaic v2 (100 m)</td></tr>
+        <tr><td>Human Exploration Zones (Display, Z)</td><td>NASA First Landing Site / Exploration Zone Workshop for Human Missions to Mars (Oct 2015)</td><td>38 proposed zones, 100 km radius; centres compiled by USGS from JMARS (asc-pds-services, pigpen/mars/Human_EZs)</td></tr>
         <tr><td>Geologic map, unit readout</td><td>USGS-NASA Planetary Geologic Mapping Program (mapped on MGS MOLA and Mars Odyssey THEMIS)</td><td>Geologic Map of Mars, USGS SIM 3292 (Tanaka et al. 2014), 1:20,000,000: official colours and coded unit raster</td></tr></table>
       <h3>JEZERO CRATER</h3>
       <table><tr><th>LAYER</th><th>MISSION / INSTRUMENT</th><th>PRODUCT</th></tr>
