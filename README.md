@@ -45,6 +45,10 @@ Sol Atlas has three levels. You move between them by scrolling, like zooming fro
 
 A rotating Mars with real Viking colour, MOLA relief, a thin dusty atmosphere, Phobos and Deimos. Ten landing sites are marked. Layer `4` lays the **USGS Geologic Map of Mars** (SIM 3292, from the USGS-NASA Planetary Geologic Mapping Program) over the globe; point at any spot to read its rock unit and age. Jezero sits in unit HNt on the rim of the Isidis impact basin, ground more than 3.2 billion years old. Press `Z` (or **Human Exploration Zones** under Display) to show the 38 **Exploration Zones NASA's 2015 workshop proposed for the first human landings**, each with a 100 km radius. Jezero and our Marswalk zone sit inside the *Jezero-Isidis-Syrtis* zone, 51 km from its centre: the site we plan for is one NASA's own human-mission planners put forward. Scroll in and the camera locks onto Jezero; scroll again, or click, to descend. A live mission clock shows the Perseverance sol, local time at Jezero, the Martian season and the current Earth–Mars signal delay.
 
+| Geologic map (layer 4) | NASA's proposed human Exploration Zones (`Z`) |
+|---|---|
+| ![USGS Geologic Map of Mars around Jezero, with the unit legend and the unit under the cursor](docs/screenshots/14-geologic-map.jpg) | ![The 2015 human Exploration Zones on the globe; Jezero sits inside Jezero-Isidis-Syrtis](docs/screenshots/15-exploration-zones.jpg) |
+
 ### 2. Jezero Crater
 
 The whole crater (89 × 101 km) as a 3D block, built from the orbital imagery and elevation model NASA prepared for Perseverance. The terrain is lit by the real Sun position, with shadows that move as you drag the time-of-day slider.
@@ -276,7 +280,7 @@ npm run preview      # serve dist/ at http://localhost:4173
 
 ## Rebuild the NASA data
 
-`scripts/build_data.py` downloads the source data from the public USGS Astrogeology archive (`asc-pds-services` on AWS S3) and bakes the textures and heightmaps in `public/data/`. It streams only the parts it needs. For example, the largest source is a 3.4 GB HiRISE mosaic, and the script reads just the 5 × 5 km zone.
+`scripts/build_data.py` downloads the source data from the public USGS Astrogeology archive (`asc-pds-services` on AWS S3) and bakes the textures and heightmaps in `public/data/`. It streams only the parts it needs. For example, the largest source is a 3.4 GB HiRISE mosaic, and the script reads just the 6 × 6 km zone.
 
 ```bash
 pip install rasterio numpy pillow scipy

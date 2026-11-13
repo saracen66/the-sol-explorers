@@ -1,6 +1,6 @@
 # How Sol Atlas answers the 2026 challenge
 
-Challenge: **Interplanetary Survival Guide: Martian Map** (Intermediate · Human Exploration, Mars, Planets & Moons, Software, Space Exploration). Read from the official challenge page on 31 Oct 2026 (screenshots from the owner). The Resources tab opens on 13 Nov 2026.
+Challenge: **Interplanetary Survival Guide: Martian Map** (Intermediate · Human Exploration, Mars, Planets & Moons, Software, Space Exploration). Read from the official challenge page on 31 Oct 2026 (screenshots from the owner). The Resources tab opened on 13 Nov 2026 and is compared resource by resource in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md#the-challenges-resources-tab-compared-on-13-nov-2026).
 
 **The ask, in NASA's words:** "create a layered, integrated view of a location or route on the Martian surface that pulls together data from multiple NASA science missions and could help a human explorer plan and carry out a successful Marswalk while conducting new and exciting science along the way." The background adds that tools like JPL's Mars Trek "are built for regional and global views rather than the hyperlocalized areas astronauts will target on individual spacewalks."
 
@@ -11,9 +11,10 @@ That last line is our pitch: Sol Atlas goes from the whole planet down to a 6 ×
 | What the statement asks | Sol Atlas today | Gap, and what we could add |
 |---|---|---|
 | A map, tool or interface an astronaut could use on a surface mission, built on NASA data and tools | Yes: 3D map from orbit to the walk zone, route planner, EVA check | None |
+| A location chosen for human explorers | Jezero lies inside the *Jezero-Isidis-Syrtis* Exploration Zone that NASA's 2015 human landing-site workshop proposed (shown on the globe since 13 Nov, key `Z`) | — |
 | Start from science goals, then pick a location that serves them | **Done 31 Oct:** a mission-goal picker (bring the samples home, date the crater floor, look for signs of ancient life, grand tour) sets the plan and says why the spot answers the goal, with a source | — |
 | A location a rover has studied well, or a less-studied one | Yes: Jezero, Perseverance's site, with its real drive path | None. "More sites" stays phase 2 |
-| At least three kinds of data: optical, thermal, spectral, topographic, geophysical, atmospheric, radiation, chemical | Optical (Viking, CTX, HiRISE), thermal (THEMIS), topographic (MOLA, HRSC, CTX DEM, HiRISE DTM): three kinds, layered. Atmosphere and radiation appear only as typical values | **Spectral layer (CRISM minerals)**, which also ties into the science goals. Needs a PDS host allowed in the network settings |
+| At least three kinds of data: optical, thermal, spectral, topographic, geophysical, atmospheric, radiation, chemical | Optical (Viking, CTX, HiRISE), thermal (THEMIS), topographic (MOLA, HRSC, CTX DEM, HiRISE DTM): three kinds, layered. **Since 13 Nov** also the USGS geologic map (units and ages) and live space weather (NASA DONKI CME forecasts). Radiation dose uses Curiosity RAD's measured rate | **Spectral layer (CRISM minerals)**. Checked 13 Nov: the CRISM mosaics in the USGS bucket have only two Jezero scenes, which miss the delta and the stops and show almost no signal. The delta scenes need the PDS Geosciences Node (ODE), still blocked |
 | Safety first: radiation and space weather | **Done 31 Oct:** the Watney check shows the EVA's radiation dose (Curiosity RAD rate) and the storm-shelter time (longest walk back to the airlock). **Done 13 Nov: live** CME forecasts for Mars from NASA DONKI (api.nasa.gov) in the Watney check and the mission clock | Solar energetic particle alerts measured at Mars |
 | Spacesuit mobility, and carrying science equipment | **Done 31 Oct:** a science-kit slider (0–30 kg) adds to the load in the walking model; 20 kg costs the default loop 26 % more O₂ | — |
 | A route map that reaches the science targets while avoiding big obstacles such as large rock formations | Yes: the least-O₂ route avoids slopes over the limit; the delta scarp is routed around | Boulders smaller than the ~5 m route grid aren't modelled. **Rock hazard from the 1 m HiRISE DTM** (surface roughness) could add a cost to rough ground |
@@ -37,5 +38,7 @@ Over a thousand teams picked this challenge, so most will show a layered map and
 2. **Real Perseverance photos at the stops.** The strongest visual for the video, and a direct answer to the point-of-view consideration. Needs `mars.nasa.gov`.
 3. **Mission-goal picker.** Small change; answers the first objective head-on.
 4. **Safety numbers: science-kit mass, EVA radiation dose, shelter time.** Small changes, all in the go/no-go check NASA's "safety first" line asks for.
-5. **CRISM spectral layer.** Fills the one data kind the statement lists first that we lack. Needs a PDS host.
+5. **CRISM spectral layer.** Fills the one data kind the statement lists first that we lack. Needs a PDS host (see the data row above).
+
+Done 31 Oct: 1–4. Added 13 Nov, from the challenge's resource list and the mentor's note: the USGS geologic map (layer 4), NASA's human Exploration Zones (`Z`), live space weather from NASA DONKI in the Watney check.
 6. **Rock hazard from the 1 m DTM.** Better routes, but less visible in a 30-second video.

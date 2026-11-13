@@ -4,7 +4,7 @@ The project submission form has two data fields: **NASA Data**, and **Space Agen
 
 All NASA map files were read directly from the USGS Astrogeology Science Center's public cloud archive (`asc-pds-services`, on AWS). USGS processes and archives NASA's planetary maps. Every link below was checked and answered on 28 Sep 2026.
 
-> **NASA's resource list for the challenge is published on 13 November 2026** (the challenge page's Resources tab says so). On that day, compare this list with the datasets NASA names, and reuse NASA's exact dataset names in the form and the video. The other project-page fields, deadlines and rules are in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md).
+> **Compared with NASA's resource list for the challenge on 13 November 2026**, the day it was published. Of the five resources it names, we use the USGS-NASA Planetary Geologic Mapping Program's geologic map (added that day) and the Perseverance raw images; Mars Trek shows the same Mars 2020 CTX and HiRISE products we read at full resolution from USGS, so it is not listed as a source; the Curiosity route map is an example of the kind of map we make; Worldview is Earth data. The table for each is in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md#the-challenges-resources-tab-compared-on-13-nov-2026), with the other project-page fields, deadlines and rules. The links added on 13 Nov (geologic map, Exploration Zones, DONKI) were checked that day.
 
 ---
 

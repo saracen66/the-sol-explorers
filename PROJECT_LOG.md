@@ -446,6 +446,30 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 
 **Checked:** a script polled the caption, wrist and prompt boxes every 0.4 s through a full autopilot run: 212 checks on desktop (1280 × 720) and 208 on iPhone 14, **0 overlaps**. Screenshots of the descent and the EVA segments on both. Smoke test passes on both.
 
+### 2026-11-13: resource list, rules check, geologic map, Exploration Zones, live space weather
+
+**Asked by the team** (from a different Claude account, on the deadline day): go through the repo and the challenge's Resources tab (published today), check the rules, add whatever must be there, decide whether a NASA API key would make the project stand out, test desktop and phone, and keep the docs current. Our mentor added that NASA's APIs need no special Space Apps key and a free key comes from api.nasa.gov.
+
+**What we found**
+- **Rules:** still followed (public repo, Apache 2.0, NASA data at the core, AI use disclosed, no NASA logos, under-18 rule noted). One fact had gone stale in the project-page summary draft: the zone is 6 × 6 km since 31 Oct, not 5 × 5. Fixed, and the README's pipeline note too.
+- **Resources tab:** five resources. We already used the Perseverance raw images. Mars Trek shows the same Mars 2020 CTX and HiRISE products we read at full resolution from USGS. The Curiosity route map is an example of the kind of map we make. Worldview is Earth data. The **USGS-NASA Planetary Geologic Mapping Program**'s geologic map was missing, and we added it. The full table is in `docs/SUBMISSION_CHECKLIST.md`.
+- **Network:** every NASA host was blocked in this account's Default environment. The USGS bucket (`asc-pds-services`) was reachable, and it holds the geologic map (`pigpen/mars/geology/`), NASA's 2015 human Exploration Zones and CRISM mosaics for those zones. A personal environment `the-sol-explorers` was created (approved in the session) allowing `api.nasa.gov`, `kauai.ccmc.gsfc.nasa.gov` and `mars.nasa.gov`.
+- **CRISM:** only two scenes in that set touch Jezero (FRT00005850, FRT000066A4). They miss the delta and the stops, and their mineral browse products are nearly blank there. Not used.
+- **Traverse:** NASA's MMGIS feed still ends at sol 2022, so our copy is current.
+- **API key:** `DEMO_KEY` now allows **10 requests an hour per IP**, and the no-key CCMC mirror of DONKI sends no CORS header and timed out on longer queries. A key helps only where we call NASA live, so it went into a Netlify Function: the key stays server-side and the CDN caches replies.
+
+| Commit | Change | Checked |
+|---|---|---|
+| `a080d8e` | **Geologic map of Mars** (USGS SIM 3292, Tanaka et al. 2014) as globe layer 4, in its official colours; the rock unit and age under the cursor; legend for the units framing Jezero (HNt, mNhm, lHl, eHv); new `geology` stage; autopilot beat after THEMIS | Unit at Jezero = HNt, Olympus Mons = Ave (matches the map); colour map and coded raster agree on >98 % of each unit's pixels; smoke test desktop + iPhone 14; phone sheet fits, no sideways scroll |
+| `2dc5200` | **NASA's proposed human Exploration Zones** (2015 workshop, 38 zones, 100 km radius) as globe rings with labels (`Z`, Display panel, Jezero card link). Jezero and the Marswalk zone lie inside *Jezero-Isidis-Syrtis*, 51 km from its centre. Autopilot shows them before the dive and restores the setting | Toggles both ways; labels declutter on the phone; full autopilot run 110 s, no errors; smoke test desktop + iPhone 14 |
+| `b6aeec3` | **Live space weather at Mars** from NASA DONKI (WSA-ENLIL CME forecasts, last 30 days) in the Watney check and the mission clock; advisory, not part of the verdict. `netlify/functions/space-weather.mjs` holds `NASA_API_KEY` server-side (else `DEMO_KEY`), CDN-cached 30 min; fallback straight to `api.nasa.gov`; offline says "not checked". Smoke test stubs NASA | With today's real DONKI reply: 56 runs, 9 CMEs forecast to reach Mars in 30 days, one due 13 Nov 12:00 UTC (glancing, 726 km/s, launched 9 Nov). Function path, direct path and offline on desktop; direct path on iPhone 14; the function called the real API (56 runs); smoke test 13/13 on both |
+| (this commit) | README screenshots 14 and 15, resource comparison and the 13 Nov to-do list in `SUBMISSION_CHECKLIST.md`, `SUBMISSION_DATA.md` (new NASA data entries; why CRISM is not used), `CHALLENGE_FIT.md`, AGENTS.md, this log | README tables render; links checked |
+
+**Not done, and why**
+- Mars Trek as a source: not needed (same products), and trek.nasa.gov stays blocked here.
+- A CRISM mineral layer: no usable Jezero scenes in a reachable archive (see above).
+- Netlify production still publishes `claude/busy-heisenberg-8gasem`. This work is on `claude/nasa-space-apps-review-4x92dx` and needs merging (a pull request) before the live site and the default branch show it.
+
 ---
 
 ## Decisions and assumptions
@@ -465,6 +489,8 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 | Helmet skyline computed from the CTX DEM, not an image | It is true for the exact spot, and it's something a painted backdrop can't claim |
 | Helmet walking uses real walking speeds × a displayed time warp | Keeps the O₂ numbers honest while staying watchable |
 | Demo "death" plan uses a 0.20 kg suit | 0.25 kg still gets home on the default loop; 0.20 kg runs dry at 5.83 km |
+| Space weather is advisory, not part of the verdict | A live forecast would change READY / NO-GO from one hour to the next, including in a recorded demo. The crew still sees it next to the storm-shelter time |
+| NASA API key only in a Netlify Function | The repo and the built JavaScript are public; a key in the front end would be exposed. `DEMO_KEY` (10 requests/hour/IP) is the fallback |
 | Only ideas taken from a teammate's early prototype, not assets | Its images are AI-generated and some positions are approximate; everything shown in Sol Atlas must be real data |
 
 ---
@@ -475,12 +501,14 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 - [x] Live site checked in a browser (31 Oct 2026, after the owner allowed `*.netlify.app`): headless Chromium on desktop and iPhone 14 loads https://sol-atlas.netlify.app (HTTP 200) with no console errors, and DATA SOURCES shows the HRSC credit. Still worth a click-through on a real phone and GPU.
 - [x] Challenge statement (Details tab) read from the owner's screenshots on 31 Oct 2026 and compared with the app in `docs/CHALLENGE_FIT.md`.
 - [x] Built from `docs/CHALLENGE_FIT.md` (31 Oct): mission goals, safety numbers, stop photos, rover + walkback.
-- [ ] Still open from `docs/CHALLENGE_FIT.md`: CRISM mineral layer, rock hazard from the 1 m DTM, two-person EVA.
+- [ ] Still open from `docs/CHALLENGE_FIT.md`: CRISM mineral layer (no usable Jezero scenes reachable, 13 Nov), rock hazard from the 1 m DTM, two-person EVA.
 - [ ] Re-record any pitch footage that shows the old Marswalk zone or the old Three Forks position.
 - [ ] Open a pull request from `claude/busy-heisenberg-8gasem` into `main`, then switch Netlify's production branch to `main` (it currently publishes `claude/busy-heisenberg-8gasem`).
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
-- [ ] **13 Nov morning:** match our datasets to NASA's names in the challenge's Resources tab, which only goes live on 13 Nov (the page said so on 29 Oct). See `docs/SUBMISSION_CHECKLIST.md`.
+- [x] **13 Nov:** datasets compared with the challenge's Resources tab; geologic map, Exploration Zones and live space weather added. See `docs/SUBMISSION_CHECKLIST.md`.
+- [ ] **Merge `claude/nasa-space-apps-review-4x92dx` into `claude/busy-heisenberg-8gasem`** so Netlify and the default branch get the 13 Nov work.
+- [ ] Optional: add a free NASA API key as `NASA_API_KEY` in Netlify's environment variables, then redeploy.
 - [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
 - [x] Perseverance traverse refreshed to sol 2022 from NASA's feed (31 Oct 2026); `build_data.py traverse` repeats it.
 - [ ] Pitch video: follow the checklist at the end of `AI_DISCLOSURE.md` (watermark any AI visuals or voice; no NASA logos).

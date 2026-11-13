@@ -18,6 +18,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 - **Live:** https://sol-atlas.netlify.app (Netlify project `sol-atlas`, team `saracen66`)
 - **Repo:** https://github.com/saracen66/the-sol-explorers
 - **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 work (licence, AI prompts, submission checklist, HRSC relief, team list) was merged into it from `claude/hopeful-babbage-m9v81r` in https://github.com/saracen66/the-sol-explorers/pull/1. `main` has not been set up as the production branch yet (see open items).
+- **13 Nov 2026 work** (geologic map, Exploration Zones, live space weather) is on `claude/nasa-space-apps-review-4x92dx`, made from a different Claude account. It needs merging into `claude/busy-heisenberg-8gasem` before Netlify shows it. That account's cloud environment `the-sol-explorers` allows `api.nasa.gov`, `kauai.ccmc.gsfc.nasa.gov` and `mars.nasa.gov`; the Default environment blocks all NASA hosts.
 - The deliverable it supports is a **240-second pitch video**. The built-in autopilot (`C`) and recorder (`R`) exist for that.
 
 ## 2. How the team wants work done
@@ -37,7 +38,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
   - No recognisable name, voice or face of anyone under 18 in any video or in the submission (repo included).
   - What goes on the NASA project page, the videos and the deadlines: [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
   - How the app answers each objective and consideration in the official challenge statement, and the ranked ideas for what to add: [docs/CHALLENGE_FIT.md](docs/CHALLENGE_FIT.md).
-- **2026 timeline:** challenge summaries were released 17 Sep; full statements on 28 Oct; the challenge's Resources tab (NASA's datasets) only on 13 Nov. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
+- **2026 timeline:** challenge summaries were released 17 Sep; full statements on 28 Oct; the challenge's Resources tab (NASA's datasets) on 13 Nov, compared with ours that day in `docs/SUBMISSION_CHECKLIST.md`. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
 
 ## 3. Run it
 
@@ -156,6 +157,7 @@ Working and pushed:
 - EVA simulation with death and mayday light-time;
 - drop-a-pin routing;
 - helmet view (desktop, and phones with joysticks and landscape);
+- USGS geologic map layer, NASA's human Exploration Zones, live DONKI space weather (13 Nov);
 - synthesised sound, REC, autopilot;
 - collapsible panels, phone and tablet layouts.
 
@@ -164,8 +166,8 @@ Open (see PROJECT_LOG for the full list):
 - Open a PR into `main` and switch Netlify production to `main`.
 - Record the pitch video (REC + autopilot).
 - Roles for each team member (names are in README → Credits).
-- On 13 Nov, when the challenge's Resources tab goes live, compare our datasets with NASA's list (spaceappschallenge.org is blocked from the build machine, so a teammate opens it).
-- Phase 2 ideas: CRISM minerals, live MEDA weather, more sites, dust-storm alerts, offline mode.
+- Merge the 13 Nov branch (see §1); optionally set `NASA_API_KEY` in Netlify.
+- Phase 2 ideas: CRISM minerals (needs the PDS Geosciences Node; the USGS CRISM set has no usable Jezero scenes), live MEDA weather, more sites, solar-particle alerts, offline mode.
 
 Rejected ideas and why:
 - Images from a teammate's early prototype: AI-generated, some mislabelled as HiRISE.

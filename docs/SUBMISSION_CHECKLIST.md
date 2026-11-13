@@ -41,7 +41,7 @@ The guide flags a clash for Video 2 (a "1 November" date vs the 13 Nov 18:30 run
 ## Project page, field by field (drafts to adapt)
 
 **High-Level Summary**
-> Sol Atlas is a 3D Mars map that plans a walk on foot for the first crews and checks whether the astronaut gets home with oxygen to spare. It stacks data from five NASA missions (Viking, MGS MOLA, Mars Odyssey THEMIS, MRO CTX and HiRISE, Mars 2020) and ESA's Mars Express (HRSC) in one view, from the whole planet down to a 5 × 5 km zone of Jezero Crater at 25 cm per pixel. Pick any point and it finds the route that uses the least oxygen while avoiding slopes too steep to walk, using a published walking-effort model scaled to Mars gravity. It marks the point of no return and, if the plan is short, the exact spot where the suit runs dry, and shows that a mayday would take about 14 minutes to reach Earth. It runs in any browser, on phones too, with no install and no API key.
+> Sol Atlas is a 3D Mars map that plans a walk on foot for the first crews and checks whether the astronaut gets home with oxygen to spare. It stacks data from five NASA missions (Viking, MGS MOLA, Mars Odyssey THEMIS, MRO CTX and HiRISE, Mars 2020), the USGS-NASA Geologic Map of Mars and ESA's Mars Express (HRSC) in one view, from the whole planet down to a 6 × 6 km zone of Jezero Crater at 25 cm per pixel, inside one of the Exploration Zones NASA proposed for the first human landings. Start from a science goal, or pick any point, and it finds the route that uses the least oxygen while avoiding slopes too steep to walk, using a published walking-effort model scaled to Mars gravity. It marks the point of no return and, if the plan is short, the exact spot where the suit runs dry, shows that a mayday would take about 14 minutes to reach Earth, and checks NASA's live space-weather forecasts for solar storms heading to Mars. Real Perseverance photos show each stop, and a helmet view lets you walk the real terrain. It runs in any browser, on phones too, with no install.
 > 240-second video: *(link)* · Code: https://github.com/saracen66/the-sol-explorers · Live: https://sol-atlas.netlify.app
 
 **Project Demo:** the 30-second video link.
@@ -61,10 +61,30 @@ The guide flags a clash for Video 2 (a "1 November" date vs the 13 Nov 18:30 run
 
 **References:** paste the "Space Agency Partner & Other Data" block from [SUBMISSION_DATA.md](SUBMISSION_DATA.md) (software, fonts, papers, the waypoint archive).
 
-## Still to check against the full challenge statement
+## The challenge's Resources tab, compared on 13 Nov 2026
 
-The challenge page is live, but its **Resources** tab says *"Resources will be available on Friday, November 13"* (checked 29 Oct 2026 by the owner, screenshot). That is day 1 of the Bangladesh hackathon. On the morning of 13 Nov, open the challenge page (set **Show Challenges From** to 2026), read the **Details** and **Resources** tabs, and:
+The Resources tab went live on 13 Nov (the team pasted it into the session). Our mentor added that NASA's data and APIs are public, no special Space Apps key is needed, and a free key comes from api.nasa.gov if one is wanted.
 
-- [ ] Compare its resource list with [SUBMISSION_DATA.md](SUBMISSION_DATA.md). Where NASA names a product we use, copy NASA's exact name into the form and say it in the video.
-- [ ] Check that every objective in the statement is answered somewhere in the app or the pitch.
-- [ ] If it names **NASA Mars Trek** (trek.nasa.gov) as the main resource: our CTX and HiRISE layers are the full-resolution Mars 2020 products, taken from the USGS archive instead of Trek's tile server so the demo works offline. Say that in the "NASA data sources used" field. Don't claim Trek as a source unless we actually use it.
+| NASA resource | Do we use it? | What to say on the page and in the video |
+|---|---|---|
+| **JPL's Mars Trek** (trek.nasa.gov) | Not as a source. We use the same Mars 2020 products Trek shows for Jezero (CTX 5 m mosaic and 20 m DEM, HiRISE 25 cm mosaic and 1 m DTM), at full resolution from the USGS archive, so the demo works offline | "Trek shows regional and global views; Sol Atlas goes down to the 6 × 6 km a crew would walk, which the challenge says Trek is not built for." Don't list Trek as a data source |
+| **USGS-NASA Planetary Geologic Mapping Program**, geologic map of Mars | **Yes, since 13 Nov:** USGS SIM 3292, *Geologic Map of Mars* (Tanaka et al. 2014), globe layer 4, with the unit and age under the cursor | Name it exactly: "the USGS-NASA Planetary Geologic Mapping Program's Geologic Map of Mars, SIM 3292" |
+| **Curiosity's proposed path up Mount Sharp** (example route map) | Our equivalent: the annotated route on the HiRISE map, numbered stops with photos, the point of no return and the O₂-out point. Curiosity's map shows where scientists want to go; ours also checks whether a person on foot gets back | Show the route map in the video next to the phrase "a route map that reaches the science targets" |
+| **NASA Worldview** (Earthdata) | No: it is Earth imagery. Nothing on Mars to use | Leave it out |
+| **Mars Perseverance raw images** | **Yes:** a raw image from each science stop (sols 16, 249, 502, 690), in the stop card and the photo gallery | "Real Perseverance raw images, so the crew knows what each stop looks like" |
+| Mentor's list: **NASA API portal** (api.nasa.gov) | **Yes, since 13 Nov:** DONKI space weather, live, for CMEs forecast to reach Mars | "Live NASA space-weather forecasts in the go/no-go check" |
+| Mentor's list: **data.nasa.gov**, **Earthdata** | No dataset there covers our Mars site better than what we use | — |
+| Mentor's list: **NASA JPL** | Yes: the Mars 2020 maps (JPL), the MMGIS traverse feed, JPL planetary positions for the signal delay | Already listed |
+
+Also new on 13 Nov, from the same USGS archive: NASA's 2015 proposed **human Exploration Zones**. Jezero sits inside the *Jezero-Isidis-Syrtis* zone: worth one sentence in the video ("a site NASA's own human-mission planners put forward").
+
+- [x] Resource list compared with [SUBMISSION_DATA.md](SUBMISSION_DATA.md) (13 Nov). The geologic map, the Exploration Zones and DONKI were added to the app and the data list.
+- [x] Every objective in the statement is answered in the app (see [CHALLENGE_FIT.md](CHALLENGE_FIT.md)).
+- [ ] Say the exact names in Video 2 and on the project page: "USGS Geologic Map of Mars, SIM 3292", "NASA DONKI".
+
+## Before the videos and the submission (13 Nov)
+
+- [ ] **Publish today's work.** Netlify publishes `claude/busy-heisenberg-8gasem`. The 13 Nov work is on `claude/nasa-space-apps-review-4x92dx`: merge it into `claude/busy-heisenberg-8gasem` (a pull request on GitHub) so the live site and the repo's default branch show it. Judges see the default branch.
+- [ ] **NASA API key (optional, two minutes).** Get a free key at https://api.nasa.gov ("Generate API Key"). In Netlify: Project configuration → Environment variables → add `NASA_API_KEY`, then redeploy. Without it the live space-weather check uses NASA's `DEMO_KEY`, which allowed only 10 requests an hour per IP on 13 Nov; responses are cached for 30 minutes, so it still works for a small audience. **Never paste the key into the code or the repo.**
+- [ ] Open https://sol-atlas.netlify.app on a phone after the deploy: press `4` (geologic map) and `Z` (Exploration Zones) on desktop, and check the "Space weather at Mars" line in the planner.
+- [ ] Re-record any footage of the autopilot: it now shows the geologic map and the Exploration Zones (about 110 s).
