@@ -468,7 +468,7 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 **Not done, and why**
 - Mars Trek as a source: not needed (same products), and trek.nasa.gov stays blocked here.
 - A CRISM mineral layer: no usable Jezero scenes in a reachable archive (see above).
-- Netlify production still publishes `claude/busy-heisenberg-8gasem`. This work is on `claude/nasa-space-apps-review-4x92dx` and needs merging (a pull request) before the live site and the default branch show it.
+- The live deploy was not checked from here (`*.netlify.app` is blocked in this environment). The work was merged into the production branch in https://github.com/saracen66/the-sol-explorers/pull/2.
 
 ---
 
@@ -507,7 +507,7 @@ With `mars.nasa.gov` and `pds-geosciences.wustl.edu` now allowed, the owner aske
 - [ ] Test on the team's real computers and phones after the performance update (the level is picked automatically; `?q=low|medium|high` forces one).
 - [ ] **Confirm with the local Space Apps lead** how work done before the 14–15 Nov hackathon is treated, and whether the first-round video is a separate pre-selection.
 - [x] **13 Nov:** datasets compared with the challenge's Resources tab; geologic map, Exploration Zones and live space weather added. See `docs/SUBMISSION_CHECKLIST.md`.
-- [ ] **Merge `claude/nasa-space-apps-review-4x92dx` into `claude/busy-heisenberg-8gasem`** so Netlify and the default branch get the 13 Nov work.
+- [x] Merged `claude/nasa-space-apps-review-4x92dx` into `claude/busy-heisenberg-8gasem` (the default and production branch): https://github.com/saracen66/the-sol-explorers/pull/2, merge `0540ae2`, 13 Nov 2026. The deploy was not checked from the build machine (`*.netlify.app` is blocked there): open the live site once to confirm.
 - [ ] Optional: add a free NASA API key as `NASA_API_KEY` in Netlify's environment variables, then redeploy.
 - [x] After the first-round submission, switch the helmet view and the CRATER panel back on (done 24 Oct 2026).
 - [x] Perseverance traverse refreshed to sol 2022 from NASA's feed (31 Oct 2026); `build_data.py traverse` repeats it.

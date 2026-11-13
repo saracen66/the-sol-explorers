@@ -18,7 +18,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 - **Live:** https://sol-atlas.netlify.app (Netlify project `sol-atlas`, team `saracen66`)
 - **Repo:** https://github.com/saracen66/the-sol-explorers
 - **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 work (licence, AI prompts, submission checklist, HRSC relief, team list) was merged into it from `claude/hopeful-babbage-m9v81r` in https://github.com/saracen66/the-sol-explorers/pull/1. `main` has not been set up as the production branch yet (see open items).
-- **13 Nov 2026 work** (geologic map, Exploration Zones, live space weather) is on `claude/nasa-space-apps-review-4x92dx`, made from a different Claude account. It needs merging into `claude/busy-heisenberg-8gasem` before Netlify shows it. That account's cloud environment `the-sol-explorers` allows `api.nasa.gov`, `kauai.ccmc.gsfc.nasa.gov` and `mars.nasa.gov`; the Default environment blocks all NASA hosts.
+- **13 Nov 2026 work** (geologic map, Exploration Zones, live space weather) was made on `claude/nasa-space-apps-review-4x92dx` from a different Claude account and merged into `claude/busy-heisenberg-8gasem` in https://github.com/saracen66/the-sol-explorers/pull/2. That account's cloud environment `the-sol-explorers` allows `api.nasa.gov`, `kauai.ccmc.gsfc.nasa.gov` and `mars.nasa.gov`; the Default environment blocks all NASA hosts.
 - The deliverable it supports is a **240-second pitch video**. The built-in autopilot (`C`) and recorder (`R`) exist for that.
 
 ## 2. How the team wants work done
@@ -166,7 +166,7 @@ Open (see PROJECT_LOG for the full list):
 - Open a PR into `main` and switch Netlify production to `main`.
 - Record the pitch video (REC + autopilot).
 - Roles for each team member (names are in README → Credits).
-- Merge the 13 Nov branch (see §1); optionally set `NASA_API_KEY` in Netlify.
+- Optionally set `NASA_API_KEY` in Netlify (free key from api.nasa.gov), then redeploy.
 - Phase 2 ideas: CRISM minerals (needs the PDS Geosciences Node; the USGS CRISM set has no usable Jezero scenes), live MEDA weather, more sites, solar-particle alerts, offline mode.
 
 Rejected ideas and why:

@@ -84,7 +84,7 @@ Also new on 13 Nov, from the same USGS archive: NASA's 2015 proposed **human Exp
 
 ## Before the videos and the submission (13 Nov)
 
-- [ ] **Publish today's work.** Netlify publishes `claude/busy-heisenberg-8gasem`. The 13 Nov work is on `claude/nasa-space-apps-review-4x92dx`: merge it into `claude/busy-heisenberg-8gasem` (a pull request on GitHub) so the live site and the repo's default branch show it. Judges see the default branch.
+- [x] **Publish today's work.** Merged into `claude/busy-heisenberg-8gasem` (the default branch, which Netlify publishes) in https://github.com/saracen66/the-sol-explorers/pull/2.
 - [ ] **NASA API key (optional, two minutes).** Get a free key at https://api.nasa.gov ("Generate API Key"). In Netlify: Project configuration → Environment variables → add `NASA_API_KEY`, then redeploy. Without it the live space-weather check uses NASA's `DEMO_KEY`, which allowed only 10 requests an hour per IP on 13 Nov; responses are cached for 30 minutes, so it still works for a small audience. **Never paste the key into the code or the repo.**
 - [ ] Open https://sol-atlas.netlify.app on a phone after the deploy: press `4` (geologic map) and `Z` (Exploration Zones) on desktop, and check the "Space weather at Mars" line in the planner.
 - [ ] Re-record any footage of the autopilot: it now shows the geologic map and the Exploration Zones (about 110 s).
