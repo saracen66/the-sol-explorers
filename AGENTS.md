@@ -87,6 +87,8 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/ui/sound.js` | Web Audio synth (no audio files) |
 | `src/ui/recorder.js` | Tab capture → webm download |
 | `src/ui/Joystick.js` | Touch thumb-stick |
+| `src/lib/spaceweather.js` | Live CME forecasts for Mars from NASA DONKI (WSA-ENLIL runs, last 30 days). `fetchSpaceWeather()` tries `/api/space-weather` (skipped on localhost), then `api.nasa.gov` with `DEMO_KEY`; caches 30 min in sessionStorage; never throws. Result in `app.spaceWeather`, shown by `hud.spaceWeatherBlock()` and the orbit clock. Advisory only: it never changes the verdict |
+| `netlify/functions/space-weather.mjs` | Netlify Function at `/api/space-weather`. Uses `NASA_API_KEY` from Netlify's environment variables (else `DEMO_KEY`); CDN-cached 30 min |
 | `src/lib/marstime.js` | Mars24 clock, sun position, Earth–Mars light time |
 | `src/data/geology.js` | USGS SIM 3292 unit names, ages (pamphlet Table 1) and short descriptions; `describeUnit(sym)`. Colours and the unit grid come from `manifest.json` → `geology` (`assets.unitAt(lat, lon)`) |
 | `src/data/places.js` | Landing sites, POIs, the default plan `['lz','oeb','depot','seitah']`, and `MISSION_GOALS` (goal → plan + why). `app.resetPlan(goalId)` loads a goal; the autopilot always narrates `tour` and restores the user's goal when stopped |
@@ -137,6 +139,8 @@ DEVICE="iPhone 14" NODE_PATH=$(npm root -g) node scripts/smoke.cjs
 - Chromium flags: `--use-angle=swiftshader --enable-unsafe-swiftshader`. SwiftShader is slow, so frames take hundreds of ms. Set `solAtlas.maxDt = 2.5` to speed transitions, and use `?q=low`.
 - For screenshots, inject `*{transition:none!important}`. CSS transitions barely advance under software rendering, so panels look half-faded otherwise.
 - Two-finger joystick or pinch tests use the CDP `Input.dispatchTouchEvent` with two touch points; Playwright's `tap` is one finger only.
+- `smoke.cjs` stubs NASA DONKI (`/api/space-weather` and `api.nasa.gov`) with an empty list. `DEMO_KEY` allows only 10 requests an hour per IP, so don't point repeated tests at the real API.
+- Node's `fetch` ignores the sandbox proxy: run Node scripts that call NASA with `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt`.
 - Headless Chrome can't capture a tab. REC was verified by stubbing `getDisplayMedia` with a canvas stream.
 
 ## 7. Deploy
@@ -165,5 +169,5 @@ Open (see PROJECT_LOG for the full list):
 
 Rejected ideas and why:
 - Images from a teammate's early prototype: AI-generated, some mislabelled as HiRISE.
-- A Gemini dependency: the demo must run offline with no API key.
+- A Gemini dependency: the demo must run offline with no API key. (The live DONKI space-weather check is the one network call; it is optional, needs no key in the browser, and says "not checked" offline.)
 - A CAPCOM voice from `speechSynthesis`: voice quality varies too much between devices for a judged video.

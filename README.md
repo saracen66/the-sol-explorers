@@ -66,6 +66,7 @@ A 6 × 6 km zone around Perseverance's landing site, Séítah, the delta front a
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
 - **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, daylight left, the EVA's radiation dose and the storm-shelter time (how long the walk back takes from the farthest point if a solar storm is forecast), ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
+- **Live space weather at Mars.** When online, the Watney check (and the orbit view's mission clock) asks NASA's **DONKI** service which coronal mass ejections NASA's WSA-ENLIL solar-wind model forecasts to reach Mars. If one is due within three days, or arrived in the last day, it says when, how fast the CME was and links to NASA's forecast, so the crew can keep the walk inside the storm-shelter time. On 13 Nov 2026 it showed a CME forecast to glance Mars at 12:00 UTC that day; the model forecast nine CMEs reaching Mars in the 30 days before. The line is advisory and doesn't change the verdict, and offline it just says "not checked".
 - **Rover with a walkback limit.** Switch the plan from ON FOOT to ROVER + WALKBACK and the crew drives between stops on an unpressurised rover. Apollo 15–17 drove under the same rule: never go farther than the crew could walk home if the rover broke down. Sol Atlas checks it along the whole drive and marks the walkback limit in red when a plan breaks it.
 - **Point of no return.** If the suit can't carry enough oxygen, a red marker shows the last point where turning back still keeps the reserve.
 - **EVA flyover.** Simulate the walk with a chase camera and a wrist display (next stop, oxygen left, dust). The wrist turns amber past the point of no return and red when the reserve is reached. The profile chart follows EV1 as it walks.
@@ -136,6 +137,7 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Marswalk zone | Stop photos | Mars 2020 · Navcam, Mastcam-Z | Raw images from the stops: landing site (sol 16), Three Forks (sol 690), Séítah (sol 249), delta front (sol 502) |
 | Helmet view | Skyline | MRO · CTX stereo | Computed from the 20 m crater DEM: highest angle per bearing, Mars curvature included |
 | Phase 2 | Minerals | MRO · CRISM | not yet: shown as locked |
+| Marswalk zone, orbit clock | Space weather at Mars (live) | NASA DONKI · WSA-ENLIL model (NASA Goddard CCMC) | CME arrival forecasts for Mars over the last 30 days, fetched when the app opens (`api.nasa.gov`) |
 | Phase 2 | Live weather | Perseverance · MEDA | not yet: the conditions panel shows typical values, labelled "not live" |
 
 "Ground firmness" works like this: rock and coarse grains stay warm through the night, while dust and fine sand cool fast. So night-time infrared brightness tells firm ground from loose ground.
@@ -310,6 +312,8 @@ netlify deploy --build --prod
 
 `dist/` also works on GitHub Pages or any other static host, because all paths are relative.
 
+**Live space weather and the NASA API key.** [`netlify/functions/space-weather.mjs`](netlify/functions/space-weather.mjs) serves `/api/space-weather`: it fetches NASA DONKI with a key kept on the server, and Netlify's CDN caches the reply for 30 minutes, so every visitor shares a few NASA requests. To give it a key (free, instant: https://api.nasa.gov → *Generate API Key*), add `NASA_API_KEY` under **Project configuration → Environment variables** in Netlify and redeploy. Without a key it uses NASA's `DEMO_KEY`, which on 13 Nov 2026 allowed only 10 requests an hour per IP address. On other hosts, or locally, the browser calls `api.nasa.gov` directly with `DEMO_KEY`. Never put a real key in the front-end code: the repository and the built JavaScript are public.
+
 ---
 
 ## Project structure
@@ -317,6 +321,7 @@ netlify deploy --build --prod
 ```
 index.html              HUD skeleton (panels, loader, overlays)
 netlify.toml            Netlify build + cache headers
+netlify/functions/      space-weather.mjs: /api/space-weather, NASA DONKI with the key kept server-side
 vite.config.js          Vite config (relative base path)
 src/
   main.js               app: level transitions (orbit ⇄ crater ⇄ zone), input, render loop
@@ -330,9 +335,11 @@ src/
                         pathfinding.js (A*), eva.js (metabolic + O₂ model)
   ui/                   HUD panels and legends, elevation-profile chart, labels pinned to 3D points,
                         sound.js (Web Audio synth), recorder.js (tab → video)
-  lib/                  marstime.js (Mars24, signal delay, sun position), geo.js
+  lib/                  marstime.js (Mars24, signal delay, sun position), geo.js,
+                        spaceweather.js (live CME forecasts for Mars from NASA DONKI)
   core/                 asset loader, quality levels + adaptive resolution, scene crossfade, autopilot
   data/places.js        landing sites, points of interest, default Marswalk plan
+  data/geology.js       USGS SIM 3292 unit names, ages and descriptions
 scripts/build_data.py   NASA/USGS → web data pipeline
 public/data/            processed textures + heightmaps + manifest.json (lite/ = phone versions),
                         m20_traverse.json (Perseverance end-of-drive waypoints, sol 0–2022)
@@ -352,20 +359,21 @@ scripts/smoke.cjs       Playwright smoke test (desktop or DEVICE="iPhone 14")
 - Some place positions are approximate (see [Places](#places-on-the-map)).
 - The EVA model is a planning estimate, not flight-certified. Its assumptions are listed in the planner.
 - The helmet view's close-up pebbles and grain are procedural. HiRISE resolves 25 cm, so anything smaller is decoration, and the terrain mesh is sampled every ~5 m.
-- The traverse is a snapshot of NASA's feed (sol 2022, October 2026). `python3 scripts/build_data.py traverse` refreshes it.
+- The traverse is a snapshot of NASA's feed (sol 2022, October 2026; on 13 Nov 2026 the feed still ended there). `python3 scripts/build_data.py traverse` refreshes it.
+- Space weather is a forecast for Mars as a whole, from NASA's model. It does not include solar particle events measured at Mars.
 
 **Next**
 - More sites, including ice-rich plains from NASA's SWIM ice-mapping project.
 - CRISM minerals.
 - Live MEDA weather.
-- Dust-storm alerts from orbit.
+- Dust-storm alerts from orbit. Space-weather alerts for CMEs are in (NASA DONKI); solar energetic particle alerts would be the next step.
 - An offline mode for suits and rovers.
 
 ---
 
 ## AI use disclosure
 
-The code, data-processing scripts and documentation of Sol Atlas were written with an AI coding assistant, **Claude Code (Anthropic)**, under the team's direction; the team set the goals, tested every version and asked for fixes. The pitch script and background research were also drafted with AI help. **All map data is real NASA mission data.** No image, video or sound in the app or this repository is AI-generated (the screenshots are captures of the running app), and the app makes no AI calls at runtime. The full statement, with a checklist for the pitch video, is in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
+The code, data-processing scripts and documentation of Sol Atlas were written with an AI coding assistant, **Claude Code (Anthropic)**, under the team's direction; the team set the goals, tested every version and asked for fixes. The pitch script and background research were also drafted with AI help. **All map data is real NASA mission data.** No image, video or sound in the app or this repository is AI-generated (the screenshots are captures of the running app), and the app makes no AI calls at runtime (its only live call is NASA's DONKI space-weather service). The full statement, with a checklist for the pitch video, is in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 
 ---
 

@@ -30,6 +30,10 @@ const DEVICE = process.env.DEVICE;
   let failed = false;
   const check = (ok, what) => { log(`${ok ? 'ok  ' : 'FAIL'} ${what}`); if (!ok) failed = true; };
 
+  // NASA DONKI (live space weather) is stubbed: the test checks the app, not NASA, and the
+  // DEMO_KEY allows only a few requests an hour
+  await page.route('**/api/space-weather**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+  await page.route('https://api.nasa.gov/**', (r) => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '[]' }));
   await page.goto(URL);
   await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
   await page.waitForFunction(() => document.getElementById('loader').classList.contains('done'), null, { timeout: 300000 });

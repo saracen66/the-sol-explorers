@@ -42,6 +42,8 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
   https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
 - NASA JPL Solar System Dynamics, "Approximate Positions of the Planets" (Standish): Earth–Mars distance and signal delay.
   https://ssd.jpl.nasa.gov/planets/approx_pos.html
+- NASA DONKI (Space Weather Database Of Notifications, Knowledge, Information; Community Coordinated Modeling Center, NASA Goddard), via the NASA API portal: WSA-ENLIL CME simulations for the last 30 days, fetched live when the app opens. The Watney check and the mission clock show any CME forecast to reach Mars within three days (advisory). On 13 Nov 2026: a 726 km/s CME launched 9 Nov, forecast to glance Mars at 12:00 UTC on 13 Nov; nine CMEs forecast to reach Mars in the 30 days before.
+  https://api.nasa.gov (DONKI → WSAEnlilSimulations)
 - Published NASA mission results used as typical values (labelled "not live" in the app): Perseverance MEDA weather ranges; Curiosity RAD surface radiation dose (Hassler et al. 2014, Science).
 ```
 
@@ -73,9 +75,11 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 | Crater terrain, slope, contours | MRO CTX 20 m DEM (JPL) | 1024 × 1164 height grid; slope from the full 20 m DEM |
 | Marswalk zone imagery | MRO HiRISE 25 cm TRN orthomosaic | 6 × 6 km cut, 4096² px (~1.5 m/px), seams flattened, tinted |
 | Marswalk zone terrain, slope, routes, profile | MRO HiRISE 1 m TRN DTM | 1024² height grid; slope at 2.9 m; A* route grid 512² |
+| Space weather at Mars (live) | NASA DONKI WSA-ENLIL simulations (api.nasa.gov) | Not stored. `src/lib/spaceweather.js` keeps the latest run per CME with a Mars entry in `impactList`; `netlify/functions/space-weather.mjs` holds the API key server-side |
 | Perseverance traverse | Mars 2020 end-of-drive waypoints (NASA/JPL MMGIS) | 555 points (last fix of each sol), sol 0–2022, stored in `public/data/m20_traverse.json` by the `traverse` stage |
 
 ## Newer data we know about (not used yet)
 
 - **Minerals:** the MRO CRISM archive (NASA PDS) would fill the locked "Minerals" layer.
+- **Minerals, checked 13 Nov 2026:** the USGS bucket has CRISM summary mosaics made for the human Exploration Zones (`pigpen/mars/Human_EZs/CRISM_MTRDRs`), but only two scenes touch Jezero (FRT00005850 and FRT000066A4, 2007). They cover the southern and eastern crater floor, miss the delta, Three Forks and Séítah, and their mineral browse products show almost no signal there. Not used: a layer from them would look like noise. The well-known Jezero delta scenes are on the PDS Geosciences Node (ODE), not reachable from the build machine.
 - **Weather:** Perseverance MEDA data is published on NASA's PDS Atmospheres Node, months after collection. There is no live public feed, so the app shows typical values labelled "not live".

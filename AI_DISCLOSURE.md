@@ -41,7 +41,7 @@ The assistant worked from plain-language requests by the team, given over severa
 
 - **All map data is real NASA mission data**: Viking, Mars Global Surveyor MOLA, Mars Odyssey THEMIS, MRO CTX, MRO HiRISE and Mars 2020 Perseverance. The full list, with the exact files, is in [docs/SUBMISSION_DATA.md](docs/SUBMISSION_DATA.md). No terrain, image or measurement in the app was produced by an AI model.
 - **No AI-generated images, video or audio** are used anywhere in the app or the repository. The screenshots in `docs/screenshots/` are captures of the running app, which renders the NASA data. The sound effects are generated live by ordinary code (Web Audio oscillators and filtered noise), not by an AI audio model.
-- **The app calls no AI service at runtime.** It works offline once loaded and needs no API key.
+- **The app calls no AI service at runtime.** Its only live call is to NASA's DONKI space-weather service (CME forecasts for Mars); everything else works offline once loaded, and no API key is needed in the browser.
 - **No NASA logos, insignia or mission patches** are used. Mission and instrument names appear only as data credits.
 
 ## Checklist for the team (pitch video and submission)

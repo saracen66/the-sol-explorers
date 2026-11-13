@@ -1,6 +1,7 @@
 import './styles.css';
 import * as THREE from 'three';
 import { loadAssets } from './core/assets.js';
+import { fetchSpaceWeather } from './lib/spaceweather.js';
 import { detectTier, checkGPU, Governor, isTouchDevice } from './core/quality.js';
 import { Crossfade, Streaks } from './core/Crossfade.js';
 import { Director } from './core/Director.js';
@@ -159,6 +160,9 @@ class App {
     document.getElementById('loader').classList.add('done');
     this.hud.caption('SOL ATLAS', this.touch ? 'Pinch to zoom toward Jezero. Drag to spin Mars.' : 'Scroll to zoom toward Jezero. Drag to spin Mars.', 5000);
     this.renderer.setAnimationLoop((t) => this.frame(t));
+    // live CME forecasts for Mars (NASA DONKI); optional, the app works the same without it
+    this.spaceWeather = null;
+    fetchSpaceWeather().then((sw) => { this.spaceWeather = sw; this.hud.spaceWeatherChanged(); });
     if (new URLSearchParams(location.search).has('autopilot')) setTimeout(() => this.director.start(), 1200);
   }
 

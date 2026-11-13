@@ -9,6 +9,7 @@ import { evaDoseMSv, RAD_MSV_PER_DAY } from '../terrain/eva.js';
 import { url as dataUrl } from '../core/assets.js';
 import { Recorder } from './recorder.js';
 import { FEATURES } from '../config.js';
+import { describeSpaceWeather } from '../lib/spaceweather.js';
 
 const $ = (id) => document.getElementById(id);
 const ICON = {
@@ -268,13 +269,29 @@ export class Hud {
     const lt = localTime(mt, JEZERO.lon);
     const dl = dayLength(JEZERO.lat, mt.decl);
     const light = earthMarsLightTime();
+    const sw = describeSpaceWeather(this.app.spaceWeather);
     k.innerHTML = `
       <span class="k">Perseverance sol</span><span class="v">${fmtNum(perseveranceSol())}</span>
       <span class="k">Local true solar time</span><span class="v">${formatHM(lt.ltst)}</span>
       <span class="k">Sunrise / sunset</span><span class="v">${formatHM(dl.rise)} / ${formatHM(dl.set)}</span>
       <span class="k">Solar longitude</span><span class="v">${mt.Ls.toFixed(1)}° · ${season(mt.Ls)}</span>
       <span class="k">Earth–Mars range</span><span class="v">${fmtNum(light.km / 1e6, 1)} M km</span>
-      <span class="k">One-way signal</span><span class="v">${(light.seconds / 60).toFixed(1)} min</span>`;
+      <span class="k">One-way signal</span><span class="v">${(light.seconds / 60).toFixed(1)} min</span>
+      <span class="k">Space weather at Mars</span><span class="v sw-${sw.lvl}" title="${sw.long}">${sw.short}</span>`;
+  }
+
+  /** The live DONKI check finished (or failed): refresh the panels that show it. */
+  spaceWeatherChanged() {
+    if (this.app.mode === 'orbit') this.orbitClock();
+    else if (this.app.mode === 'site') this.renderPlanner(this.app.planner);
+  }
+
+  spaceWeatherBlock() {
+    const sw = describeSpaceWeather(this.app.spaceWeather);
+    const ic = sw.lvl === 'ok' ? ICON.ok : sw.lvl === 'warn' ? ICON.warn : '·';
+    const src = this.app.spaceWeather?.ok ? `${this.app.spaceWeather.source}, WSA-ENLIL model (NASA GSFC CCMC), live` : 'NASA DONKI, WSA-ENLIL model (NASA GSFC CCMC)';
+    return `<div class="sw sw-${sw.lvl}"><div class="sw-h"><span>${ic}</span>SPACE WEATHER AT MARS</div><div>${sw.long}${sw.lvl === 'warn' ? ' Keep the EVA inside the storm-shelter time, or move it.' : ''}</div>
+      <div class="sw-src">${src}${sw.link ? ` · <a href="${sw.link}" target="_blank" rel="noopener">forecast</a>` : ''} · advisory, not part of the verdict</div></div>`;
   }
 
   orbitLegend(layer) {
@@ -466,6 +483,7 @@ export class Hud {
           <span class="k">Radiation this EVA</span><span class="v">≈ ${evaDoseMSv(b.totalT).toFixed(2)} mSv</span>
           <span class="k">Storm shelter, ${pl.params.rover ? 'drive' : 'walk'} back</span><span class="v">≤ ${fmtDur(r.shelter.t)}</span>
         </div>
+        ${this.spaceWeatherBlock()}
         <div class="assump">Dose at the rate Curiosity's RAD measured on the surface (${RAD_MSV_PER_DAY} mSv/day); NASA's career limit is 600 mSv. Shelter time is the longest ${pl.params.rover ? 'drive' : 'walk'} back to the airlock if a solar-storm warning comes in, worst at ${(r.shelter.d / 1000).toFixed(2)} km along the route.</div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
         ${r.o2Out ? `<div class="assump dead-note"><b>✖ O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km</b> (${formatHM(r.sun.start + r.o2Out.t / 3698.9)} LTST, ${fmtDur(r.o2Out.t)} into the EVA) while ${r.o2Out.kind === 'stop' ? 'working at a stop' : pl.params.rover ? 'driving' : 'walking'}. The red dashes are the part of the route EV1 never reaches. Press SIMULATE to see it.</div>` : ''}
@@ -636,6 +654,9 @@ export class Hud {
       <h3>PERSEVERANCE TRAVERSE</h3>
       <table><tr><th>LAYER</th><th>SOURCE</th><th>PRODUCT</th></tr>
         <tr><td>Drive path, sol labels</td><td>NASA/JPL-Caltech · MMGIS "Where is Perseverance?"</td><td>End-of-drive localisations (M20_waypoints), sol 0–${this.app.assets?.traverse?.lastSol ?? '?'}, from mars.nasa.gov</td></tr></table>
+      <h3>LIVE SPACE WEATHER</h3>
+      <table><tr><th>CHECK</th><th>SOURCE</th><th>PRODUCT</th></tr>
+        <tr><td>CMEs forecast to reach Mars (Watney check, mission clock)</td><td>NASA DONKI, Community Coordinated Modeling Center, NASA Goddard (api.nasa.gov)</td><td>WSA-ENLIL solar-wind simulations, last 30 days: latest forecast per CME with a Mars arrival. ${this.app.spaceWeather?.ok ? `Fetched ${new Date(this.app.spaceWeather.summary.checked).toUTCString().slice(5, 22)} UTC.` : 'Not fetched this session (offline?).'} Advisory: it does not change the verdict</td></tr></table>
       <h3>HOW THIS WAS MADE · AI USE</h3>
       <p>The code, data-processing scripts and documentation were written with an AI coding assistant (Claude Code, by Anthropic) under the team's direction. The team set the goals, tested every version and asked for fixes. All map data above is real NASA mission data; nothing in the maps, and no image, video or sound, was generated by an AI model. The app makes no AI calls while it runs. Full statement: <code>AI_DISCLOSURE.md</code> in the repository.</p>
       <h3>MODELS & REFERENCES</h3>

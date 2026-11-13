@@ -658,3 +658,16 @@ body.fpv.compact:not(.landscape) .toast { top: calc(110px + env(safe-area-inset-
 /* touch screens in the helmet: the bottom bar would sit under the joysticks */
 body.touch.fpv .bottombar { display: none; }
 #lnk-ez { color: var(--data); text-decoration: none; border-bottom: 1px dotted var(--data); }
+
+/* live space weather (NASA DONKI) */
+.sw { margin-top: 10px; padding: 7px 9px; border-left: 2px solid var(--text-3); font-size: 12px; color: var(--text-2); line-height: 1.4; background: rgba(255,255,255,.03); }
+.sw-h { font-weight: 700; font-size: 11px; letter-spacing: .14em; color: var(--text); display: flex; gap: 6px; align-items: center; margin-bottom: 2px; }
+.sw-src { margin-top: 3px; font-size: 10.5px; color: var(--text-3); }
+.sw-src a { color: var(--data); }
+.sw.sw-warn { border-left-color: var(--warning); }
+.sw.sw-warn .sw-h { color: var(--warning); }
+.sw.sw-ok { border-left-color: var(--good); }
+.sw.sw-ok .sw-h { color: #7ff07f; }
+.kv .v.sw-warn { color: var(--warning); }
+.kv .v.sw-ok { color: #7ff07f; }
+.kv .v.sw-off, .kv .v.sw-wait { color: var(--text-3); }
