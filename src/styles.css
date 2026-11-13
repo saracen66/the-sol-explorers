@@ -171,6 +171,10 @@ body.compact .panel-tog, body.cine .panel-tog, body.fpv .panel-tog { display: no
 .hz { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 6px; }
 .hz div { font-size: 11px; color: var(--text-2); display: flex; align-items: center; gap: 5px; line-height: 1.1; }
 .hz i { width: 10px; height: 10px; flex: none; border-radius: 2px; }
+.geo-units { display: grid; gap: 3px; margin-top: 6px; }
+.geo-units div { font-size: 11px; color: var(--text-2); display: flex; align-items: baseline; gap: 6px; line-height: 1.25; }
+.geo-units i { width: 10px; height: 10px; flex: none; border-radius: 2px; align-self: center; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
+.geo-units b { font-family: var(--mono); color: var(--text); }
 
 /* sliders / controls */
 .ctl { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 10px; margin: 8px 0 2px; font-size: 13px; }
@@ -331,6 +335,10 @@ body.compact .rec-btn, body.touch .rec-btn { display: none; }
 .mk.eva .dot { border-color: #fff; background: #fff; box-shadow: 0 0 14px var(--data), 0 0 4px #fff; }
 .mk.eva .lb { color: var(--data); }
 .mk.zone .lb { color: var(--hud-hi); }
+.mk.ez .dot { width: 6px; height: 6px; left: -3px; top: -3px; border-color: var(--data); border-radius: 50%; transform: none; }
+.mk.ez .lb { font-size: 10.5px; letter-spacing: .1em; color: #a9e6ff; left: 9px; top: -7px; }
+.mk.ez.ez-home .dot { width: 9px; height: 9px; left: -4.5px; top: -4.5px; background: var(--data); box-shadow: 0 0 10px var(--data); }
+.mk.ez.ez-home .lb { font-size: 11.5px; color: #d8f4ff; }
 .mk.wpn .lb.wr { left: 14px; top: -8px; font-size: 11px; letter-spacing: .06em; text-transform: none; font-weight: 600; color: var(--data); }
 .mk.pnr .dot { border-color: var(--critical); background: var(--critical); box-shadow: 0 0 12px var(--critical); width: 14px; height: 14px; left: -7px; top: -7px; }
 .mk.pnr .lb { color: #ffb0b0; }
@@ -649,3 +657,17 @@ body.fpv.compact:not(.landscape) .helmet .h-exit { top: calc(66px + env(safe-are
 body.fpv.compact:not(.landscape) .toast { top: calc(110px + env(safe-area-inset-top, 0px)); }
 /* touch screens in the helmet: the bottom bar would sit under the joysticks */
 body.touch.fpv .bottombar { display: none; }
+#lnk-ez { color: var(--data); text-decoration: none; border-bottom: 1px dotted var(--data); }
+
+/* live space weather (NASA DONKI) */
+.sw { margin-top: 10px; padding: 7px 9px; border-left: 2px solid var(--text-3); font-size: 12px; color: var(--text-2); line-height: 1.4; background: rgba(255,255,255,.03); }
+.sw-h { font-weight: 700; font-size: 11px; letter-spacing: .14em; color: var(--text); display: flex; gap: 6px; align-items: center; margin-bottom: 2px; }
+.sw-src { margin-top: 3px; font-size: 10.5px; color: var(--text-3); }
+.sw-src a { color: var(--data); }
+.sw.sw-warn { border-left-color: var(--warning); }
+.sw.sw-warn .sw-h { color: var(--warning); }
+.sw.sw-ok { border-left-color: var(--good); }
+.sw.sw-ok .sw-h { color: #7ff07f; }
+.kv .v.sw-warn { color: var(--warning); }
+.kv .v.sw-ok { color: #7ff07f; }
+.kv .v.sw-off, .kv .v.sw-wait { color: var(--text-3); }

@@ -14,18 +14,22 @@ void main() {
 
 export const planetFrag = /* glsl */ `
 precision highp float;
-uniform sampler2D uColor, uNormal, uTopo, uThermal;
+uniform sampler2D uColor, uNormal, uTopo, uThermal, uGeo;
 uniform sampler2D rColor, rNormal, rTopo, rThermal;
 uniform sampler2D cDecal;
 uniform vec4 rB;      // region bounds: lon0 lat0 lon1 lat1
 uniform vec4 cB;      // crater bounds
-uniform float wVis, wTopo, wTherm;
+uniform float wVis, wTopo, wTherm, wGeo;
 uniform float uDecal, uCDecal;
 uniform vec3 uSunObj, uSunWorld;
 uniform float uGrid, uTime;
 uniform vec3 uTargetObj;
 uniform float uTarget;
 uniform float uNormalStrength;
+// NASA's proposed human Exploration Zones (2015 workshop): unit vectors of the zone centres
+uniform vec3 uEZ[EZ_N];
+uniform vec3 uEZHome;
+uniform float uEZOn, uEZRad;
 varying vec2 vUv;
 varying vec3 vObjN;
 varying vec3 vWorldPos;
@@ -43,6 +47,7 @@ void main() {
   vec3 cVis = texture2D(uColor, vUv).rgb;
   vec3 cTopo = texture2D(uTopo, vUv).rgb;
   vec3 cTh = texture2D(uThermal, vUv).rgb;
+  vec3 cGeo = texture2D(uGeo, vUv).rgb;
   vec3 nt = texture2D(uNormal, vUv).xyz * 2.0 - 1.0;
 
   vec2 ru = vec2((lon - rB.x) / (rB.z - rB.x), (lat - rB.y) / (rB.w - rB.y));
@@ -62,7 +67,7 @@ void main() {
 
   // warm the Viking colour a touch toward what rovers see
   vec3 vis = pow(cVis, vec3(1.05)) * vec3(1.10, 0.97, 0.86);
-  vec3 albedo = vis * wVis + cTopo * wTopo + cTh * wTherm;
+  vec3 albedo = vis * wVis + cTopo * wTopo + cTh * wTherm + cGeo * wGeo;
 
   float lr = radians(lon);
   vec3 N = normalize(vObjN);
@@ -73,7 +78,7 @@ void main() {
   float mu = dot(N, uSunObj);
   float day = smoothstep(-0.12, 0.22, mu);
   float diff = max(ndl, 0.0) * day;
-  float scan = clamp(wTopo + wTherm, 0.0, 1.0);
+  float scan = clamp(wTopo + wTherm + wGeo, 0.0, 1.0);
   float lit = diff * 1.3 + 0.012;
   float instrument = 0.42 + 0.7 * max(dot(n, normalize(N + uSunObj * 0.6)), 0.0);
   vec3 col = albedo * mix(lit, instrument, scan * 0.85);
@@ -92,6 +97,27 @@ void main() {
   vec2 gd = abs(fract(g - 0.5) - 0.5) / max(fwidth(g), 1e-4);
   float line = 1.0 - min(min(gd.x, gd.y), 1.0);
   col = mix(col, vec3(1.0, 0.62, 0.26), line * uGrid * 0.32);
+
+  // Exploration Zones: 100 km radius rings (chord length ~ angle at this size)
+  if (uEZOn > 0.001) {
+    float px = max(length(fwidth(N)), 1e-6);
+    float ring = 0.0, fill = 0.0;
+    for (int i = 0; i < EZ_N; i++) {
+      float a = distance(N, uEZ[i]);
+      if (a < uEZRad * 1.5) {
+        ring = max(ring, 1.0 - smoothstep(0.0, 1.6 * px, abs(a - uEZRad)));
+        fill = max(fill, 1.0 - step(uEZRad, a));
+      }
+    }
+    float ah = distance(N, uEZHome);
+    float home = 1.0 - smoothstep(0.0, 2.6 * px, abs(ah - uEZRad));
+    float homeFill = 1.0 - step(uEZRad, ah);
+    vec3 ez = vec3(0.37, 0.83, 1.0);
+    col = mix(col, ez * 0.9, fill * 0.16 * uEZOn);
+    col = mix(col, ez * 1.4, ring * 0.85 * uEZOn);
+    col = mix(col, vec3(0.75, 0.95, 1.0) * 1.5, home * uEZOn);
+    col += ez * homeFill * 0.06 * uEZOn;
+  }
 
   // target lock rings around Jezero
   if (uTarget > 0.001) {

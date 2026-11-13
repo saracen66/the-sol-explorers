@@ -91,5 +91,386 @@
   "lite": {
     "dir": "lite",
     "note": "half-resolution textures for phones and weak GPUs"
+  },
+  "geology": {
+    "file": "g_geo_units.png",
+    "width": 2880,
+    "height": 1440,
+    "nodata": 255,
+    "source": "USGS SIM 3292 (Tanaka et al. 2014), 1:20,000,000",
+    "units": {
+      "1": {
+        "sym": "Aa",
+        "rgb": "#ffd900"
+      },
+      "2": {
+        "sym": "AHi",
+        "rgb": "#ffff00"
+      },
+      "3": {
+        "sym": "AHtu",
+        "rgb": "#faead6"
+      },
+      "4": {
+        "sym": "AHv",
+        "rgb": "#cd4e37"
+      },
+      "5": {
+        "sym": "ANa",
+        "rgb": "#ccad00"
+      },
+      "6": {
+        "sym": "Ap",
+        "rgb": "#00e8f0"
+      },
+      "7": {
+        "sym": "Apu",
+        "rgb": "#0000cc"
+      },
+      "8": {
+        "sym": "Av",
+        "rgb": "#ff6347"
+      },
+      "9": {
+        "sym": "Ave",
+        "rgb": "#cc3600"
+      },
+      "10": {
+        "sym": "eAb",
+        "rgb": "#99ffff"
+      },
+      "11": {
+        "sym": "eHb",
+        "rgb": "#9dcd9d"
+      },
+      "12": {
+        "sym": "eHh",
+        "rgb": "#efd5b8"
+      },
+      "13": {
+        "sym": "eHt",
+        "rgb": "#cf980c"
+      },
+      "14": {
+        "sym": "eHv",
+        "rgb": "#8a668a"
+      },
+      "15": {
+        "sym": "eNh",
+        "rgb": "#8b4513"
+      },
+      "16": {
+        "sym": "eNhm",
+        "rgb": "#848b8b"
+      },
+      "17": {
+        "sym": "HNb",
+        "rgb": "#698c69"
+      },
+      "18": {
+        "sym": "HNhu",
+        "rgb": "#b2b2b2"
+      },
+      "19": {
+        "sym": "HNt",
+        "rgb": "#cdbd70"
+      },
+      "20": {
+        "sym": "Hp",
+        "rgb": "#00858a"
+      },
+      "21": {
+        "sym": "Hpe",
+        "rgb": "#6ba5cc"
+      },
+      "22": {
+        "sym": "Hpu",
+        "rgb": "#9ab2e6"
+      },
+      "23": {
+        "sym": "Ht",
+        "rgb": "#ffeb8a"
+      },
+      "24": {
+        "sym": "Hto",
+        "rgb": "#bdffff"
+      },
+      "25": {
+        "sym": "Htu",
+        "rgb": "#cccccc"
+      },
+      "26": {
+        "sym": "Hve",
+        "rgb": "#ff0000"
+      },
+      "27": {
+        "sym": "lAa",
+        "rgb": "#8a7500"
+      },
+      "28": {
+        "sym": "lApc",
+        "rgb": "#f5f5f5"
+      },
+      "29": {
+        "sym": "lApd",
+        "rgb": "#ffe3b3"
+      },
+      "30": {
+        "sym": "lAv",
+        "rgb": "#ffb8c1"
+      },
+      "31": {
+        "sym": "lAvf",
+        "rgb": "#b39999"
+      },
+      "32": {
+        "sym": "lHb",
+        "rgb": "#518a8a"
+      },
+      "33": {
+        "sym": "lHl",
+        "rgb": "#228c22"
+      },
+      "34": {
+        "sym": "lHt",
+        "rgb": "#ffc124"
+      },
+      "35": {
+        "sym": "lHv",
+        "rgb": "#cd6aca"
+      },
+      "36": {
+        "sym": "lHvf",
+        "rgb": "#ccb3b3"
+      },
+      "37": {
+        "sym": "lNh",
+        "rgb": "#cdab7e"
+      },
+      "38": {
+        "sym": "lNv",
+        "rgb": "#531a89"
+      },
+      "39": {
+        "sym": "mAl",
+        "rgb": "#6a8c22"
+      },
+      "40": {
+        "sym": "mNh",
+        "rgb": "#8b7355"
+      },
+      "41": {
+        "sym": "mNhm",
+        "rgb": "#c1cdcd"
+      },
+      "42": {
+        "sym": "Nhe",
+        "rgb": "#730000"
+      },
+      "43": {
+        "sym": "Nhu",
+        "rgb": "#686868"
+      },
+      "44": {
+        "sym": "Nve",
+        "rgb": "#cc0000"
+      }
+    }
+  },
+  "zones": {
+    "radiusKm": 100,
+    "source": "NASA Human Landing Sites Workshop, Oct 2015 (USGS compilation)",
+    "list": [
+      [
+        "E. Melas Chasma",
+        -11.7,
+        -70.0
+      ],
+      [
+        "Coprates Chasma",
+        -11.7,
+        -66.6
+      ],
+      [
+        "Viking",
+        22.3,
+        -48.3
+      ],
+      [
+        "Acidalia Planitia",
+        20.0,
+        -40.0
+      ],
+      [
+        "NE Marineris",
+        -4.1,
+        -35.2
+      ],
+      [
+        "SE Marineris",
+        -18.8,
+        -49.2
+      ],
+      [
+        "Gale Crater",
+        -4.6,
+        137.4
+      ],
+      [
+        "S. Meridiani Planum",
+        -3.2,
+        -4.5
+      ],
+      [
+        "Gusev-Apollinaris Sulci",
+        -13.0,
+        175.0
+      ],
+      [
+        "Zephyria Planum",
+        -1.4,
+        157.1
+      ],
+      [
+        "Hebrus Valles",
+        20.1,
+        126.6
+      ],
+      [
+        "Hypanis Delta",
+        11.7,
+        -45.3
+      ],
+      [
+        "Jezero-Isidis-Syrtis",
+        17.7,
+        77.0
+      ],
+      [
+        "Nili Fossae",
+        22.1,
+        77.0
+      ],
+      [
+        "Aram Chaos",
+        2.4,
+        -20.0
+      ],
+      [
+        "Cerberus",
+        10.0,
+        162.0
+      ],
+      [
+        "S. Nectaris Fossae",
+        -28.9,
+        -59.7
+      ],
+      [
+        "Hadriacus Palus",
+        -26.8,
+        77.5
+      ],
+      [
+        "Mawrth Vallis",
+        24.3,
+        -19.2
+      ],
+      [
+        "McLaughlin Crater",
+        21.9,
+        -22.4
+      ],
+      [
+        "Arabia Terra",
+        0.4,
+        -8.3
+      ],
+      [
+        "Columbus Crater",
+        -29.0,
+        -166.0
+      ],
+      [
+        "Huygens Crater",
+        -13.5,
+        55.5
+      ],
+      [
+        "Noctis Landing",
+        -6.5,
+        -92.5
+      ],
+      [
+        "Deuteronilus Mensae",
+        39.1,
+        23.2
+      ],
+      [
+        "E. Hellas",
+        -40.0,
+        104.0
+      ],
+      [
+        "Ismenius Cavus",
+        33.8,
+        17.2
+      ],
+      [
+        "Hale Crater",
+        -35.8,
+        -36.3
+      ],
+      [
+        "Noachis Terra Chloride",
+        -37.2,
+        -9.5
+      ],
+      [
+        "Arcadia Planitia",
+        39.0,
+        172.0
+      ],
+      [
+        "Erebus Montes",
+        39.0,
+        -167.9
+      ],
+      [
+        "Acheron Fossae",
+        39.8,
+        -139.4
+      ],
+      [
+        "Newton Crater",
+        -40.6,
+        -160.0
+      ],
+      [
+        "Protonilus mensae",
+        42.2,
+        48.1
+      ],
+      [
+        "Arcadia Planitia",
+        46.2,
+        -171.2
+      ],
+      [
+        "Copernicus Crater",
+        -49.2,
+        -169.2
+      ],
+      [
+        "Ausonia Cavus",
+        -32.0,
+        96.5
+      ],
+      [
+        "Kasei Valles",
+        24.8,
+        -72.6
+      ]
+    ]
   }
 }

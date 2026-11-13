@@ -4,7 +4,7 @@ The project submission form has two data fields: **NASA Data**, and **Space Agen
 
 All NASA map files were read directly from the USGS Astrogeology Science Center's public cloud archive (`asc-pds-services`, on AWS). USGS processes and archives NASA's planetary maps. Every link below was checked and answered on 28 Sep 2026.
 
-> **NASA's resource list for the challenge is published on 13 November 2026** (the challenge page's Resources tab says so). On that day, compare this list with the datasets NASA names, and reuse NASA's exact dataset names in the form and the video. The other project-page fields, deadlines and rules are in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md).
+> **Compared with NASA's resource list for the challenge on 13 November 2026**, the day it was published. Of the five resources it names, we use the USGS-NASA Planetary Geologic Mapping Program's geologic map (added that day) and the Perseverance raw images; Mars Trek shows the same Mars 2020 CTX and HiRISE products we read at full resolution from USGS, so it is not listed as a source; the Curiosity route map is an example of the kind of map we make; Worldview is Earth data. The table for each is in [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md#the-challenges-resources-tab-compared-on-13-nov-2026), with the other project-page fields, deadlines and rules. The links added on 13 Nov (geologic map, Exploration Zones, DONKI) were checked that day.
 
 ---
 
@@ -32,10 +32,18 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
   https://mars.nasa.gov/mars2020/multimedia/raw-images/
 - Mars 2020 Three Forks Depot bundle (NASA PDS Geosciences Node): rover latitude, longitude and elevation at each of the 10 sample-tube drops, and the sample IDs. Three Forks stop position, and the elevation check (−2,545 m).
   https://pds-geosciences.wustl.edu/m2020/urn-nasa-pds-mars2020_sample_depot_three_forks/
+- USGS-NASA Planetary Geologic Mapping Program: Geologic Map of Mars, USGS Scientific Investigations Map 3292 (Tanaka et al. 2014), 1:20,000,000, mapped on MGS MOLA and Mars Odyssey THEMIS data. The globe's "Geologic map" layer (the map's own colours) and the rock unit and age shown under the cursor.
+  https://asc-pds-services.s3.us-west-2.amazonaws.com/pigpen/mars/geology/SIM3292_newGlobalGeology2014/SIM3292_MarsGlobalGeologicGIS_20M_raster.zip
+  https://asc-pds-services.s3.us-west-2.amazonaws.com/pigpen/mars/geology/SIM3292_forJMars/sim3292_MarsGeologicMap_JMars_64ppd.zip
+  https://doi.org/10.3133/sim3292
+- NASA First Landing Site / Exploration Zone Workshop for Human Missions to the Surface of Mars (Oct 2015): the 38 proposed Exploration Zones (100 km radius), centre points compiled by USGS from JMARS. Shown as rings on the globe (Display → Human Exploration Zones, key Z). Jezero and the Marswalk zone lie inside the "Jezero-Isidis-Syrtis" zone, 51 km from its centre.
+  https://asc-pds-services.s3.us-west-2.amazonaws.com/pigpen/mars/Human_EZs/Human_ExplorationZones_Proposed_Oct2015.zip
 - NASA GISS Mars24 sunclock algorithm (Allison & McEwen 2000): Mars time, sols, local solar time, Sun position.
   https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
 - NASA JPL Solar System Dynamics, "Approximate Positions of the Planets" (Standish): Earth–Mars distance and signal delay.
   https://ssd.jpl.nasa.gov/planets/approx_pos.html
+- NASA DONKI (Space Weather Database Of Notifications, Knowledge, Information; Community Coordinated Modeling Center, NASA Goddard), via the NASA API portal: WSA-ENLIL CME simulations for the last 30 days, fetched live when the app opens. The Watney check and the mission clock show any CME forecast to reach Mars within three days (advisory). On 13 Nov 2026: a 726 km/s CME launched 9 Nov, forecast to glance Mars at 12:00 UTC on 13 Nov; nine CMEs forecast to reach Mars in the 30 days before.
+  https://api.nasa.gov (DONKI → WSAEnlilSimulations)
 - Published NASA mission results used as typical values (labelled "not live" in the app): Perseverance MEDA weather ranges; Curiosity RAD surface radiation dose (Hassler et al. 2014, Science).
 ```
 
@@ -60,14 +68,18 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 | Globe colour | Viking MDIM 2.1 (NASA Ames colour) | Resampled to 2k / 4k / 8k by device |
 | Regional relief around Jezero and Isidis | ESA Mars Express HRSC + MGS MOLA blended DEM, 200 m (USGS) | 12° × 12° window read at full resolution, averaged to 2048², normal map and elevation ramp |
 | Globe relief, elevation colours | MGS MOLA 128/64 ppd DEM | Normal map (relief ×18), blue elevation ramp, 1024 × 512 elevation grid for readouts |
+| Globe geologic map, unit readout | USGS SIM 3292 Geologic Map of Mars (USGS-NASA Planetary Geologic Mapping Program) | `geology` stage: official 64 ppd colour map → 4096 × 2048; coded 32 ppd unit raster → 2880 × 1440 lookup grid (`g_geo_units.png`); each unit's colour and symbol in `manifest.json`. Names and ages from the map's legend and pamphlet Table 1 (`src/data/geology.js`) |
+| Human Exploration Zones on the globe | NASA 2015 human landing-site workshop (USGS compilation) | `zones` stage: the 38 primary zone centres (alternate centres dropped) into `manifest.json` → `zones`; drawn in the globe shader as 100 km rings |
 | Night thermal / ground firmness | Mars Odyssey THEMIS night IR 100 m | Clipped to ±54° (streaky edges), gentle contrast curve, orange ramp |
 | Crater imagery | MRO CTX 5 m orthomosaic (JPL) | 4096 × 4658 px (~22 m/px), tinted with the Viking colour of the same ground |
 | Crater terrain, slope, contours | MRO CTX 20 m DEM (JPL) | 1024 × 1164 height grid; slope from the full 20 m DEM |
 | Marswalk zone imagery | MRO HiRISE 25 cm TRN orthomosaic | 6 × 6 km cut, 4096² px (~1.5 m/px), seams flattened, tinted |
 | Marswalk zone terrain, slope, routes, profile | MRO HiRISE 1 m TRN DTM | 1024² height grid; slope at 2.9 m; A* route grid 512² |
+| Space weather at Mars (live) | NASA DONKI WSA-ENLIL simulations (api.nasa.gov) | Not stored. `src/lib/spaceweather.js` keeps the latest run per CME with a Mars entry in `impactList`; `netlify/functions/space-weather.mjs` holds the API key server-side |
 | Perseverance traverse | Mars 2020 end-of-drive waypoints (NASA/JPL MMGIS) | 555 points (last fix of each sol), sol 0–2022, stored in `public/data/m20_traverse.json` by the `traverse` stage |
 
 ## Newer data we know about (not used yet)
 
 - **Minerals:** the MRO CRISM archive (NASA PDS) would fill the locked "Minerals" layer.
+- **Minerals, checked 13 Nov 2026:** the USGS bucket has CRISM summary mosaics made for the human Exploration Zones (`pigpen/mars/Human_EZs/CRISM_MTRDRs`), but only two scenes touch Jezero (FRT00005850 and FRT000066A4, 2007). They cover the southern and eastern crater floor, miss the delta, Three Forks and Séítah, and their mineral browse products show almost no signal there. Not used: a layer from them would look like noise. The well-known Jezero delta scenes are on the PDS Geosciences Node (ODE), not reachable from the build machine.
 - **Weather:** Perseverance MEDA data is published on NASA's PDS Atmospheres Node, months after collection. There is no live public feed, so the app shows typical values labelled "not live".

@@ -43,7 +43,11 @@ Sol Atlas has three levels. You move between them by scrolling, like zooming fro
 
 ### 1. Orbit
 
-A rotating Mars with real Viking colour, MOLA relief, a thin dusty atmosphere, Phobos and Deimos. Ten landing sites are marked. Scroll in and the camera locks onto Jezero; scroll again, or click, to descend. A live mission clock shows the Perseverance sol, local time at Jezero, the Martian season and the current Earth–Mars signal delay.
+A rotating Mars with real Viking colour, MOLA relief, a thin dusty atmosphere, Phobos and Deimos. Ten landing sites are marked. Layer `4` lays the **USGS Geologic Map of Mars** (SIM 3292, from the USGS-NASA Planetary Geologic Mapping Program) over the globe; point at any spot to read its rock unit and age. Jezero sits in unit HNt on the rim of the Isidis impact basin, ground more than 3.2 billion years old. Press `Z` (or **Human Exploration Zones** under Display) to show the 38 **Exploration Zones NASA's 2015 workshop proposed for the first human landings**, each with a 100 km radius. Jezero and our Marswalk zone sit inside the *Jezero-Isidis-Syrtis* zone, 51 km from its centre: the site we plan for is one NASA's own human-mission planners put forward. Scroll in and the camera locks onto Jezero; scroll again, or click, to descend. A live mission clock shows the Perseverance sol, local time at Jezero, the Martian season and the current Earth–Mars signal delay.
+
+| Geologic map (layer 4) | NASA's proposed human Exploration Zones (`Z`) |
+|---|---|
+| ![USGS Geologic Map of Mars around Jezero, with the unit legend and the unit under the cursor](docs/screenshots/14-geologic-map.jpg) | ![The 2015 human Exploration Zones on the globe; Jezero sits inside Jezero-Isidis-Syrtis](docs/screenshots/15-exploration-zones.jpg) |
 
 ### 2. Jezero Crater
 
@@ -66,6 +70,7 @@ A 6 × 6 km zone around Perseverance's landing site, Séítah, the delta front a
 - **Route anywhere, like a maps app.** Click or tap any spot to drop a pin. The card shows its coordinates, elevation, slope class and distance from the airlock. **ROUTE HERE** plans the walk there and back; **ADD STOP** adds it to the plan; **STAND HERE** puts you there in the helmet view.
 - **Safest route.** Sol Atlas finds the path that uses the least oxygen while avoiding slopes too steep to walk. A red dashed line shows the straight-line path for comparison.
 - **The Watney check.** Distance, EVA time, oxygen used, oxygen left at the airlock, daylight left, the EVA's radiation dose and the storm-shelter time (how long the walk back takes from the farthest point if a solar storm is forecast), ending in **MARSWALK READY**, GO WITH CAUTION or NO-GO.
+- **Live space weather at Mars.** When online, the Watney check (and the orbit view's mission clock) asks NASA's **DONKI** service which coronal mass ejections NASA's WSA-ENLIL solar-wind model forecasts to reach Mars. If one is due within three days, or arrived in the last day, it says when, how fast the CME was and links to NASA's forecast, so the crew can keep the walk inside the storm-shelter time. On 13 Nov 2026 it showed a CME forecast to glance Mars at 12:00 UTC that day; the model forecast nine CMEs reaching Mars in the 30 days before. The line is advisory and doesn't change the verdict, and offline it just says "not checked".
 - **Rover with a walkback limit.** Switch the plan from ON FOOT to ROVER + WALKBACK and the crew drives between stops on an unpressurised rover. Apollo 15–17 drove under the same rule: never go farther than the crew could walk home if the rover broke down. Sol Atlas checks it along the whole drive and marks the walkback limit in red when a plan breaks it.
 - **Point of no return.** If the suit can't carry enough oxygen, a red marker shows the last point where turning back still keeps the reserve.
 - **EVA flyover.** Simulate the walk with a chase camera and a wrist display (next stop, oxygen left, dust). The wrist turns amber past the point of no return and red when the reserve is reached. The profile chart follows EV1 as it walks.
@@ -124,6 +129,8 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Orbit | Visible colour | Viking Orbiters | MDIM 2.1 global mosaic, NASA Ames colour (232 m/px) |
 | Orbit | Topography, relief | Mars Global Surveyor · MOLA | MOLA 128/64 ppd merged DEM (463 m/px) |
 | Orbit | Night thermal IR | Mars Odyssey · THEMIS | USGS controlled night-IR mosaic (100 m/px) |
+| Orbit | Human Exploration Zones (overlay, `Z`) | NASA human landing-site workshop, 2015 | 38 proposed zones, 100 km radius (centres compiled by USGS) |
+| Orbit | Geologic map, rock unit and age under the cursor | USGS-NASA Planetary Geologic Mapping Program (mapped on MOLA and THEMIS) | Geologic Map of Mars, USGS SIM 3292 (Tanaka et al. 2014), 1:20 million |
 | Orbit, zoomed in on Jezero and Isidis | Relief, elevation colours | **ESA Mars Express · HRSC**, with MGS MOLA | HRSC and MOLA blended DEM v2, 200 m/px (USGS; HRSC data ESA/DLR/FU Berlin) |
 | Crater | Visible | MRO · CTX | Mars 2020 Science Investigation CTX orthomosaic, 5 m/px (JPL) |
 | Crater | Elevation, slope, contours | MRO · CTX stereo | Mars 2020 Science Investigation CTX DEM, 20 m/px (JPL) |
@@ -134,6 +141,7 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Marswalk zone | Stop photos | Mars 2020 · Navcam, Mastcam-Z | Raw images from the stops: landing site (sol 16), Three Forks (sol 690), Séítah (sol 249), delta front (sol 502) |
 | Helmet view | Skyline | MRO · CTX stereo | Computed from the 20 m crater DEM: highest angle per bearing, Mars curvature included |
 | Phase 2 | Minerals | MRO · CRISM | not yet: shown as locked |
+| Marswalk zone, orbit clock | Space weather at Mars (live) | NASA DONKI · WSA-ENLIL model (NASA Goddard CCMC) | CME arrival forecasts for Mars over the last 30 days, fetched when the app opens (`api.nasa.gov`) |
 | Phase 2 | Live weather | Perseverance · MEDA | not yet: the conditions panel shows typical values, labelled "not live" |
 
 "Ground firmness" works like this: rock and coarse grains stay warm through the night, while dust and fine sand cool fast. So night-time infrared brightness tells firm ground from loose ground.
@@ -193,7 +201,7 @@ The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séíta
 | Right-drag or Shift-drag | | pan |
 | Scroll | zoom; locks onto Jezero when close | zoom toward the cursor. Keep scrolling out to go up a level |
 | Click | Jezero, or the lock-on, to descend | the Marswalk zone to enter it. In the zone, click anywhere to **drop a pin** (ROUTE HERE / ADD STOP / STAND HERE), or click a named place to add it as a stop |
-| Keys | `1`–`3` layers · `G` grid · `Space` rotation · `Enter` descend | `1`–`7` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation · `F` helmet view |
+| Keys | `1`–`4` layers · `Z` Exploration Zones · `G` grid · `Space` rotation · `Enter` descend | `1`–`7` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation · `F` helmet view |
 | Anywhere | `C` autopilot · `H` hide HUD · `K` captions on/off · `M` sound · `R` record | |
 | Touch | drag to spin · pinch to zoom · tap Jezero to descend | drag to orbit · pinch to zoom · two-finger drag to pan · tap to select |
 
@@ -228,7 +236,7 @@ On every level:
 
 Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about two minutes, with captions. It follows the WHAT and SO WHAT sections of our pitch script:
 
-1. Orbit, then the MOLA and THEMIS layers.
+1. Orbit, then the MOLA, THEMIS and geologic-map layers, and NASA's proposed human Exploration Zones (Jezero sits inside one).
 2. Lock onto Jezero and descend.
 3. Crater: elevation and contours, ground firmness, slope hazard.
 4. Marswalk zone: the safest route.
@@ -272,7 +280,7 @@ npm run preview      # serve dist/ at http://localhost:4173
 
 ## Rebuild the NASA data
 
-`scripts/build_data.py` downloads the source data from the public USGS Astrogeology archive (`asc-pds-services` on AWS S3) and bakes the textures and heightmaps in `public/data/`. It streams only the parts it needs. For example, the largest source is a 3.4 GB HiRISE mosaic, and the script reads just the 5 × 5 km zone.
+`scripts/build_data.py` downloads the source data from the public USGS Astrogeology archive (`asc-pds-services` on AWS S3) and bakes the textures and heightmaps in `public/data/`. It streams only the parts it needs. For example, the largest source is a 3.4 GB HiRISE mosaic, and the script reads just the 6 × 6 km zone.
 
 ```bash
 pip install rasterio numpy pillow scipy
@@ -308,6 +316,8 @@ netlify deploy --build --prod
 
 `dist/` also works on GitHub Pages or any other static host, because all paths are relative.
 
+**Live space weather and the NASA API key.** [`netlify/functions/space-weather.mjs`](netlify/functions/space-weather.mjs) serves `/api/space-weather`: it fetches NASA DONKI with a key kept on the server, and Netlify's CDN caches the reply for 30 minutes, so every visitor shares a few NASA requests. To give it a key (free, instant: https://api.nasa.gov → *Generate API Key*), add `NASA_API_KEY` under **Project configuration → Environment variables** in Netlify and redeploy. Without a key it uses NASA's `DEMO_KEY`, which on 13 Nov 2026 allowed only 10 requests an hour per IP address. On other hosts, or locally, the browser calls `api.nasa.gov` directly with `DEMO_KEY`. Never put a real key in the front-end code: the repository and the built JavaScript are public.
+
 ---
 
 ## Project structure
@@ -315,6 +325,7 @@ netlify deploy --build --prod
 ```
 index.html              HUD skeleton (panels, loader, overlays)
 netlify.toml            Netlify build + cache headers
+netlify/functions/      space-weather.mjs: /api/space-weather, NASA DONKI with the key kept server-side
 vite.config.js          Vite config (relative base path)
 src/
   main.js               app: level transitions (orbit ⇄ crater ⇄ zone), input, render loop
@@ -328,9 +339,11 @@ src/
                         pathfinding.js (A*), eva.js (metabolic + O₂ model)
   ui/                   HUD panels and legends, elevation-profile chart, labels pinned to 3D points,
                         sound.js (Web Audio synth), recorder.js (tab → video)
-  lib/                  marstime.js (Mars24, signal delay, sun position), geo.js
+  lib/                  marstime.js (Mars24, signal delay, sun position), geo.js,
+                        spaceweather.js (live CME forecasts for Mars from NASA DONKI)
   core/                 asset loader, quality levels + adaptive resolution, scene crossfade, autopilot
   data/places.js        landing sites, points of interest, default Marswalk plan
+  data/geology.js       USGS SIM 3292 unit names, ages and descriptions
 scripts/build_data.py   NASA/USGS → web data pipeline
 public/data/            processed textures + heightmaps + manifest.json (lite/ = phone versions),
                         m20_traverse.json (Perseverance end-of-drive waypoints, sol 0–2022)
@@ -350,20 +363,21 @@ scripts/smoke.cjs       Playwright smoke test (desktop or DEVICE="iPhone 14")
 - Some place positions are approximate (see [Places](#places-on-the-map)).
 - The EVA model is a planning estimate, not flight-certified. Its assumptions are listed in the planner.
 - The helmet view's close-up pebbles and grain are procedural. HiRISE resolves 25 cm, so anything smaller is decoration, and the terrain mesh is sampled every ~5 m.
-- The traverse is a snapshot of NASA's feed (sol 2022, October 2026). `python3 scripts/build_data.py traverse` refreshes it.
+- The traverse is a snapshot of NASA's feed (sol 2022, October 2026; on 13 Nov 2026 the feed still ended there). `python3 scripts/build_data.py traverse` refreshes it.
+- Space weather is a forecast for Mars as a whole, from NASA's model. It does not include solar particle events measured at Mars.
 
 **Next**
 - More sites, including ice-rich plains from NASA's SWIM ice-mapping project.
 - CRISM minerals.
 - Live MEDA weather.
-- Dust-storm alerts from orbit.
+- Dust-storm alerts from orbit. Space-weather alerts for CMEs are in (NASA DONKI); solar energetic particle alerts would be the next step.
 - An offline mode for suits and rovers.
 
 ---
 
 ## AI use disclosure
 
-The code, data-processing scripts and documentation of Sol Atlas were written with an AI coding assistant, **Claude Code (Anthropic)**, under the team's direction; the team set the goals, tested every version and asked for fixes. The pitch script and background research were also drafted with AI help. **All map data is real NASA mission data.** No image, video or sound in the app or this repository is AI-generated (the screenshots are captures of the running app), and the app makes no AI calls at runtime. The full statement, with a checklist for the pitch video, is in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
+The code, data-processing scripts and documentation of Sol Atlas were written with an AI coding assistant, **Claude Code (Anthropic)**, under the team's direction; the team set the goals, tested every version and asked for fixes. The pitch script and background research were also drafted with AI help. **All map data is real NASA mission data.** No image, video or sound in the app or this repository is AI-generated (the screenshots are captures of the running app), and the app makes no AI calls at runtime (its only live call is NASA's DONKI space-weather service). The full statement, with a checklist for the pitch video, is in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 
 ---
 

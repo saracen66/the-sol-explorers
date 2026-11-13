@@ -1,6 +1,7 @@
 import './styles.css';
 import * as THREE from 'three';
 import { loadAssets } from './core/assets.js';
+import { fetchSpaceWeather } from './lib/spaceweather.js';
 import { detectTier, checkGPU, Governor, isTouchDevice } from './core/quality.js';
 import { Crossfade, Streaks } from './core/Crossfade.js';
 import { Director } from './core/Director.js';
@@ -159,6 +160,9 @@ class App {
     document.getElementById('loader').classList.add('done');
     this.hud.caption('SOL ATLAS', this.touch ? 'Pinch to zoom toward Jezero. Drag to spin Mars.' : 'Scroll to zoom toward Jezero. Drag to spin Mars.', 5000);
     this.renderer.setAnimationLoop((t) => this.frame(t));
+    // live CME forecasts for Mars (NASA DONKI); optional, the app works the same without it
+    this.spaceWeather = null;
+    fetchSpaceWeather().then((sw) => { this.spaceWeather = sw; this.hud.spaceWeatherChanged(); });
     if (new URLSearchParams(location.search).has('autopilot')) setTimeout(() => this.director.start(), 1200);
   }
 
@@ -289,6 +293,15 @@ class App {
     });
     o.altTarget = Math.max(o.altTarget, 1.4);
     this.hud.toast(`${site.name.toUpperCase()} · ${site.status === 'fiction' ? 'FICTIONAL SITE' : 'LOCKED IN PHASE 1'}`);
+  }
+
+  /** NASA's proposed human Exploration Zones on the globe (orbit view). */
+  toggleZones() {
+    const o = this.orbit;
+    o.zones = !o.zones;
+    this.sound.click();
+    if (this.mode === 'orbit') this.hud.renderOrbit(o);
+    this.hud.toast(o.zones ? 'HUMAN EXPLORATION ZONES · NASA 2015 WORKSHOP' : 'EXPLORATION ZONES OFF');
   }
 
   setOrbitLayer(id) {
@@ -441,8 +454,9 @@ class App {
     } else if (this.mode === 'site' && k === 'f' && this.fpv) { this.fpv.enter(); return; }
     if (k === 'escape' || k === 'backspace') { this.exitUp(); return; }
     if (this.mode === 'orbit') {
-      if (['1', '2', '3'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal'][+k - 1]);
+      if (['1', '2', '3', '4'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal', 'geology'][+k - 1]);
       if (k === 'g') { this.orbit.grid = this.orbit.grid > 0 ? 0 : 0.35; this.hud.renderOrbit(this.orbit); }
+      if (k === 'z') this.toggleZones();
       if (k === ' ') { this.orbit.autoSpin = !this.orbit.autoSpin; this.hud.renderOrbit(this.orbit); }
       if (k === 'enter') this.descendToJezero();
     } else {

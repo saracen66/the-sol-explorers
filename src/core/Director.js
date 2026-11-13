@@ -52,6 +52,7 @@ export class Director {
       rover: pl.params.rover,
       layers: { crater: { ...a.crater.layers }, site: { ...a.site.layers } },
       orbitLayer: a.orbit.layer,
+      zones: a.orbit.zones,
     };
   }
 
@@ -67,6 +68,7 @@ export class Director {
     }
     if (a.active?.layers) a.hud.terrainLegend(a.active);
     if (a.orbit.layer !== sv.orbitLayer) a.setOrbitLayer(sv.orbitLayer);
+    if (a.orbit.zones !== sv.zones) { a.orbit.zones = sv.zones; if (a.mode === 'orbit') a.hud.renderOrbit(a.orbit); }
     pl.params.o2CapKg = sv.o2;
     pl.follow = sv.follow;
     pl.returnToStart = sv.returnToStart;
@@ -130,13 +132,21 @@ export class Director {
     a.setOrbitLayer('thermal');
     this.cap('LAYER · MARS ODYSSEY THEMIS', 'Night infrared: rock stays warm, dust cools fast', 3200);
     await this.wait(3.4);
+    a.setOrbitLayer('geology');
+    this.cap('LAYER · USGS GEOLOGIC MAP OF MARS', 'Rock units and their ages: Jezero\u2019s ground is over 3.2 billion years old', 3200);
+    await this.wait(3.4);
     a.setOrbitLayer('visible');
-    await this.wait(1.0);
+    o.zones = true;
+    a.hud.renderOrbit(o);
+    this.cap('NASA\u2019S PROPOSED HUMAN LANDING ZONES', 'Exploration Zones from NASA\u2019s 2015 workshop · Jezero sits inside one', 3600);
+    await this.wait(3.8);
 
     this.cap('TARGET · JEZERO CRATER', '18.4° N 77.5° E: an ancient lake with a river delta', 4000);
     const alt0 = o.altTarget;
     await tween(3.2, (t) => { o.altTarget = Math.exp(THREE.MathUtils.lerp(Math.log(alt0), Math.log(0.42), t)); o.lastUser = o.time - 2; }, this);
     await this.wait(0.6);
+    o.zones = false;
+    a.hud.renderOrbit(o);
 
     this.cap('DESCENT', 'Orbit to crater, straight down through the data', 3000);
     await this.step(a.descendToJezero());

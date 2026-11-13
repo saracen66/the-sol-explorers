@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { planetVert, planetFrag, atmoVert, atmoFrag, starVert, starFrag, skyVert, skyFrag } from './shaders.js';
 import { llToVec, vecToLL, lerpAngle, damp, ease, Tweens, R_MARS_KM, DEG, fmtLat, fmtLon, fmtNum } from '../lib/geo.js';
 import { LANDING_SITES } from '../data/places.js';
+import { describeUnit } from '../data/geology.js';
 
 const MIN_ALT = 0.115; // planet radii (~390 km)
 const _inv = new THREE.Matrix4();
@@ -14,6 +15,7 @@ export const ORBIT_LAYERS = [
   { id: 'visible', key: '1', name: 'Visible colour', src: 'Viking Orbiter · MDIM 2.1 (NASA Ames)' },
   { id: 'topo', key: '2', name: 'Topography', src: 'MGS · MOLA + ESA Mars Express · HRSC' },
   { id: 'thermal', key: '3', name: 'Night thermal IR', src: 'Mars Odyssey · THEMIS' },
+  { id: 'geology', key: '4', name: 'Geologic map', src: 'USGS SIM 3292 · Planetary Geologic Mapping' },
 ];
 
 export class OrbitView {
@@ -34,8 +36,9 @@ export class OrbitView {
     this.lastUser = -10;
     this.time = 0;
     this.layer = 'visible';
-    this.weights = { visible: 1, topo: 0, thermal: 0 };
+    this.weights = { visible: 1, topo: 0, thermal: 0, geology: 0 };
     this.grid = 0.35;
+    this.zones = false; // NASA's proposed human Exploration Zones overlay
     this.autoSpin = true;
     this.locked = false;
     this.pushIn = 0; // accumulated scroll-in at min altitude
@@ -71,21 +74,30 @@ export class OrbitView {
     // Mars
     const r = manifest.region, c = manifest.crater;
     this.uniforms = {
-      uColor: { value: tex.g_color }, uNormal: { value: tex.g_normal }, uTopo: { value: tex.g_topo }, uThermal: { value: tex.g_thermal },
+      uColor: { value: tex.g_color }, uNormal: { value: tex.g_normal }, uTopo: { value: tex.g_topo }, uThermal: { value: tex.g_thermal }, uGeo: { value: tex.g_geology },
       rColor: { value: tex.r_color }, rNormal: { value: tex.r_normal }, rTopo: { value: tex.r_topo }, rThermal: { value: tex.r_thermal },
       cDecal: { value: tex.c_decal },
       rB: { value: new THREE.Vector4(r.lon[0], r.lat[0], r.lon[1], r.lat[1]) },
       cB: { value: new THREE.Vector4(c.lon[0], c.lat[0], c.lon[1], c.lat[1]) },
-      wVis: { value: 1 }, wTopo: { value: 0 }, wTherm: { value: 0 },
+      wVis: { value: 1 }, wTopo: { value: 0 }, wTherm: { value: 0 }, wGeo: { value: 0 },
       uDecal: { value: 0 }, uCDecal: { value: 0 },
       uSunObj: { value: new THREE.Vector3() }, uSunWorld: { value: this.sunWorld },
       uGrid: { value: this.grid }, uTime: { value: 0 },
       uTargetObj: { value: llToVec(18.40, 77.60) }, uTarget: { value: 0 },
       uNormalStrength: { value: 1.0 },
     };
+    const ez = manifest.zones;
+    this.ezList = ez ? ez.list.map(([name, lat, lon]) => ({ name, lat, lon, obj: llToVec(lat, lon) })) : [];
+    this.ezHome = this.ezList.find((z) => z.name === 'Jezero-Isidis-Syrtis') || null;
+    Object.assign(this.uniforms, {
+      uEZ: { value: this.ezList.length ? this.ezList.map((z) => z.obj) : [new THREE.Vector3(0, 0, 9)] },
+      uEZHome: { value: this.ezHome ? this.ezHome.obj : new THREE.Vector3(0, 0, 9) },
+      uEZOn: { value: 0 }, uEZRad: { value: ((ez?.radiusKm ?? 100) / R_MARS_KM) },
+    });
     this.planet = new THREE.Mesh(
       new THREE.SphereGeometry(1, ...this.app.tier.sphere),
-      new THREE.ShaderMaterial({ vertexShader: planetVert, fragmentShader: planetFrag, uniforms: this.uniforms }),
+      new THREE.ShaderMaterial({ vertexShader: planetVert, fragmentShader: planetFrag, uniforms: this.uniforms,
+        defines: { EZ_N: Math.max(1, this.ezList.length) } }),
     );
     s.add(this.planet);
 
@@ -134,6 +146,23 @@ export class OrbitView {
       });
       item.site = site;
       item.obj = llToVec(site.lat, site.lon, 1.002);
+      return item;
+    });
+    // Exploration Zones: names on the globe, shown only with the overlay on
+    const jz = llToVec(this.jezero.lat, this.jezero.lon);
+    this.ezLabels = this.ezList.map((z) => {
+      const home = z === this.ezHome;
+      const km = Math.round(jz.angleTo(z.obj) * R_MARS_KM);
+      const card = home
+        ? `<b>${z.name} Exploration Zone</b>Proposed for the first human landings at NASA's 2015 Exploration Zone workshop: a 100 km radius area with science targets and resources a crew could reach. Jezero and our Marswalk site lie inside it, ${km} km from its centre.<em>NASA human landing sites workshop, Oct 2015 · ${fmtLat(z.lat)} ${fmtLon(z.lon)}</em>`
+        : `<b>${z.name}</b>One of the Exploration Zones proposed for the first human landings at NASA's 2015 workshop (100 km radius).<em>NASA human landing sites workshop, Oct 2015 · ${fmtLat(z.lat)} ${fmtLon(z.lon)}</em>`;
+      const item = labels.add('orbit', {
+        className: `ez${home ? ' ez-home' : ''}`, html: `<div class="dot"></div><div class="lb">${z.name}${home ? '<small>Human Exploration Zone · Jezero inside</small>' : ''}</div><div class="card">${card}</div>`,
+        world: new THREE.Vector3(), occlude: (it) => this.occluded(it.world), priority: home ? 6 : 0,
+        onClick: () => this.app.hud.toast(home ? 'JEZERO-ISIDIS-SYRTIS · OUR SITE IS INSIDE THIS ZONE' : `${z.name.toUpperCase()} · EXPLORATION ZONE (NASA 2015)`),
+      });
+      item.obj = llToVec(z.lat, z.lon, 1.002);
+      item.hiddenByUser = true;
       return item;
     });
     this.moonLabels = this.moons.map((m) => labels.add('orbit', {
@@ -309,6 +338,7 @@ export class OrbitView {
     u.wVis.value = this.weights.visible;
     u.wTopo.value = this.weights.topo;
     u.wTherm.value = this.weights.thermal;
+    u.wGeo.value = this.weights.geology;
     u.uTime.value = this.time;
     u.uGrid.value = THREE.MathUtils.lerp(u.uGrid.value, this.grid * THREE.MathUtils.smoothstep(0.08, 0.6, this.alt), damp(dt, 4));
     u.uDecal.value = THREE.MathUtils.smoothstep(1.4, 0.45, this.alt);
@@ -343,6 +373,11 @@ export class OrbitView {
     });
 
     for (const mk of this.markers) mk.world.copy(mk.obj).applyMatrix4(this.planet.matrixWorld);
+    u.uEZOn.value = THREE.MathUtils.lerp(u.uEZOn.value, this.zones ? 1 : 0, damp(dt, 5));
+    for (const it of this.ezLabels) {
+      it.world.copy(it.obj).applyMatrix4(this.planet.matrixWorld);
+      it.hiddenByUser = !this.zones;
+    }
   }
 
   /** Surface point under the mouse (object-space lat/lon) or null. */
@@ -366,6 +401,10 @@ export class OrbitView {
       out.push(['LAT', fmtLat(ll.lat)], ['LON', fmtLon(ll.lon)]);
       const e = this.app.assets.elevAt(ll.lat, ll.lon);
       if (e != null) out.push(['ELEV', `${fmtNum(e)} m`]);
+      if (this.layer === 'geology') {
+        const u = this.app.assets.unitAt(ll.lat, ll.lon);
+        if (u) out.push(['UNIT', `${u.sym} · ${describeUnit(u.sym).name.replace(/ unit$/, '')}`]);
+      }
     }
     return out;
   }

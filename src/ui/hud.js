@@ -2,12 +2,14 @@ import { marsTime, localTime, perseveranceSol, earthMarsLightTime, formatHM, sea
 import { fmtDist, fmtDur, fmtNum, fmtLat, fmtLon } from '../lib/geo.js';
 import { LANDING_SITES, MISSION_GOALS, SITE_POIS } from '../data/places.js';
 import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
+import { describeUnit, JEZERO_UNITS } from '../data/geology.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
 import { evaDoseMSv, RAD_MSV_PER_DAY } from '../terrain/eva.js';
 import { url as dataUrl } from '../core/assets.js';
 import { Recorder } from './recorder.js';
 import { FEATURES } from '../config.js';
+import { describeSpaceWeather } from '../lib/spaceweather.js';
 
 const $ = (id) => document.getElementById(id);
 const ICON = {
@@ -211,7 +213,8 @@ export class Hud {
           <span class="k">Centre</span><span class="v">18.40°N 77.60°E</span>
           <span class="k">Diameter</span><span class="v">≈ 45 km</span>
           <span class="k">Region</span><span class="v">Isidis Planitia rim</span>
-          <span class="k">Datasets</span><span class="v">7 layers · 6 missions</span>
+          <span class="k">Datasets</span><span class="v">8 layers · 6 missions</span>
+          <span class="k">Human EZ</span><span class="v"><a href="#" id="lnk-ez">Jezero-Isidis-Syrtis</a></span>
         </div>
         <div class="btn-row"><button class="btn primary" id="btn-descend">▼ Descend to Jezero</button></div>
       </div>
@@ -220,6 +223,7 @@ export class Hud {
         <div class="rows">${sites}</div>
       </div>`;
     $('btn-descend').onclick = () => { this.closeSheet(); this.app.descendToJezero(); };
+    $('lnk-ez').onclick = (e) => { e.preventDefault(); this.closeSheet(); if (!orbit.zones) this.app.toggleZones(); };
     this.left.querySelectorAll('[data-site]').forEach((b) => {
       b.onclick = () => {
         const s = LANDING_SITES.find((x) => x.id === b.dataset.site);
@@ -242,6 +246,7 @@ export class Hud {
       <div class="sec">
         <div class="sec-h">Display</div>
         <div class="layer ${orbit.grid > 0 ? 'on' : ''}" id="tg-grid"><span class="box"></span><span class="nm">Lat / lon grid</span><span class="key">G</span></div>
+        <div class="layer ${orbit.zones ? 'on' : ''}" id="tg-ez"><span class="box"></span><span><div class="nm">Human Exploration Zones</div><div class="src">NASA landing-site workshop, 2015 · 100 km radius</div></span><span class="key">Z</span></div>
         <div class="layer ${orbit.autoSpin ? 'on' : ''}" id="tg-spin"><span class="box"></span><span class="nm">Planet rotation</span><span class="key">SPACE</span></div>
       </div>
       <div class="sec">
@@ -251,9 +256,10 @@ export class Hud {
     this.right.querySelectorAll('[data-layer]').forEach((d) => { d.onclick = () => this.app.setOrbitLayer(d.dataset.layer); });
     $('tg-grid').onclick = () => { orbit.grid = orbit.grid > 0 ? 0 : 0.35; this.renderOrbit(orbit); };
     $('tg-spin').onclick = () => { orbit.autoSpin = !orbit.autoSpin; this.renderOrbit(orbit); };
+    $('tg-ez').onclick = () => this.app.toggleZones();
     this.orbitLegend(orbit.layer);
     this.orbitClock();
-    this.hints('<kbd>DRAG</kbd> rotate <kbd>SCROLL</kbd> zoom <kbd>1-3</kbd> layers <kbd>ENTER</kbd> descend <kbd>C</kbd> autopilot');
+    this.hints('<kbd>DRAG</kbd> rotate <kbd>SCROLL</kbd> zoom <kbd>1-4</kbd> layers <kbd>Z</kbd> zones <kbd>ENTER</kbd> descend <kbd>C</kbd> autopilot');
   }
 
   orbitClock() {
@@ -263,13 +269,29 @@ export class Hud {
     const lt = localTime(mt, JEZERO.lon);
     const dl = dayLength(JEZERO.lat, mt.decl);
     const light = earthMarsLightTime();
+    const sw = describeSpaceWeather(this.app.spaceWeather);
     k.innerHTML = `
       <span class="k">Perseverance sol</span><span class="v">${fmtNum(perseveranceSol())}</span>
       <span class="k">Local true solar time</span><span class="v">${formatHM(lt.ltst)}</span>
       <span class="k">Sunrise / sunset</span><span class="v">${formatHM(dl.rise)} / ${formatHM(dl.set)}</span>
       <span class="k">Solar longitude</span><span class="v">${mt.Ls.toFixed(1)}° · ${season(mt.Ls)}</span>
       <span class="k">Earth–Mars range</span><span class="v">${fmtNum(light.km / 1e6, 1)} M km</span>
-      <span class="k">One-way signal</span><span class="v">${(light.seconds / 60).toFixed(1)} min</span>`;
+      <span class="k">One-way signal</span><span class="v">${(light.seconds / 60).toFixed(1)} min</span>
+      <span class="k">Space weather at Mars</span><span class="v sw-${sw.lvl}" title="${sw.long}">${sw.short}</span>`;
+  }
+
+  /** The live DONKI check finished (or failed): refresh the panels that show it. */
+  spaceWeatherChanged() {
+    if (this.app.mode === 'orbit') this.orbitClock();
+    else if (this.app.mode === 'site') this.renderPlanner(this.app.planner);
+  }
+
+  spaceWeatherBlock() {
+    const sw = describeSpaceWeather(this.app.spaceWeather);
+    const ic = sw.lvl === 'ok' ? ICON.ok : sw.lvl === 'warn' ? ICON.warn : '·';
+    const src = this.app.spaceWeather?.ok ? `${this.app.spaceWeather.source}, WSA-ENLIL model (NASA GSFC CCMC), live` : 'NASA DONKI, WSA-ENLIL model (NASA GSFC CCMC)';
+    return `<div class="sw sw-${sw.lvl}"><div class="sw-h"><span>${ic}</span>SPACE WEATHER AT MARS</div><div>${sw.long}${sw.lvl === 'warn' ? ' Keep the EVA inside the storm-shelter time, or move it.' : ''}</div>
+      <div class="sw-src">${src}${sw.link ? ` · <a href="${sw.link}" target="_blank" rel="noopener">forecast</a>` : ''} · advisory, not part of the verdict</div></div>`;
   }
 
   orbitLegend(layer) {
@@ -277,6 +299,14 @@ export class Hud {
     if (!L) return;
     if (layer === 'topo') L.innerHTML = legendRamp('Elevation (MOLA; HRSC near Jezero, m)', 'linear-gradient(90deg,#0d366b,#184f95,#2a78d6,#5598e7,#9ec5f4,#eef6ff)', ['−8,200', '0', '+21,200']);
     else if (layer === 'thermal') L.innerHTML = legendRamp('Night-time IR brightness (relative)', 'linear-gradient(90deg,#3a1a06,#7a3510,#c05a1c,#ec8a45,#f9c79a,#fff0e0)', ['cools fast · dust', 'stays warm · rock']);
+    else if (layer === 'geology') {
+      const units = Object.values(this.app.assets?.manifest?.geology?.units || {});
+      const rows = JEZERO_UNITS.map((sym) => {
+        const u = units.find((x) => x.sym === sym), d = describeUnit(sym);
+        return u ? `<div title="${d.text}"><i style="background:${u.rgb}"></i><b>${sym}</b> ${d.name.replace(/ unit$/, '')} · ${d.age}</div>` : '';
+      }).join('');
+      L.innerHTML = `<div class="legend"><div class="cap">Around Jezero. Jezero sits in <b>HNt</b>, on the rim of the Isidis impact basin: ground more than 3.2 billion years old. ${this.app.touch ? 'Tap' : 'Point at'} any spot to read its unit.</div><div class="geo-units">${rows}</div><div class="cap muted" style="margin-top:6px">USGS SIM 3292, Tanaka et al. 2014 (USGS-NASA Planetary Geologic Mapping Program), 1:20 million</div></div>`;
+    }
     else L.innerHTML = '<div class="legend"><div class="cap muted">Viking Orbiter mosaic, colour by NASA Ames. Seasonal frost shows at the poles.</div></div>';
   }
 
@@ -453,6 +483,7 @@ export class Hud {
           <span class="k">Radiation this EVA</span><span class="v">≈ ${evaDoseMSv(b.totalT).toFixed(2)} mSv</span>
           <span class="k">Storm shelter, ${pl.params.rover ? 'drive' : 'walk'} back</span><span class="v">≤ ${fmtDur(r.shelter.t)}</span>
         </div>
+        ${this.spaceWeatherBlock()}
         <div class="assump">Dose at the rate Curiosity's RAD measured on the surface (${RAD_MSV_PER_DAY} mSv/day); NASA's career limit is 600 mSv. Shelter time is the longest ${pl.params.rover ? 'drive' : 'walk'} back to the airlock if a solar-storm warning comes in, worst at ${(r.shelter.d / 1000).toFixed(2)} km along the route.</div>
         <div class="verdict ${v.lvl}"><span class="ic">${vIcon}</span><div>${vText}<small>${vSub}</small></div></div>
         ${r.o2Out ? `<div class="assump dead-note"><b>✖ O₂ runs out at ${(r.o2Out.d / 1000).toFixed(2)} km</b> (${formatHM(r.sun.start + r.o2Out.t / 3698.9)} LTST, ${fmtDur(r.o2Out.t)} into the EVA) while ${r.o2Out.kind === 'stop' ? 'working at a stop' : pl.params.rover ? 'driving' : 'walking'}. The red dashes are the part of the route EV1 never reaches. Press SIMULATE to see it.</div>` : ''}
@@ -600,7 +631,9 @@ export class Hud {
         <tr><td>Visible colour</td><td>Viking Orbiter 1 & 2</td><td>MDIM 2.1 global mosaic, recoloured by NASA Ames (232 m)</td></tr>
         <tr><td>Topography / relief</td><td>Mars Global Surveyor · MOLA</td><td>MOLA 128/64 ppd merged DEM (463 m)</td></tr>
         <tr><td>Relief around Jezero and Isidis (zoomed in)</td><td>ESA Mars Express · HRSC, with MGS MOLA</td><td>HRSC and MOLA blended DEM v2, 200 m (USGS; HRSC data ESA/DLR/FU Berlin)</td></tr>
-        <tr><td>Night thermal IR</td><td>Mars Odyssey · THEMIS</td><td>USGS controlled night-IR mosaic v2 (100 m)</td></tr></table>
+        <tr><td>Night thermal IR</td><td>Mars Odyssey · THEMIS</td><td>USGS controlled night-IR mosaic v2 (100 m)</td></tr>
+        <tr><td>Human Exploration Zones (Display, Z)</td><td>NASA First Landing Site / Exploration Zone Workshop for Human Missions to Mars (Oct 2015)</td><td>38 proposed zones, 100 km radius; centres compiled by USGS from JMARS (asc-pds-services, pigpen/mars/Human_EZs)</td></tr>
+        <tr><td>Geologic map, unit readout</td><td>USGS-NASA Planetary Geologic Mapping Program (mapped on MGS MOLA and Mars Odyssey THEMIS)</td><td>Geologic Map of Mars, USGS SIM 3292 (Tanaka et al. 2014), 1:20,000,000: official colours and coded unit raster</td></tr></table>
       <h3>JEZERO CRATER</h3>
       <table><tr><th>LAYER</th><th>MISSION / INSTRUMENT</th><th>PRODUCT</th></tr>
         <tr><td>Visible</td><td>MRO · CTX</td><td>Mars 2020 Science Investigation CTX orthomosaic, 5 m (JPL; Mangold et al. 2021)</td></tr>
@@ -621,6 +654,9 @@ export class Hud {
       <h3>PERSEVERANCE TRAVERSE</h3>
       <table><tr><th>LAYER</th><th>SOURCE</th><th>PRODUCT</th></tr>
         <tr><td>Drive path, sol labels</td><td>NASA/JPL-Caltech · MMGIS "Where is Perseverance?"</td><td>End-of-drive localisations (M20_waypoints), sol 0–${this.app.assets?.traverse?.lastSol ?? '?'}, from mars.nasa.gov</td></tr></table>
+      <h3>LIVE SPACE WEATHER</h3>
+      <table><tr><th>CHECK</th><th>SOURCE</th><th>PRODUCT</th></tr>
+        <tr><td>CMEs forecast to reach Mars (Watney check, mission clock)</td><td>NASA DONKI, Community Coordinated Modeling Center, NASA Goddard (api.nasa.gov)</td><td>WSA-ENLIL solar-wind simulations, last 30 days: latest forecast per CME with a Mars arrival. ${this.app.spaceWeather?.ok ? `Fetched ${new Date(this.app.spaceWeather.summary.checked).toUTCString().slice(5, 22)} UTC.` : 'Not fetched this session (offline?).'} Advisory: it does not change the verdict</td></tr></table>
       <h3>HOW THIS WAS MADE · AI USE</h3>
       <p>The code, data-processing scripts and documentation were written with an AI coding assistant (Claude Code, by Anthropic) under the team's direction. The team set the goals, tested every version and asked for fixes. All map data above is real NASA mission data; nothing in the maps, and no image, video or sound, was generated by an AI model. The app makes no AI calls while it runs. Full statement: <code>AI_DISCLOSURE.md</code> in the repository.</p>
       <h3>MODELS & REFERENCES</h3>

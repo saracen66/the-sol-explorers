@@ -18,6 +18,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
 - **Live:** https://sol-atlas.netlify.app (Netlify project `sol-atlas`, team `saracen66`)
 - **Repo:** https://github.com/saracen66/the-sol-explorers
 - **Working branch:** `claude/busy-heisenberg-8gasem`, also the repo's default branch on GitHub (what judges see). Netlify currently publishes **this branch** as production, and every push redeploys in about a minute. The 29 Oct 2026 work (licence, AI prompts, submission checklist, HRSC relief, team list) was merged into it from `claude/hopeful-babbage-m9v81r` in https://github.com/saracen66/the-sol-explorers/pull/1. `main` has not been set up as the production branch yet (see open items).
+- **13 Nov 2026 work** (geologic map, Exploration Zones, live space weather) is on `claude/nasa-space-apps-review-4x92dx`, made from a different Claude account. It needs merging into `claude/busy-heisenberg-8gasem` before Netlify shows it. That account's cloud environment `the-sol-explorers` allows `api.nasa.gov`, `kauai.ccmc.gsfc.nasa.gov` and `mars.nasa.gov`; the Default environment blocks all NASA hosts.
 - The deliverable it supports is a **240-second pitch video**. The built-in autopilot (`C`) and recorder (`R`) exist for that.
 
 ## 2. How the team wants work done
@@ -37,7 +38,7 @@ The planner finds the least-oxygen route and checks the suit's O₂ budget: poin
   - No recognisable name, voice or face of anyone under 18 in any video or in the submission (repo included).
   - What goes on the NASA project page, the videos and the deadlines: [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
   - How the app answers each objective and consideration in the official challenge statement, and the ranked ideas for what to add: [docs/CHALLENGE_FIT.md](docs/CHALLENGE_FIT.md).
-- **2026 timeline:** challenge summaries were released 17 Sep; full statements on 28 Oct; the challenge's Resources tab (NASA's datasets) only on 13 Nov. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
+- **2026 timeline:** challenge summaries were released 17 Sep; full statements on 28 Oct; the challenge's Resources tab (NASA's datasets) on 13 Nov, compared with ours that day in `docs/SUBMISSION_CHECKLIST.md`. The global hackathon is 14–15 Nov, but **Bangladesh runs 13–14 Nov**: the 240-second local-judging video is due 13 Nov 18:30, the 30-second global video 14 Nov 12:00 (BST), and the NASA project page must be submitted by the end of 14 Nov. Global judges see only the NASA project page.
 
 ## 3. Run it
 
@@ -62,7 +63,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | Mode | Class | Scene units | Data |
 |---|---|---|---|
-| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
+| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS and USGS SIM 3292 geology globes; HRSC + MOLA blended relief in the 12° patch around Jezero; NASA's 2015 human Exploration Zones as shader rings (`uEZ[EZ_N]`, `orbit.zones`, `app.toggleZones()`) |
 | `crater` | `TerrainView` id `crater` | **km** (89 × 101 km tile) | CTX 5 m image, 20 m DEM |
 | `site` | `TerrainView` id `site` | **km** (6 × 6 km tile) | HiRISE 25 cm image, 1 m DTM |
 
@@ -87,7 +88,10 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/ui/sound.js` | Web Audio synth (no audio files) |
 | `src/ui/recorder.js` | Tab capture → webm download |
 | `src/ui/Joystick.js` | Touch thumb-stick |
+| `src/lib/spaceweather.js` | Live CME forecasts for Mars from NASA DONKI (WSA-ENLIL runs, last 30 days). `fetchSpaceWeather()` tries `/api/space-weather` (skipped on localhost), then `api.nasa.gov` with `DEMO_KEY`; caches 30 min in sessionStorage; never throws. Result in `app.spaceWeather`, shown by `hud.spaceWeatherBlock()` and the orbit clock. Advisory only: it never changes the verdict |
+| `netlify/functions/space-weather.mjs` | Netlify Function at `/api/space-weather`. Uses `NASA_API_KEY` from Netlify's environment variables (else `DEMO_KEY`); CDN-cached 30 min |
 | `src/lib/marstime.js` | Mars24 clock, sun position, Earth–Mars light time |
+| `src/data/geology.js` | USGS SIM 3292 unit names, ages (pamphlet Table 1) and short descriptions; `describeUnit(sym)`. Colours and the unit grid come from `manifest.json` → `geology` (`assets.unitAt(lat, lon)`) |
 | `src/data/places.js` | Landing sites, POIs, the default plan `['lz','oeb','depot','seitah']`, and `MISSION_GOALS` (goal → plan + why). `app.resetPlan(goalId)` loads a goal; the autopilot always narrates `tour` and restores the user's goal when stopped |
 | `scripts/build_data.py` | NASA/USGS rasters → `public/data/` |
 | `scripts/smoke.cjs` | Playwright smoke test (see §6) |
@@ -117,7 +121,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | | |
 |---|---|
-| Orbit | drag spins · scroll zooms and locks onto Jezero · `1-3` layers · `G` grid · `Space` spin · `Enter` descend |
+| Orbit | drag spins · scroll zooms and locks onto Jezero · `1-4` layers (4 = geologic map) · `Z` NASA's human Exploration Zones · `G` grid · `Space` spin · `Enter` descend |
 | Crater / zone | drag orbits · right-drag or Shift pans · scroll zooms · `1-7` layers (7 = Perseverance traverse) · `Esc` goes up |
 | Zone | click drops a pin · `Space` runs the EVA sim · `F` helmet view |
 | Helmet (when switched on) | drag or right stick looks · `WASD` or left stick walks · `Shift` runs · click or tap walks there · `[` `]` time warp · `Esc` / `F` exits |
@@ -136,6 +140,8 @@ DEVICE="iPhone 14" NODE_PATH=$(npm root -g) node scripts/smoke.cjs
 - Chromium flags: `--use-angle=swiftshader --enable-unsafe-swiftshader`. SwiftShader is slow, so frames take hundreds of ms. Set `solAtlas.maxDt = 2.5` to speed transitions, and use `?q=low`.
 - For screenshots, inject `*{transition:none!important}`. CSS transitions barely advance under software rendering, so panels look half-faded otherwise.
 - Two-finger joystick or pinch tests use the CDP `Input.dispatchTouchEvent` with two touch points; Playwright's `tap` is one finger only.
+- `smoke.cjs` stubs NASA DONKI (`/api/space-weather` and `api.nasa.gov`) with an empty list. `DEMO_KEY` allows only 10 requests an hour per IP, so don't point repeated tests at the real API.
+- Node's `fetch` ignores the sandbox proxy: run Node scripts that call NASA with `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt`.
 - Headless Chrome can't capture a tab. REC was verified by stubbing `getDisplayMedia` with a canvas stream.
 
 ## 7. Deploy
@@ -151,6 +157,7 @@ Working and pushed:
 - EVA simulation with death and mayday light-time;
 - drop-a-pin routing;
 - helmet view (desktop, and phones with joysticks and landscape);
+- USGS geologic map layer, NASA's human Exploration Zones, live DONKI space weather (13 Nov);
 - synthesised sound, REC, autopilot;
 - collapsible panels, phone and tablet layouts.
 
@@ -159,10 +166,10 @@ Open (see PROJECT_LOG for the full list):
 - Open a PR into `main` and switch Netlify production to `main`.
 - Record the pitch video (REC + autopilot).
 - Roles for each team member (names are in README → Credits).
-- On 13 Nov, when the challenge's Resources tab goes live, compare our datasets with NASA's list (spaceappschallenge.org is blocked from the build machine, so a teammate opens it).
-- Phase 2 ideas: CRISM minerals, live MEDA weather, more sites, dust-storm alerts, offline mode.
+- Merge the 13 Nov branch (see §1); optionally set `NASA_API_KEY` in Netlify.
+- Phase 2 ideas: CRISM minerals (needs the PDS Geosciences Node; the USGS CRISM set has no usable Jezero scenes), live MEDA weather, more sites, solar-particle alerts, offline mode.
 
 Rejected ideas and why:
 - Images from a teammate's early prototype: AI-generated, some mislabelled as HiRISE.
-- A Gemini dependency: the demo must run offline with no API key.
+- A Gemini dependency: the demo must run offline with no API key. (The live DONKI space-weather check is the one network call; it is optional, needs no key in the browser, and says "not checked" offline.)
 - A CAPCOM voice from `speechSynthesis`: voice quality varies too much between devices for a judged video.
