@@ -441,7 +441,7 @@ class App {
     } else if (this.mode === 'site' && k === 'f' && this.fpv) { this.fpv.enter(); return; }
     if (k === 'escape' || k === 'backspace') { this.exitUp(); return; }
     if (this.mode === 'orbit') {
-      if (['1', '2', '3'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal'][+k - 1]);
+      if (['1', '2', '3', '4'].includes(k)) this.setOrbitLayer(['visible', 'topo', 'thermal', 'geology'][+k - 1]);
       if (k === 'g') { this.orbit.grid = this.orbit.grid > 0 ? 0 : 0.35; this.hud.renderOrbit(this.orbit); }
       if (k === ' ') { this.orbit.autoSpin = !this.orbit.autoSpin; this.hud.renderOrbit(this.orbit); }
       if (k === 'enter') this.descendToJezero();

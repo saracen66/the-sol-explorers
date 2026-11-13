@@ -2,6 +2,7 @@ import { marsTime, localTime, perseveranceSol, earthMarsLightTime, formatHM, sea
 import { fmtDist, fmtDur, fmtNum, fmtLat, fmtLon } from '../lib/geo.js';
 import { LANDING_SITES, MISSION_GOALS, SITE_POIS } from '../data/places.js';
 import { ORBIT_LAYERS } from '../orbit/OrbitView.js';
+import { describeUnit, JEZERO_UNITS } from '../data/geology.js';
 import { TERRAIN_LAYERS } from '../terrain/TerrainView.js';
 import { renderProfile } from './profile.js';
 import { evaDoseMSv, RAD_MSV_PER_DAY } from '../terrain/eva.js';
@@ -211,7 +212,7 @@ export class Hud {
           <span class="k">Centre</span><span class="v">18.40°N 77.60°E</span>
           <span class="k">Diameter</span><span class="v">≈ 45 km</span>
           <span class="k">Region</span><span class="v">Isidis Planitia rim</span>
-          <span class="k">Datasets</span><span class="v">7 layers · 6 missions</span>
+          <span class="k">Datasets</span><span class="v">8 layers · 6 missions</span>
         </div>
         <div class="btn-row"><button class="btn primary" id="btn-descend">▼ Descend to Jezero</button></div>
       </div>
@@ -253,7 +254,7 @@ export class Hud {
     $('tg-spin').onclick = () => { orbit.autoSpin = !orbit.autoSpin; this.renderOrbit(orbit); };
     this.orbitLegend(orbit.layer);
     this.orbitClock();
-    this.hints('<kbd>DRAG</kbd> rotate <kbd>SCROLL</kbd> zoom <kbd>1-3</kbd> layers <kbd>ENTER</kbd> descend <kbd>C</kbd> autopilot');
+    this.hints('<kbd>DRAG</kbd> rotate <kbd>SCROLL</kbd> zoom <kbd>1-4</kbd> layers <kbd>ENTER</kbd> descend <kbd>C</kbd> autopilot');
   }
 
   orbitClock() {
@@ -277,6 +278,14 @@ export class Hud {
     if (!L) return;
     if (layer === 'topo') L.innerHTML = legendRamp('Elevation (MOLA; HRSC near Jezero, m)', 'linear-gradient(90deg,#0d366b,#184f95,#2a78d6,#5598e7,#9ec5f4,#eef6ff)', ['−8,200', '0', '+21,200']);
     else if (layer === 'thermal') L.innerHTML = legendRamp('Night-time IR brightness (relative)', 'linear-gradient(90deg,#3a1a06,#7a3510,#c05a1c,#ec8a45,#f9c79a,#fff0e0)', ['cools fast · dust', 'stays warm · rock']);
+    else if (layer === 'geology') {
+      const units = Object.values(this.app.assets?.manifest?.geology?.units || {});
+      const rows = JEZERO_UNITS.map((sym) => {
+        const u = units.find((x) => x.sym === sym), d = describeUnit(sym);
+        return u ? `<div title="${d.text}"><i style="background:${u.rgb}"></i><b>${sym}</b> ${d.name.replace(/ unit$/, '')} · ${d.age}</div>` : '';
+      }).join('');
+      L.innerHTML = `<div class="legend"><div class="cap">Around Jezero. Jezero sits in <b>HNt</b>, on the rim of the Isidis impact basin: ground more than 3.2 billion years old. ${this.app.touch ? 'Tap' : 'Point at'} any spot to read its unit.</div><div class="geo-units">${rows}</div><div class="cap muted" style="margin-top:6px">USGS SIM 3292, Tanaka et al. 2014 (USGS-NASA Planetary Geologic Mapping Program), 1:20 million</div></div>`;
+    }
     else L.innerHTML = '<div class="legend"><div class="cap muted">Viking Orbiter mosaic, colour by NASA Ames. Seasonal frost shows at the poles.</div></div>';
   }
 
@@ -600,7 +609,8 @@ export class Hud {
         <tr><td>Visible colour</td><td>Viking Orbiter 1 & 2</td><td>MDIM 2.1 global mosaic, recoloured by NASA Ames (232 m)</td></tr>
         <tr><td>Topography / relief</td><td>Mars Global Surveyor · MOLA</td><td>MOLA 128/64 ppd merged DEM (463 m)</td></tr>
         <tr><td>Relief around Jezero and Isidis (zoomed in)</td><td>ESA Mars Express · HRSC, with MGS MOLA</td><td>HRSC and MOLA blended DEM v2, 200 m (USGS; HRSC data ESA/DLR/FU Berlin)</td></tr>
-        <tr><td>Night thermal IR</td><td>Mars Odyssey · THEMIS</td><td>USGS controlled night-IR mosaic v2 (100 m)</td></tr></table>
+        <tr><td>Night thermal IR</td><td>Mars Odyssey · THEMIS</td><td>USGS controlled night-IR mosaic v2 (100 m)</td></tr>
+        <tr><td>Geologic map, unit readout</td><td>USGS-NASA Planetary Geologic Mapping Program (mapped on MGS MOLA and Mars Odyssey THEMIS)</td><td>Geologic Map of Mars, USGS SIM 3292 (Tanaka et al. 2014), 1:20,000,000: official colours and coded unit raster</td></tr></table>
       <h3>JEZERO CRATER</h3>
       <table><tr><th>LAYER</th><th>MISSION / INSTRUMENT</th><th>PRODUCT</th></tr>
         <tr><td>Visible</td><td>MRO · CTX</td><td>Mars 2020 Science Investigation CTX orthomosaic, 5 m (JPL; Mangold et al. 2021)</td></tr>

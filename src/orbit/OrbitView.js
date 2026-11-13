@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { planetVert, planetFrag, atmoVert, atmoFrag, starVert, starFrag, skyVert, skyFrag } from './shaders.js';
 import { llToVec, vecToLL, lerpAngle, damp, ease, Tweens, R_MARS_KM, DEG, fmtLat, fmtLon, fmtNum } from '../lib/geo.js';
 import { LANDING_SITES } from '../data/places.js';
+import { describeUnit } from '../data/geology.js';
 
 const MIN_ALT = 0.115; // planet radii (~390 km)
 const _inv = new THREE.Matrix4();
@@ -14,6 +15,7 @@ export const ORBIT_LAYERS = [
   { id: 'visible', key: '1', name: 'Visible colour', src: 'Viking Orbiter · MDIM 2.1 (NASA Ames)' },
   { id: 'topo', key: '2', name: 'Topography', src: 'MGS · MOLA + ESA Mars Express · HRSC' },
   { id: 'thermal', key: '3', name: 'Night thermal IR', src: 'Mars Odyssey · THEMIS' },
+  { id: 'geology', key: '4', name: 'Geologic map', src: 'USGS SIM 3292 · Planetary Geologic Mapping' },
 ];
 
 export class OrbitView {
@@ -34,7 +36,7 @@ export class OrbitView {
     this.lastUser = -10;
     this.time = 0;
     this.layer = 'visible';
-    this.weights = { visible: 1, topo: 0, thermal: 0 };
+    this.weights = { visible: 1, topo: 0, thermal: 0, geology: 0 };
     this.grid = 0.35;
     this.autoSpin = true;
     this.locked = false;
@@ -71,12 +73,12 @@ export class OrbitView {
     // Mars
     const r = manifest.region, c = manifest.crater;
     this.uniforms = {
-      uColor: { value: tex.g_color }, uNormal: { value: tex.g_normal }, uTopo: { value: tex.g_topo }, uThermal: { value: tex.g_thermal },
+      uColor: { value: tex.g_color }, uNormal: { value: tex.g_normal }, uTopo: { value: tex.g_topo }, uThermal: { value: tex.g_thermal }, uGeo: { value: tex.g_geology },
       rColor: { value: tex.r_color }, rNormal: { value: tex.r_normal }, rTopo: { value: tex.r_topo }, rThermal: { value: tex.r_thermal },
       cDecal: { value: tex.c_decal },
       rB: { value: new THREE.Vector4(r.lon[0], r.lat[0], r.lon[1], r.lat[1]) },
       cB: { value: new THREE.Vector4(c.lon[0], c.lat[0], c.lon[1], c.lat[1]) },
-      wVis: { value: 1 }, wTopo: { value: 0 }, wTherm: { value: 0 },
+      wVis: { value: 1 }, wTopo: { value: 0 }, wTherm: { value: 0 }, wGeo: { value: 0 },
       uDecal: { value: 0 }, uCDecal: { value: 0 },
       uSunObj: { value: new THREE.Vector3() }, uSunWorld: { value: this.sunWorld },
       uGrid: { value: this.grid }, uTime: { value: 0 },
@@ -309,6 +311,7 @@ export class OrbitView {
     u.wVis.value = this.weights.visible;
     u.wTopo.value = this.weights.topo;
     u.wTherm.value = this.weights.thermal;
+    u.wGeo.value = this.weights.geology;
     u.uTime.value = this.time;
     u.uGrid.value = THREE.MathUtils.lerp(u.uGrid.value, this.grid * THREE.MathUtils.smoothstep(0.08, 0.6, this.alt), damp(dt, 4));
     u.uDecal.value = THREE.MathUtils.smoothstep(1.4, 0.45, this.alt);
@@ -366,6 +369,10 @@ export class OrbitView {
       out.push(['LAT', fmtLat(ll.lat)], ['LON', fmtLon(ll.lon)]);
       const e = this.app.assets.elevAt(ll.lat, ll.lon);
       if (e != null) out.push(['ELEV', `${fmtNum(e)} m`]);
+      if (this.layer === 'geology') {
+        const u = this.app.assets.unitAt(ll.lat, ll.lon);
+        if (u) out.push(['UNIT', `${u.sym} · ${describeUnit(u.sym).name.replace(/ unit$/, '')}`]);
+      }
     }
     return out;
   }

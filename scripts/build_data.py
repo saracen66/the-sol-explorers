@@ -545,7 +545,7 @@ def stage_lite(m):
     col = Image.open(os.path.join(OUT, "g_color_8k.jpg"))
     col.resize((4096, 2048), Image.LANCZOS).save(os.path.join(OUT, "g_color_4k.jpg"), quality=86, optimize=True, progressive=True)
     log("wrote g_color_4k.jpg")
-    for n in ["g_topo_4k.jpg", "g_thermal_4k.jpg", "r_color.jpg", "r_topo.jpg", "r_thermal.jpg",
+    for n in ["g_topo_4k.jpg", "g_thermal_4k.jpg", "g_geology_4k.jpg", "r_color.jpg", "r_topo.jpg", "r_thermal.jpg",
               "c_decal.jpg", "c_visible.jpg", "s_visible.jpg"]:
         half(n)
     for n in ["g_normal_4k.jpg", "r_normal.jpg", "c_normal.jpg", "s_normal.jpg"]:
@@ -604,12 +604,89 @@ def stage_photos(m):
         log("wrote photos/" + poi + ".jpg", img.size, f"{os.path.getsize(dst) / 1e3:.0f} kB")
 
 
+GEOLOGY = "pigpen/mars/geology/"
+GEO_RASTER_ZIP = GEOLOGY + "SIM3292_newGlobalGeology2014/SIM3292_MarsGlobalGeologicGIS_20M_raster.zip"
+GEO_COLOUR_ZIP = GEOLOGY + "SIM3292_forJMars/sim3292_MarsGeologicMap_JMars_64ppd.zip"
+
+
+def fetch_zip(key):
+    """Download a zip from the USGS bucket once into .cache/ and return a ZipFile."""
+    import zipfile
+    os.makedirs(CACHE, exist_ok=True)
+    path = os.path.join(CACHE, os.path.basename(key))
+    if not os.path.exists(path):
+        log("downloading", key)
+        urllib.request.urlretrieve(S3 + key, path + ".part")
+        os.replace(path + ".part", path)
+    return zipfile.ZipFile(path)
+
+
+def stage_geology(m):
+    """USGS SIM 3292, Geologic Map of Mars (Tanaka et al. 2014), from the USGS-NASA Planetary
+    Geologic Mapping Program. The official colour map (64 ppd, made by USGS for JMARS) becomes the
+    globe texture; the coded unit raster (32 ppd) becomes a lookup grid for the cursor readout.
+    Unit names, ages and descriptions are in src/data/geology.js."""
+    import io
+    Image.MAX_IMAGE_PIXELS = None
+    log("GEOLOGY SIM 3292 colour map")
+    z = fetch_zip(GEO_COLOUR_ZIP)
+    col = Image.open(io.BytesIO(z.read("JMars_64ppd/Mars_Sim3292_GlobalGeology_dd0_64ppd_forJmars.png"))).convert("RGB")
+    assert col.size == (23040, 11520)  # -180..180 E, 90..-90 N (see the .pgw)
+    col4k = col.resize((4096, 2048), Image.LANCZOS)
+    save_rgb(np.asarray(col4k) / 255.0, "g_geology_4k.jpg", 88)
+
+    log("GEOLOGY SIM 3292 coded unit raster")
+    z = fetch_zip(GEO_RASTER_ZIP)
+    d = "SIM3292_MarsGlobalGeologicGIS_20M_raster/"
+    with rasterio.open(io.BytesIO(z.read(d + "SIM3292_geo_packbits_32ppd_EquidistCyl0.tif"))) as src:
+        dn = src.read(1)  # 11520 x 5760, 255 = no data
+    lut = {}
+    for line in z.read(d + "lut_tables/SIM3292_dn_unitSymbol.csv").decode().split()[1:]:
+        k, sym = line.split(",")
+        lut[int(k)] = sym.strip()
+    # each unit's colour on the official map (modal colour; >98 % of a unit's pixels share it)
+    c32 = np.asarray(col)[1::2, 1::2]
+    units = {}
+    for k, sym in lut.items():
+        px = c32[dn == k]
+        v, n = np.unique(px, axis=0, return_counts=True)
+        units[k] = dict(sym=sym, rgb="#%02x%02x%02x" % tuple(int(x) for x in v[n.argmax()]))
+    grid = dn[2::4, 2::4]  # 8 px per degree, nearest sample
+    Image.fromarray(grid.astype(np.uint8), "L").save(os.path.join(OUT, "g_geo_units.png"), optimize=True)
+    log("wrote g_geo_units.png", grid.shape[::-1], f"{os.path.getsize(os.path.join(OUT, 'g_geo_units.png')) / 1e3:.0f} kB")
+    m["geology"] = dict(file="g_geo_units.png", width=int(grid.shape[1]), height=int(grid.shape[0]), nodata=255,
+                        source="USGS SIM 3292 (Tanaka et al. 2014), 1:20,000,000",
+                        units={str(k): v for k, v in sorted(units.items())})
+
+
+EZ_ZIP = "pigpen/mars/Human_EZs/Human_ExplorationZones_Proposed_Oct2015.zip"
+
+
+def stage_zones(m):
+    """Exploration Zones proposed at NASA's First Landing Site / Exploration Zone Workshop for Human
+    Missions to the Surface of Mars (Oct 2015), as compiled by USGS (centre points from JMARS).
+    Each zone is a 100 km radius region. Needs pyshp (pip install pyshp)."""
+    import io
+    import shapefile
+    log("HUMAN EXPLORATION ZONES")
+    z = fetch_zip(EZ_ZIP)
+    base = "ExplorationZones_Proposed_Oct2015_clon0"
+    r = shapefile.Reader(shp=io.BytesIO(z.read(base + ".shp")), dbf=io.BytesIO(z.read(base + ".dbf")))
+    zones = []
+    for rec in r.records():
+        if not rec["showlbl"]:
+            continue  # alternate centres for the same zone ("Gale Crater 2", ...)
+        zones.append([rec["Label"].strip(), round(rec["Latitude"], 2), round(((rec["Longitude"] + 180) % 360) - 180, 2)])
+    m["zones"] = dict(radiusKm=100, source="NASA Human Landing Sites Workshop, Oct 2015 (USGS compilation)", list=zones)
+    log("zones:", len(zones))
+
+
 STAGES = dict(global_=stage_global, region=stage_region, crater=stage_crater, site=stage_site, lite=stage_lite,
-              traverse=stage_traverse, photos=stage_photos)
+              traverse=stage_traverse, photos=stage_photos, geology=stage_geology, zones=stage_zones)
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    want = sys.argv[1:] or ["global", "region", "crater", "site", "lite", "traverse", "photos"]
+    want = sys.argv[1:] or ["global", "region", "crater", "site", "geology", "lite", "traverse", "photos", "zones"]
     man = read_manifest()
     man.update(localCrs=dict(latTs=LAT_TS, R=R_MARS, kx=KX, ky=KY))
     for s in want:

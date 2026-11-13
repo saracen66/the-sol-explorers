@@ -43,7 +43,7 @@ Sol Atlas has three levels. You move between them by scrolling, like zooming fro
 
 ### 1. Orbit
 
-A rotating Mars with real Viking colour, MOLA relief, a thin dusty atmosphere, Phobos and Deimos. Ten landing sites are marked. Scroll in and the camera locks onto Jezero; scroll again, or click, to descend. A live mission clock shows the Perseverance sol, local time at Jezero, the Martian season and the current Earth–Mars signal delay.
+A rotating Mars with real Viking colour, MOLA relief, a thin dusty atmosphere, Phobos and Deimos. Ten landing sites are marked. Layer `4` lays the **USGS Geologic Map of Mars** (SIM 3292, from the USGS-NASA Planetary Geologic Mapping Program) over the globe; point at any spot to read its rock unit and age. Jezero sits in unit HNt on the rim of the Isidis impact basin, ground more than 3.2 billion years old. Scroll in and the camera locks onto Jezero; scroll again, or click, to descend. A live mission clock shows the Perseverance sol, local time at Jezero, the Martian season and the current Earth–Mars signal delay.
 
 ### 2. Jezero Crater
 
@@ -124,6 +124,7 @@ Every layer is real mission data. Nothing is hand-painted. The exact files, with
 | Orbit | Visible colour | Viking Orbiters | MDIM 2.1 global mosaic, NASA Ames colour (232 m/px) |
 | Orbit | Topography, relief | Mars Global Surveyor · MOLA | MOLA 128/64 ppd merged DEM (463 m/px) |
 | Orbit | Night thermal IR | Mars Odyssey · THEMIS | USGS controlled night-IR mosaic (100 m/px) |
+| Orbit | Geologic map, rock unit and age under the cursor | USGS-NASA Planetary Geologic Mapping Program (mapped on MOLA and THEMIS) | Geologic Map of Mars, USGS SIM 3292 (Tanaka et al. 2014), 1:20 million |
 | Orbit, zoomed in on Jezero and Isidis | Relief, elevation colours | **ESA Mars Express · HRSC**, with MGS MOLA | HRSC and MOLA blended DEM v2, 200 m/px (USGS; HRSC data ESA/DLR/FU Berlin) |
 | Crater | Visible | MRO · CTX | Mars 2020 Science Investigation CTX orthomosaic, 5 m/px (JPL) |
 | Crater | Elevation, slope, contours | MRO · CTX stereo | Mars 2020 Science Investigation CTX DEM, 20 m/px (JPL) |
@@ -193,7 +194,7 @@ The default plan (LZ-A → Octavia E. Butler Landing → Three Forks → Séíta
 | Right-drag or Shift-drag | | pan |
 | Scroll | zoom; locks onto Jezero when close | zoom toward the cursor. Keep scrolling out to go up a level |
 | Click | Jezero, or the lock-on, to descend | the Marswalk zone to enter it. In the zone, click anywhere to **drop a pin** (ROUTE HERE / ADD STOP / STAND HERE), or click a named place to add it as a stop |
-| Keys | `1`–`3` layers · `G` grid · `Space` rotation · `Enter` descend | `1`–`7` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation · `F` helmet view |
+| Keys | `1`–`4` layers · `G` grid · `Space` rotation · `Enter` descend | `1`–`7` layers · `WASD` pan · `Enter` enter zone · `Esc` go up · `Space` run the EVA simulation · `F` helmet view |
 | Anywhere | `C` autopilot · `H` hide HUD · `K` captions on/off · `M` sound · `R` record | |
 | Touch | drag to spin · pinch to zoom · tap Jezero to descend | drag to orbit · pinch to zoom · two-finger drag to pan · tap to select |
 
@@ -228,7 +229,7 @@ On every level:
 
 Press **`C`** (or **▶ AUTOPILOT**) for a scripted fly-through of about two minutes, with captions. It follows the WHAT and SO WHAT sections of our pitch script:
 
-1. Orbit, then the MOLA and THEMIS layers.
+1. Orbit, then the MOLA, THEMIS and geologic-map layers.
 2. Lock onto Jezero and descend.
 3. Crater: elevation and contours, ground firmness, slope hazard.
 4. Marswalk zone: the safest route.

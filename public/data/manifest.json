@@ -91,5 +91,190 @@
   "lite": {
     "dir": "lite",
     "note": "half-resolution textures for phones and weak GPUs"
+  },
+  "geology": {
+    "file": "g_geo_units.png",
+    "width": 2880,
+    "height": 1440,
+    "nodata": 255,
+    "source": "USGS SIM 3292 (Tanaka et al. 2014), 1:20,000,000",
+    "units": {
+      "1": {
+        "sym": "Aa",
+        "rgb": "#ffd900"
+      },
+      "2": {
+        "sym": "AHi",
+        "rgb": "#ffff00"
+      },
+      "3": {
+        "sym": "AHtu",
+        "rgb": "#faead6"
+      },
+      "4": {
+        "sym": "AHv",
+        "rgb": "#cd4e37"
+      },
+      "5": {
+        "sym": "ANa",
+        "rgb": "#ccad00"
+      },
+      "6": {
+        "sym": "Ap",
+        "rgb": "#00e8f0"
+      },
+      "7": {
+        "sym": "Apu",
+        "rgb": "#0000cc"
+      },
+      "8": {
+        "sym": "Av",
+        "rgb": "#ff6347"
+      },
+      "9": {
+        "sym": "Ave",
+        "rgb": "#cc3600"
+      },
+      "10": {
+        "sym": "eAb",
+        "rgb": "#99ffff"
+      },
+      "11": {
+        "sym": "eHb",
+        "rgb": "#9dcd9d"
+      },
+      "12": {
+        "sym": "eHh",
+        "rgb": "#efd5b8"
+      },
+      "13": {
+        "sym": "eHt",
+        "rgb": "#cf980c"
+      },
+      "14": {
+        "sym": "eHv",
+        "rgb": "#8a668a"
+      },
+      "15": {
+        "sym": "eNh",
+        "rgb": "#8b4513"
+      },
+      "16": {
+        "sym": "eNhm",
+        "rgb": "#848b8b"
+      },
+      "17": {
+        "sym": "HNb",
+        "rgb": "#698c69"
+      },
+      "18": {
+        "sym": "HNhu",
+        "rgb": "#b2b2b2"
+      },
+      "19": {
+        "sym": "HNt",
+        "rgb": "#cdbd70"
+      },
+      "20": {
+        "sym": "Hp",
+        "rgb": "#00858a"
+      },
+      "21": {
+        "sym": "Hpe",
+        "rgb": "#6ba5cc"
+      },
+      "22": {
+        "sym": "Hpu",
+        "rgb": "#9ab2e6"
+      },
+      "23": {
+        "sym": "Ht",
+        "rgb": "#ffeb8a"
+      },
+      "24": {
+        "sym": "Hto",
+        "rgb": "#bdffff"
+      },
+      "25": {
+        "sym": "Htu",
+        "rgb": "#cccccc"
+      },
+      "26": {
+        "sym": "Hve",
+        "rgb": "#ff0000"
+      },
+      "27": {
+        "sym": "lAa",
+        "rgb": "#8a7500"
+      },
+      "28": {
+        "sym": "lApc",
+        "rgb": "#f5f5f5"
+      },
+      "29": {
+        "sym": "lApd",
+        "rgb": "#ffe3b3"
+      },
+      "30": {
+        "sym": "lAv",
+        "rgb": "#ffb8c1"
+      },
+      "31": {
+        "sym": "lAvf",
+        "rgb": "#b39999"
+      },
+      "32": {
+        "sym": "lHb",
+        "rgb": "#518a8a"
+      },
+      "33": {
+        "sym": "lHl",
+        "rgb": "#228c22"
+      },
+      "34": {
+        "sym": "lHt",
+        "rgb": "#ffc124"
+      },
+      "35": {
+        "sym": "lHv",
+        "rgb": "#cd6aca"
+      },
+      "36": {
+        "sym": "lHvf",
+        "rgb": "#ccb3b3"
+      },
+      "37": {
+        "sym": "lNh",
+        "rgb": "#cdab7e"
+      },
+      "38": {
+        "sym": "lNv",
+        "rgb": "#531a89"
+      },
+      "39": {
+        "sym": "mAl",
+        "rgb": "#6a8c22"
+      },
+      "40": {
+        "sym": "mNh",
+        "rgb": "#8b7355"
+      },
+      "41": {
+        "sym": "mNhm",
+        "rgb": "#c1cdcd"
+      },
+      "42": {
+        "sym": "Nhe",
+        "rgb": "#730000"
+      },
+      "43": {
+        "sym": "Nhu",
+        "rgb": "#686868"
+      },
+      "44": {
+        "sym": "Nve",
+        "rgb": "#cc0000"
+      }
+    }
   }
 }

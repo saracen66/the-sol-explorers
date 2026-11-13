@@ -14,12 +14,12 @@ void main() {
 
 export const planetFrag = /* glsl */ `
 precision highp float;
-uniform sampler2D uColor, uNormal, uTopo, uThermal;
+uniform sampler2D uColor, uNormal, uTopo, uThermal, uGeo;
 uniform sampler2D rColor, rNormal, rTopo, rThermal;
 uniform sampler2D cDecal;
 uniform vec4 rB;      // region bounds: lon0 lat0 lon1 lat1
 uniform vec4 cB;      // crater bounds
-uniform float wVis, wTopo, wTherm;
+uniform float wVis, wTopo, wTherm, wGeo;
 uniform float uDecal, uCDecal;
 uniform vec3 uSunObj, uSunWorld;
 uniform float uGrid, uTime;
@@ -43,6 +43,7 @@ void main() {
   vec3 cVis = texture2D(uColor, vUv).rgb;
   vec3 cTopo = texture2D(uTopo, vUv).rgb;
   vec3 cTh = texture2D(uThermal, vUv).rgb;
+  vec3 cGeo = texture2D(uGeo, vUv).rgb;
   vec3 nt = texture2D(uNormal, vUv).xyz * 2.0 - 1.0;
 
   vec2 ru = vec2((lon - rB.x) / (rB.z - rB.x), (lat - rB.y) / (rB.w - rB.y));
@@ -62,7 +63,7 @@ void main() {
 
   // warm the Viking colour a touch toward what rovers see
   vec3 vis = pow(cVis, vec3(1.05)) * vec3(1.10, 0.97, 0.86);
-  vec3 albedo = vis * wVis + cTopo * wTopo + cTh * wTherm;
+  vec3 albedo = vis * wVis + cTopo * wTopo + cTh * wTherm + cGeo * wGeo;
 
   float lr = radians(lon);
   vec3 N = normalize(vObjN);
@@ -73,7 +74,7 @@ void main() {
   float mu = dot(N, uSunObj);
   float day = smoothstep(-0.12, 0.22, mu);
   float diff = max(ndl, 0.0) * day;
-  float scan = clamp(wTopo + wTherm, 0.0, 1.0);
+  float scan = clamp(wTopo + wTherm + wGeo, 0.0, 1.0);
   float lit = diff * 1.3 + 0.012;
   float instrument = 0.42 + 0.7 * max(dot(n, normalize(N + uSunObj * 0.6)), 0.0);
   vec3 col = albedo * mix(lit, instrument, scan * 0.85);

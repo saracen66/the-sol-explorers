@@ -32,6 +32,10 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
   https://mars.nasa.gov/mars2020/multimedia/raw-images/
 - Mars 2020 Three Forks Depot bundle (NASA PDS Geosciences Node): rover latitude, longitude and elevation at each of the 10 sample-tube drops, and the sample IDs. Three Forks stop position, and the elevation check (−2,545 m).
   https://pds-geosciences.wustl.edu/m2020/urn-nasa-pds-mars2020_sample_depot_three_forks/
+- USGS-NASA Planetary Geologic Mapping Program: Geologic Map of Mars, USGS Scientific Investigations Map 3292 (Tanaka et al. 2014), 1:20,000,000, mapped on MGS MOLA and Mars Odyssey THEMIS data. The globe's "Geologic map" layer (the map's own colours) and the rock unit and age shown under the cursor.
+  https://asc-pds-services.s3.us-west-2.amazonaws.com/pigpen/mars/geology/SIM3292_newGlobalGeology2014/SIM3292_MarsGlobalGeologicGIS_20M_raster.zip
+  https://asc-pds-services.s3.us-west-2.amazonaws.com/pigpen/mars/geology/SIM3292_forJMars/sim3292_MarsGeologicMap_JMars_64ppd.zip
+  https://doi.org/10.3133/sim3292
 - NASA GISS Mars24 sunclock algorithm (Allison & McEwen 2000): Mars time, sols, local solar time, Sun position.
   https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
 - NASA JPL Solar System Dynamics, "Approximate Positions of the Planets" (Standish): Earth–Mars distance and signal delay.
@@ -60,6 +64,7 @@ All NASA map files were read directly from the USGS Astrogeology Science Center'
 | Globe colour | Viking MDIM 2.1 (NASA Ames colour) | Resampled to 2k / 4k / 8k by device |
 | Regional relief around Jezero and Isidis | ESA Mars Express HRSC + MGS MOLA blended DEM, 200 m (USGS) | 12° × 12° window read at full resolution, averaged to 2048², normal map and elevation ramp |
 | Globe relief, elevation colours | MGS MOLA 128/64 ppd DEM | Normal map (relief ×18), blue elevation ramp, 1024 × 512 elevation grid for readouts |
+| Globe geologic map, unit readout | USGS SIM 3292 Geologic Map of Mars (USGS-NASA Planetary Geologic Mapping Program) | `geology` stage: official 64 ppd colour map → 4096 × 2048; coded 32 ppd unit raster → 2880 × 1440 lookup grid (`g_geo_units.png`); each unit's colour and symbol in `manifest.json`. Names and ages from the map's legend and pamphlet Table 1 (`src/data/geology.js`) |
 | Night thermal / ground firmness | Mars Odyssey THEMIS night IR 100 m | Clipped to ±54° (streaky edges), gentle contrast curve, orange ramp |
 | Crater imagery | MRO CTX 5 m orthomosaic (JPL) | 4096 × 4658 px (~22 m/px), tinted with the Viking colour of the same ground |
 | Crater terrain, slope, contours | MRO CTX 20 m DEM (JPL) | 1024 × 1164 height grid; slope from the full 20 m DEM |

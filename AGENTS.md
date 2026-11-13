@@ -62,7 +62,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | Mode | Class | Scene units | Data |
 |---|---|---|---|
-| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
+| `orbit` | `OrbitView` (`src/orbit/`) | planet radius = 1 | Viking colour, MOLA, THEMIS and USGS SIM 3292 geology globes; HRSC + MOLA blended relief in the 12° patch around Jezero |
 | `crater` | `TerrainView` id `crater` | **km** (89 × 101 km tile) | CTX 5 m image, 20 m DEM |
 | `site` | `TerrainView` id `site` | **km** (6 × 6 km tile) | HiRISE 25 cm image, 1 m DTM |
 
@@ -88,6 +88,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 | `src/ui/recorder.js` | Tab capture → webm download |
 | `src/ui/Joystick.js` | Touch thumb-stick |
 | `src/lib/marstime.js` | Mars24 clock, sun position, Earth–Mars light time |
+| `src/data/geology.js` | USGS SIM 3292 unit names, ages (pamphlet Table 1) and short descriptions; `describeUnit(sym)`. Colours and the unit grid come from `manifest.json` → `geology` (`assets.unitAt(lat, lon)`) |
 | `src/data/places.js` | Landing sites, POIs, the default plan `['lz','oeb','depot','seitah']`, and `MISSION_GOALS` (goal → plan + why). `app.resetPlan(goalId)` loads a goal; the autopilot always narrates `tour` and restores the user's goal when stopped |
 | `scripts/build_data.py` | NASA/USGS rasters → `public/data/` |
 | `scripts/smoke.cjs` | Playwright smoke test (see §6) |
@@ -117,7 +118,7 @@ Three **views**, each its own three.js scene, with a crossfade between them:
 
 | | |
 |---|---|
-| Orbit | drag spins · scroll zooms and locks onto Jezero · `1-3` layers · `G` grid · `Space` spin · `Enter` descend |
+| Orbit | drag spins · scroll zooms and locks onto Jezero · `1-4` layers (4 = geologic map) · `G` grid · `Space` spin · `Enter` descend |
 | Crater / zone | drag orbits · right-drag or Shift pans · scroll zooms · `1-7` layers (7 = Perseverance traverse) · `Esc` goes up |
 | Zone | click drops a pin · `Space` runs the EVA sim · `F` helmet view |
 | Helmet (when switched on) | drag or right stick looks · `WASD` or left stick walks · `Shift` runs · click or tap walks there · `[` `]` time warp · `Esc` / `F` exits |

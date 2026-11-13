@@ -130,6 +130,9 @@ export class Director {
     a.setOrbitLayer('thermal');
     this.cap('LAYER · MARS ODYSSEY THEMIS', 'Night infrared: rock stays warm, dust cools fast', 3200);
     await this.wait(3.4);
+    a.setOrbitLayer('geology');
+    this.cap('LAYER · USGS GEOLOGIC MAP OF MARS', 'Rock units and their ages: Jezero\u2019s ground is over 3.2 billion years old', 3200);
+    await this.wait(3.4);
     a.setOrbitLayer('visible');
     await this.wait(1.0);
 
